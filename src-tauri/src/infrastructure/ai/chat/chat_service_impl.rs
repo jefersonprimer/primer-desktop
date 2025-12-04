@@ -40,13 +40,15 @@ impl ChatServiceImpl {
     }
 }
 
+
+
 #[async_trait]
 impl ChatService for ChatServiceImpl {
     async fn send_message_to_ai(&self, request: ChatServiceRequest) -> Result<Message> {
         // 1. Get user's API key
         let user_api_keys = self.user_api_key_repo.find_by_user_id(request.user_id).await?;
-        let provider_type = AIProviderType::from_str(&request.provider_name)
-            .ok_or_else(|| anyhow!("Unsupported AI provider: {}", request.provider_name))?;
+        let provider_type = request.provider_name.parse::<AIProviderType>() // Changed from AIProviderType::from_str
+            .map_err(|e| anyhow!("Unsupported AI provider: {}", e))?; // Handle error from parse
 
         let api_key_entry = user_api_keys.iter()
             .find(|key| key.provider == provider_type.to_string_key())
@@ -92,12 +94,12 @@ impl ChatService for ChatServiceImpl {
         };
 
         // 5. Extract AI response content
-        let ai_response_message_content = ai_response.choices.get(0)
-            .and_then(|choice| Some(choice.message.content.clone()))
+        let ai_response_message_content = ai_response.choices.first() // Changed .get(0) to .first()
+            .map(|choice| choice.message.content.clone()) // Changed .and_then to .map
             .ok_or_else(|| anyhow!("No response from AI"))?;
         
-        let ai_response_message_role = ai_response.choices.get(0)
-            .and_then(|choice| Some(choice.message.role.clone()))
+        let ai_response_message_role = ai_response.choices.first() // Changed .get(0) to .first()
+            .map(|choice| choice.message.role.clone()) // Changed .and_then to .map
             .unwrap_or_else(|| "assistant".to_string()); // Default to "assistant"
 
         // 6. Save AI response to message repository

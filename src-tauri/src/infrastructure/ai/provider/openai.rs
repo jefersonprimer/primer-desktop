@@ -54,6 +54,12 @@ impl OpenAIProvider {
     }
 }
 
+impl Default for OpenAIProvider {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[async_trait]
 impl AiProvider for OpenAIProvider {
     async fn chat_completion(&self, api_key: &str, request: ChatCompletionRequest) -> Result<ChatCompletionResponse> {

@@ -3,6 +3,8 @@ use anyhow::Result;
 use uuid::Uuid;
 use crate::domain::ai::chat::entity::message::Message;
 
+use std::str::FromStr; // Add this import
+
 // Enum to represent available AI providers
 pub enum AIProviderType {
     Gemini,
@@ -10,15 +12,20 @@ pub enum AIProviderType {
     Claude,
 }
 
-impl AIProviderType {
-    pub fn from_str(s: &str) -> Option<Self> {
+impl FromStr for AIProviderType {
+    type Err = anyhow::Error; // Or a more specific error type if preferred
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "gemini" => Some(AIProviderType::Gemini),
-            "openai" => Some(AIProviderType::OpenAI),
-            "claude_code" | "claude" => Some(AIProviderType::Claude),
-            _ => None,
+            "gemini" => Ok(AIProviderType::Gemini),
+            "openai" => Ok(AIProviderType::OpenAI),
+            "claude_code" | "claude" => Ok(AIProviderType::Claude),
+            _ => Err(anyhow::anyhow!("Unknown AI provider type: {}", s)), // Use anyhow for error
         }
     }
+}
+
+impl AIProviderType {
     pub fn to_string_key(&self) -> String {
         match self {
             AIProviderType::Gemini => "gemini".to_string(),

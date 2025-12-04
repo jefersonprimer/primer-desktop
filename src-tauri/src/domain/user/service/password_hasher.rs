@@ -20,6 +20,12 @@ impl Argon2PasswordHasher {
     }
 }
 
+impl Default for Argon2PasswordHasher {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PasswordHasher for Argon2PasswordHasher {
     fn hash(&self, password: &str) -> Result<String> {
         let salt = SaltString::generate(&mut OsRng);

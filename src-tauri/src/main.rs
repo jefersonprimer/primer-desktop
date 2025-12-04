@@ -6,6 +6,13 @@ use app_lib::{
     config::Config,
 };
 
+
+#[tauri::command]
+async fn close_app(app_handle: tauri::AppHandle) -> Result<(), String> {
+    app_handle.exit(0);
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() {
     let config = Config::from_env();
@@ -36,6 +43,7 @@ async fn main() {
             // email commands
             email_commands::send_email,
             email_commands::send_chat_summary,
+            close_app,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

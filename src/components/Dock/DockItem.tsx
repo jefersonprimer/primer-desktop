@@ -1,4 +1,5 @@
 import * as Icons from "lucide-react";
+import type { ElementType } from "react";
 
 interface DockItemProps {
   label: string;
@@ -8,7 +9,7 @@ interface DockItemProps {
 }
 
 export default function DockItem({ label, icon, onClick, active }: DockItemProps) {
-  const Icon = Icons[icon] as any;
+  const Icon = Icons[icon] as ElementType;
 
   return (
     <button

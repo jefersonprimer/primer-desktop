@@ -54,6 +54,12 @@ impl ClaudeProvider {
     }
 }
 
+impl Default for ClaudeProvider {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[async_trait]
 impl AiProvider for ClaudeProvider {
     async fn chat_completion(&self, api_key: &str, request: ChatCompletionRequest) -> Result<ChatCompletionResponse> {

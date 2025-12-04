@@ -13,6 +13,7 @@ use crate::domain::ai::chat::{
         SyncMessagesDto, SyncMessagesResponse,
         BackupChatDto, BackupChatResponse,
     },
+    service::chat_service::ChatServiceRequest, // Added this line
 };
 use crate::app_state::AppState;
 use uuid::Uuid;
@@ -43,15 +44,17 @@ pub async fn send_message(dto: SendMessageDto, state: State<'_, AppState>) -> Re
     let chat_id = Uuid::parse_str(&dto.chat_id)
         .map_err(|e| format!("Invalid chat_id format: {}", e))?;
 
-    send_message_usecase.execute(
+    let request = ChatServiceRequest {
         user_id,
         chat_id,
-        dto.provider_name,
-        dto.content,
-        dto.model,
-        dto.temperature,
-        dto.max_tokens,
-    )
+        provider_name: dto.provider_name,
+        prompt: dto.content,
+        model: dto.model,
+        temperature: dto.temperature,
+        max_tokens: dto.max_tokens,
+    };
+
+    send_message_usecase.execute(request)
     .await
     .map(|message| SendMessageResponse {
         message: MessageDto {
