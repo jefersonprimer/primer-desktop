@@ -1,15 +1,13 @@
-import * as Icons from "lucide-react";
 import type { ElementType } from "react";
 
 interface DockItemProps {
   label: string;
-  icon: keyof typeof Icons;
+  icon: ElementType;
   onClick: () => void;
   active?: boolean; // <- para indicar que o modal está aberto
 }
 
-export default function DockItem({ label, icon, onClick, active }: DockItemProps) {
-  const Icon = Icons[icon] as ElementType;
+export default function DockItem({ label, icon: Icon, onClick, active }: DockItemProps) {
 
   return (
     <button

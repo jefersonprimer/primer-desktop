@@ -40,7 +40,7 @@ export default function TopDock({ onClose, onSubmit }: TopDockProps) {
     <div
       className={`
         fixed top-0 left-0 w-full h-40 
-        bg-black/40 backdrop-blur-xl border-b border-white/10
+        bg-transparent backdrop-blur-xl 
         transition-all duration-300 z-[99999]
         flex flex-col items-center justify-start pt-4
         ${shown ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-5"}
