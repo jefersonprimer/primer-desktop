@@ -1,6 +1,7 @@
 use async_trait::async_trait;
-use sqlx::{SqlitePool};
+use sqlx::{SqlitePool, Row};
 use anyhow::{Result, anyhow};
+use uuid::Uuid;
 use crate::domain::user::{
     entity::session::Session,
     repository::session_repository::SessionRepository,
@@ -38,13 +39,24 @@ impl SessionRepository for SqliteSessionRepository {
     }
 
     async fn get(&self) -> Result<Option<Session>> {
-        let record = sqlx::query_as::<_, Session>(
+        let record = sqlx::query(
             r#"
             SELECT id, user_id, access_token, refresh_token, expires_at
             FROM session
             WHERE id = 1
             "#
         )
+        .try_map(|row: sqlx::sqlite::SqliteRow| {
+            let user_id_str: String = row.get("user_id");
+            
+            Ok(Session {
+                id: row.get("id"),
+                user_id: Uuid::parse_str(&user_id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
+                access_token: row.get("access_token"),
+                refresh_token: row.get("refresh_token"),
+                expires_at: row.get("expires_at"),
+            })
+        })
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| anyhow!("Failed to get session: {}", e))?;

@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use sqlx::SqlitePool;
 use anyhow::Result;
+use sqlx::Row;
 use uuid::Uuid;
 use crate::domain::ai::chat::entity::chat::Chat;
 use crate::domain::ai::chat::repository::chat_repository::ChatRepository;
@@ -36,7 +37,7 @@ impl ChatRepository for SqliteChatRepository {
     }
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Chat>> {
-        let record = sqlx::query_as::<_, Chat>(
+        let record = sqlx::query(
             r#"
             SELECT id, user_id, title, created_at, updated_at
             FROM chats
@@ -44,6 +45,18 @@ impl ChatRepository for SqliteChatRepository {
             "#
         )
         .bind(id.to_string())
+        .try_map(|row: sqlx::sqlite::SqliteRow| {
+            let id_str: String = row.get("id");
+            let user_id_str: String = row.get("user_id");
+
+            Ok(Chat {
+                id: Uuid::parse_str(&id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
+                user_id: Uuid::parse_str(&user_id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
+                title: row.get("title"),
+                created_at: row.get("created_at"),
+                updated_at: row.get("updated_at"),
+            })
+        })
         .fetch_optional(&self.pool)
         .await?;
 
@@ -51,7 +64,7 @@ impl ChatRepository for SqliteChatRepository {
     }
 
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Chat>> {
-        let records = sqlx::query_as::<_, Chat>(
+        let records = sqlx::query(
             r#"
             SELECT id, user_id, title, created_at, updated_at
             FROM chats
@@ -60,6 +73,18 @@ impl ChatRepository for SqliteChatRepository {
             "#
         )
         .bind(user_id.to_string())
+        .try_map(|row: sqlx::sqlite::SqliteRow| {
+            let id_str: String = row.get("id");
+            let user_id_str: String = row.get("user_id");
+
+            Ok(Chat {
+                id: Uuid::parse_str(&id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
+                user_id: Uuid::parse_str(&user_id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
+                title: row.get("title"),
+                created_at: row.get("created_at"),
+                updated_at: row.get("updated_at"),
+            })
+        })
         .fetch_all(&self.pool)
         .await?;
 

@@ -96,7 +96,7 @@ pub async fn get_api_keys(dto: GetApiKeysDto, state: State<'_, AppState>) -> Res
                 id: key.id.to_string(),
                 user_id: key.user_id.to_string(),
                 provider: key.provider,
-                api_key_hashed: "********".to_string(), // Mask the API key
+                api_key: key.api_key,
                 created_at: key.created_at.to_rfc3339(),
             }).collect();
             GetApiKeysResponse { api_keys: api_key_dtos }

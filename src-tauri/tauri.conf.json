@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "PrimerApp",
         "width": 400,
         "height": 600,
@@ -20,7 +21,18 @@
         "decorations": false,
         "transparent": true,
         "alwaysOnTop": true,
-        "visible": true
+        "visible": false
+      },
+      {
+        "label": "splashscreen",
+        "title": "Splashscreen",
+        "url": "splashscreen.html",
+        "width": 400,
+        "height": 600,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "center": true
       }
     ],
     "security": {

@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import Draggable from "react-draggable";
-import { LayoutGrid, Settings, History, CornerDownLeft, GripHorizontal } from "lucide-react";
+import { Settings, History, CornerDownLeft, GripHorizontal } from "lucide-react";
 import DockItem from "./DockItem";
 
 interface DockProps {

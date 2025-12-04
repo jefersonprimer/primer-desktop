@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loading...</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #0a0a0a; /* Neutral-950 equivalent */
+        font-family: system-ui, -apple-system, sans-serif;
+        color: white;
+        user-select: none;
+        cursor: default;
+        overflow: hidden;
+      }
+
+      .logo-container {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .logo {
+        font-size: 64px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: pulse 2s infinite ease-in-out;
+      }
+
+      .loader {
+        font-size: 14px;
+        color: #737373; /* Neutral-500 */
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        animation: fade 1.5s infinite ease-in-out alternate;
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+      }
+
+      @keyframes fade {
+        from { opacity: 0.4; }
+        to { opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="logo-container">
+      <div class="logo">P</div>
+    </div>
+    <div class="loader">Loading...</div>
+  </body>
+</html>

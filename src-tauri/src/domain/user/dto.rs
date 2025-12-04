@@ -62,7 +62,7 @@ pub struct ApiKeyDto {
     pub id: String,
     pub user_id: String,
     pub provider: String,
-    pub api_key_hashed: String,
+    pub api_key: String,
     pub created_at: String,
 }
 

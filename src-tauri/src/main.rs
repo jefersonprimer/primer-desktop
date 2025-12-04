@@ -5,12 +5,25 @@ use app_lib::{
     commands::{chat_commands, email_commands, user_commands},
     config::Config,
 };
+use tauri::Manager;
 
 
 #[tauri::command]
 async fn close_app(app_handle: tauri::AppHandle) -> Result<(), String> {
     app_handle.exit(0);
     Ok(())
+}
+
+#[tauri::command]
+async fn close_splashscreen(window: tauri::Window) {
+    // Close splashscreen
+    if let Some(splash) = window.get_webview_window("splashscreen") {
+        splash.close().unwrap();
+    }
+    // Show main window
+    if let Some(main) = window.get_webview_window("main") {
+        main.show().unwrap();
+    }
 }
 
 #[tokio::main]
@@ -44,6 +57,7 @@ async fn main() {
             email_commands::send_email,
             email_commands::send_chat_summary,
             close_app,
+            close_splashscreen,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

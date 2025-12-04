@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { invoke } from "@tauri-apps/api/core";
 import WelcomeModal from "../components/WelcomoModal.tsx";
 import ProtectedRoute from "../components/ProtectedRoute";
 import LoginPage from "../pages/login";
@@ -9,12 +10,26 @@ import ResetPassword from "../pages/reset-password";
 import HomePage from "../pages/home";
 import { useAuth } from "../contexts/AuthContext";
 
+function SplashHandler() {
+  const { isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading) {
+      invoke("close_splashscreen").catch(console.error);
+    }
+  }, [isLoading]);
+
+  return null;
+}
+
 function AuthRedirectHandler() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
+    if (isLoading) return; // Don't redirect while loading
+
     // Check authentication on route changes
     const isPublicRoute = ["/", "/login", "/register", "/forgot-password"].includes(
       location.pathname
@@ -27,7 +42,7 @@ function AuthRedirectHandler() {
       // User is not logged in and trying to access protected route
       navigate("/login", { replace: true });
     }
-  }, [location.pathname, isAuthenticated, navigate]);
+  }, [location.pathname, isAuthenticated, isLoading, navigate]);
 
   return null;
 }
@@ -35,6 +50,7 @@ function AuthRedirectHandler() {
 export default function AppRoutes() {
   return (
     <>
+      <SplashHandler />
       <AuthRedirectHandler />
       <Routes>
         <Route path="/" element={<WelcomeModal/>} />
