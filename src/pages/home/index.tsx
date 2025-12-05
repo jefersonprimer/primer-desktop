@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Dock } from "@/components/Dock";
+import VisibleButton from "../../components/settings/VisibleButton"; 
 import TopDock from "@/components/Dock/TopDock";
+
 import AiModal from "@/components/AiModal";
 import SettingsModal from "@/components/settings/SettingsModal";
+
 import { useAuth } from "@/contexts/AuthContext";
 
 interface CreateChatResponse {
@@ -56,7 +59,7 @@ export default function HomePage() {
           chat_id: currentChatId,
           provider_name: "Gemini",
           content: text,
-          model: "gemini-1.5-flash", 
+          model: "gemini-2.5-flash", 
           temperature: 0.7,
         },
       });
@@ -70,7 +73,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="w-screen h-screen bg-neutral-900 relative">
+    <div className="w-screen h-screen bg-gray-600 relative">
 
       {/* TopDock */}
       {activeModal === "chat" && (
@@ -95,6 +98,7 @@ export default function HomePage() {
 
       {/* Dock */}
       <Dock onOpenModal={(modal) => setActiveModal(modal)} />
+      <VisibleButton/>
     </div>
   );
 }

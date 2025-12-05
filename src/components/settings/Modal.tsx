@@ -14,7 +14,7 @@ export default function Modal({ open, onClose, children }: ModalProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-transparent backdrop-blur-sm z-50">
       <Draggable nodeRef={nodeRef} handle=".modal-drag-handle">
         <div ref={nodeRef} className="relative bg-neutral-900 text-white rounded-xl shadow-xl w-[900px] h-[600px] overflow-hidden border border-neutral-700">
           

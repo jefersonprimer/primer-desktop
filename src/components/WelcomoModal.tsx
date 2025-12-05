@@ -11,7 +11,7 @@ const WelcomeModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-transparent backdrop-blur-sm z-50">
       <Draggable nodeRef={nodeRef} handle=".drag-handle">
         <div ref={nodeRef} className="bg-neutral-900 text-white w-[420px] p-8 rounded-xl shadow-xl border border-neutral-800">
           

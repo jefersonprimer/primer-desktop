@@ -111,7 +111,7 @@ impl AppState {
 
         // --- AI providers ---
         let gemini_provider: Arc<dyn AiProvider> =
-            Arc::new(GeminiClient::new("gemini-1.5-flash".to_string()));
+            Arc::new(GeminiClient::new("gemini-2.5-flash".to_string()));
         let openai_provider: Arc<dyn AiProvider> =
             Arc::new(OpenAIProvider::new());
         let claude_provider: Arc<dyn AiProvider> =

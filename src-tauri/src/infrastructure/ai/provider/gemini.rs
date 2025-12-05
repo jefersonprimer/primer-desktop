@@ -16,10 +16,17 @@ const GEMINI_API_BASE_URL: &str = "https://generativelanguage.googleapis.com/v1b
 #[derive(Debug, Serialize)]
 struct GeminiChatRequest {
     contents: Vec<GeminiContent>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "generationConfig")]
+    generation_config: Option<GenerationConfig>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct GenerationConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     temperature: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    max_output_tokens: Option<u32>, // Corrected based on Gemini docs
+    max_output_tokens: Option<u32>,
 }
 
 #[derive(Debug, Serialize, Deserialize)] // Deserialize added for response content parsing
@@ -82,7 +89,21 @@ impl GeminiClient {
 #[async_trait]
 impl AiProvider for GeminiClient {
     async fn chat_completion(&self, api_key: &str, request: ChatCompletionRequest) -> Result<ChatCompletionResponse> {
-        let url = format!("{}/{}:generateContent", GEMINI_API_BASE_URL, self.model_name);
+        let model = if request.model.is_empty() {
+            &self.model_name
+        } else {
+            &request.model
+        };
+        let url = format!("{}/{}:generateContent", GEMINI_API_BASE_URL, model);
+
+        let generation_config = if request.temperature.is_some() || request.max_tokens.is_some() {
+            Some(GenerationConfig {
+                temperature: request.temperature,
+                max_output_tokens: request.max_tokens,
+            })
+        } else {
+            None
+        };
 
         let gemini_request = GeminiChatRequest {
             contents: request.messages.into_iter().map(|msg| {
@@ -95,8 +116,7 @@ impl AiProvider for GeminiClient {
                     parts: vec![GeminiPart { text: msg.content }],
                 }
             }).collect(),
-            temperature: request.temperature,
-            max_output_tokens: request.max_tokens,
+            generation_config,
         };
 
         let response = self.client.post(&url)
