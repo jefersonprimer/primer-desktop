@@ -53,6 +53,10 @@ async fn main() {
             chat_commands::send_message,
             chat_commands::sync_messages,
             chat_commands::backup_chat,
+            chat_commands::get_chats,
+            chat_commands::get_messages,
+            chat_commands::delete_chat,
+            chat_commands::delete_all_chats,
             // email commands
             email_commands::send_email,
             email_commands::send_chat_summary,

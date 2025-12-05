@@ -97,4 +97,18 @@ impl ChatRepository for PostgresChatRepository {
 
         Ok(())
     }
+
+    async fn delete_all_by_user_id(&self, user_id: Uuid) -> Result<()> {
+        sqlx::query(
+            r#"
+            DELETE FROM chats
+            WHERE user_id = $1
+            "#
+        )
+        .bind(user_id)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
 }

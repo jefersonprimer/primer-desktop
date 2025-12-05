@@ -10,4 +10,5 @@ pub trait ChatRepository: Send + Sync {
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Chat>>;
     async fn update(&self, chat: Chat) -> Result<Chat>;
     async fn delete(&self, id: Uuid) -> Result<()>;
+    async fn delete_all_by_user_id(&self, user_id: Uuid) -> Result<()>;
 }

@@ -122,5 +122,19 @@ impl ChatRepository for SqliteChatRepository {
 
         Ok(())
     }
+
+    async fn delete_all_by_user_id(&self, user_id: Uuid) -> Result<()> {
+        sqlx::query(
+            r#"
+            DELETE FROM chats
+            WHERE user_id = ?1
+            "#
+        )
+        .bind(user_id.to_string())
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
 }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Dock } from "@/components/Dock";
 import VisibleButton from "../../components/settings/VisibleButton"; 
@@ -6,6 +6,7 @@ import TopDock from "@/components/Dock/TopDock";
 
 import AiModal from "@/components/AiModal";
 import SettingsModal from "@/components/settings/SettingsModal";
+import HistoryModal from "@/components/HistoryModal";
 
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -20,12 +21,70 @@ interface SendMessageResponse {
   };
 }
 
+interface ChatSession {
+  id: string;
+  title: string;
+  model: string;
+  createdAt: string;
+}
+
+interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+}
+
 export default function HomePage() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [aiMessage, setAiMessage] = useState("");
   const [chatId, setChatId] = useState<string | null>(null);
+
+  // History state
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
+  const [historyMessages, setHistoryMessages] = useState<ChatMessage[]>([]);
   
   const { userId } = useAuth();
+
+  useEffect(() => {
+    if (activeModal === "history" && userId) {
+      fetchSessions();
+    }
+  }, [activeModal, userId]);
+
+  const fetchSessions = async () => {
+    if (!userId) return;
+    try {
+      const res = await invoke<{ chats: any[] }>("get_chats", { dto: { user_id: userId } });
+      // Sort by newest first (assuming backend doesn't sort, or just to be safe)
+      // Actually backend might not sort. Let's just map.
+      const mapped = res.chats.map((c) => ({
+        id: c.id,
+        title: c.title || "Nova conversa",
+        model: "Gemini",
+        createdAt: new Date(c.created_at).toLocaleString(),
+      }));
+      setSessions(mapped);
+    } catch (e) {
+      console.error("Failed to fetch chats", e);
+    }
+  };
+
+  const fetchMessages = async (sessionId: string) => {
+    try {
+      const res = await invoke<{ messages: any[] }>("get_messages", { dto: { chat_id: sessionId } });
+      const mapped = res.messages.map((m) => ({
+        id: m.id,
+        role: m.role as "user" | "assistant",
+        content: m.content,
+        createdAt: m.created_at,
+      }));
+      setHistoryMessages(mapped);
+    } catch (e) {
+      console.error("Failed to fetch messages", e);
+    }
+  };
 
   const handleChatSubmit = async (text: string) => {
     if (!userId) {
@@ -95,6 +154,42 @@ export default function HomePage() {
         open={activeModal === "settings"} 
         onClose={() => setActiveModal(null)}
        />
+
+      {/* History Modal */}
+      <HistoryModal
+        isOpen={activeModal === "history"}
+        onClose={() => setActiveModal(null)}
+        sessions={sessions}
+        selected={selectedSession}
+        onSelect={setSelectedSession}
+        messages={historyMessages}
+        onLoadMessages={fetchMessages}
+        onDelete={async (sessionId) => {
+            try {
+                await invoke("delete_chat", { dto: { chat_id: sessionId } });
+                setSessions(prev => prev.filter(s => s.id !== sessionId));
+                if (selectedSession?.id === sessionId) {
+                    setSelectedSession(null);
+                    setHistoryMessages([]);
+                }
+            } catch (e) {
+                console.error("Failed to delete chat", e);
+                alert("Erro ao apagar conversa");
+            }
+        }}
+        onDeleteAll={async () => {
+             if (!userId) return;
+             try {
+                await invoke("delete_all_chats", { dto: { user_id: userId } });
+                setSessions([]);
+                setSelectedSession(null);
+                setHistoryMessages([]);
+            } catch (e) {
+                console.error("Failed to delete all chats", e);
+                alert("Erro ao limpar histórico");
+            }
+        }}
+      />
 
       {/* Dock */}
       <Dock onOpenModal={(modal) => setActiveModal(modal)} />

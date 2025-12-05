@@ -27,7 +27,7 @@ pub struct SendMessageDto {
 pub struct MessageDto {
     pub id: String,
     pub chat_id: String,
-    pub user_id: String,
+    pub user_id: Option<String>,
     pub role: String,
     pub content: String,
     pub created_at: DateTime<Utc>,
@@ -57,5 +57,54 @@ pub struct BackupChatDto {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct BackupChatResponse {
+    pub message: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetChatsDto {
+    pub user_id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ChatDto {
+    pub id: String,
+    pub user_id: String,
+    pub title: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetChatsResponse {
+    pub chats: Vec<ChatDto>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetMessagesDto {
+    pub chat_id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetMessagesResponse {
+    pub messages: Vec<MessageDto>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct DeleteChatDto {
+    pub chat_id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct DeleteChatResponse {
+    pub message: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct DeleteAllChatsDto {
+    pub user_id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct DeleteAllChatsResponse {
     pub message: String,
 }
