@@ -52,7 +52,7 @@ export default function HistoryModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999]">
+    <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-[9999]">
       <div className="relative w-[90%] max-w-5xl bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl flex h-[80vh]">
 
         {/* Botão fechar */}

@@ -5,6 +5,7 @@ Requisitos funcionais:
 1- Stealth Mode (nao ficar visivel em compartilhamento de tela).
 2- integracao com ia (OpenAi, gemini, claude code, qualquer api key).
 3- click-throught (como e um janela que fica acima de outras, o app nao pode roubar o foco das outras janelas).
+4- esconder o app da dock do so, DOCK/ALT+TAB não mostra: App oculto
 
 futuro:
 4- screenshot automatico.

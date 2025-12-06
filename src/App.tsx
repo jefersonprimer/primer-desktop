@@ -6,7 +6,9 @@ function App() {
   return (
     <AuthProvider>
       <HashRouter>
-        <AppRoutes />
+        <div className="w-full max-w-[1440px] mx-auto h-screen relative">
+          <AppRoutes />
+        </div>
       </HashRouter>
     </AuthProvider>
   );
