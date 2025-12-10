@@ -24,20 +24,20 @@ pub trait TokenGenerator: Send + Sync {
 
 pub struct JwtTokenGenerator {
     secret: String,
-    access_token_ttl: Duration,
-    one_time_token_duration: Duration,
+    refresh_token: Duration,
+    access_token: Duration,
 }
 
 impl JwtTokenGenerator {
-    pub fn new(secret: String, access_token_ttl: Duration, one_time_token_duration: Duration) -> Self {
-        Self { secret, access_token_ttl, one_time_token_duration }
+    pub fn new(secret: String, refresh_token: Duration, access_token: Duration) -> Self {
+        Self { secret, refresh_token, access_token }
     }
 }
 
 impl TokenGenerator for JwtTokenGenerator {
     fn generate_token(&self, user_id: Uuid) -> Result<String> {
         let expiration = Utc::now()
-            .checked_add_signed(self.access_token_ttl)
+            .checked_add_signed(self.refresh_token)
             .expect("valid timestamp")
             .timestamp();
 
@@ -56,7 +56,7 @@ impl TokenGenerator for JwtTokenGenerator {
 
     fn generate_reset_token(&self, user_id: Uuid) -> Result<String> {
         let expiration = Utc::now()
-            .checked_add_signed(self.one_time_token_duration)
+            .checked_add_signed(self.access_token)
             .expect("valid timestamp")
             .timestamp();
 

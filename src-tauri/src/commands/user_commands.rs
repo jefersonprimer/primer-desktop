@@ -8,6 +8,9 @@ use crate::domain::user::{
         get_api_keys::GetApiKeysUseCase,
         delete_api_key::DeleteApiKeyUseCase,
         delete_account::DeleteAccountUseCase,
+        save_shortcut::SaveShortcutUseCase,
+        get_shortcuts::GetShortcutsUseCase,
+        backup_shortcuts::BackupShortcutsUseCase,
     },
     dto::{
         LoginDto, LoginResponse,
@@ -18,6 +21,9 @@ use crate::domain::user::{
         DeleteApiKeyDto, DeleteApiKeyResponse,
         DeleteAccountDto, DeleteAccountResponse,
         SessionResponse, ClearSessionResponse,
+        SaveShortcutDto, SaveShortcutResponse,
+        GetShortcutsDto, GetShortcutsResponse,
+        BackupShortcutsDto, BackupShortcutsResponse,
     },
 };
 use crate::app_state::AppState;
@@ -74,7 +80,7 @@ pub async fn add_api_key(dto: AddApiKeyDto, state: State<'_, AppState>) -> Resul
     let user_id = Uuid::parse_str(&dto.user_id)
         .map_err(|e| format!("Invalid user_id format: {}", e))?;
 
-    add_api_key_usecase.execute(user_id, dto.provider, dto.api_key)
+    add_api_key_usecase.execute(user_id, dto.provider, dto.api_key, dto.selected_model)
         .await
         .map(|_| AddApiKeyResponse { message: "API key added successfully".to_string() })
         .map_err(|e| e.to_string())
@@ -97,6 +103,7 @@ pub async fn get_api_keys(dto: GetApiKeysDto, state: State<'_, AppState>) -> Res
                 user_id: key.user_id.to_string(),
                 provider: key.provider,
                 api_key: key.api_key,
+                selected_model: key.selected_model,
                 created_at: key.created_at.to_rfc3339(),
             }).collect();
             GetApiKeysResponse { api_keys: api_key_dtos }
@@ -170,4 +177,61 @@ pub async fn clear_session(state: State<'_, AppState>) -> Result<ClearSessionRes
     Ok(ClearSessionResponse {
         message: "Session cleared successfully".to_string(),
     })
+}
+
+#[tauri::command]
+pub async fn save_shortcut(dto: SaveShortcutDto, state: State<'_, AppState>) -> Result<SaveShortcutResponse, String> {
+    let save_shortcut_usecase = SaveShortcutUseCase::new(state.shortcut_repo.clone());
+
+    save_shortcut_usecase.execute(dto)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+
+pub async fn get_shortcuts(dto: GetShortcutsDto, state: State<'_, AppState>) -> Result<GetShortcutsResponse, String> {
+
+    let get_shortcuts_usecase = GetShortcutsUseCase::new(state.shortcut_repo.clone());
+
+
+
+    get_shortcuts_usecase.execute(dto)
+
+        .await
+
+        .map_err(|e| e.to_string())
+
+}
+
+
+
+#[tauri::command]
+
+pub async fn backup_shortcuts(dto: BackupShortcutsDto, state: State<'_, AppState>) -> Result<BackupShortcutsResponse, String> {
+
+    // Only proceed if we have a connection to Postgres
+
+    let postgres_repo = state.postgres_shortcut_repo.clone()
+
+        .ok_or_else(|| "No connection to cloud database".to_string())?;
+
+
+
+    let backup_shortcuts_usecase = BackupShortcutsUseCase::new(
+
+        state.sqlite_shortcut_repo.clone(),
+
+        postgres_repo,
+
+    );
+
+
+
+    backup_shortcuts_usecase.execute(dto)
+
+        .await
+
+        .map_err(|e| e.to_string())
+
 }

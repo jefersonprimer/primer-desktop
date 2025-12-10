@@ -16,7 +16,7 @@ impl AddApiKeyUseCase {
         Self { user_api_key_repo }
     }
 
-    pub async fn execute(&self, user_id: Uuid, provider: String, api_key_value: String) -> Result<UserApiKey> {
+    pub async fn execute(&self, user_id: Uuid, provider: String, api_key_value: String, selected_model: Option<String>) -> Result<UserApiKey> {
         // Basic validation for provider
         if !["openai", "gemini", "claude_code"].contains(&provider.as_str()) {
             return Err(anyhow!("Invalid AI provider specified."));
@@ -24,8 +24,13 @@ impl AddApiKeyUseCase {
 
         // Check if an API key for this provider already exists for the user
         let existing_keys = self.user_api_key_repo.find_by_user_id(user_id).await?;
-        if existing_keys.iter().any(|key| key.provider == provider) {
-            return Err(anyhow!("User already has an API key for this provider."));
+        if let Some(existing_key) = existing_keys.iter().find(|key| key.provider == provider) {
+             let mut updated_key = existing_key.clone();
+             updated_key.api_key = api_key_value;
+             if selected_model.is_some() {
+                 updated_key.selected_model = selected_model;
+             }
+             return self.user_api_key_repo.update(updated_key).await;
         }
 
         let new_api_key = UserApiKey {
@@ -33,6 +38,7 @@ impl AddApiKeyUseCase {
             user_id,
             provider,
             api_key: api_key_value,
+            selected_model,
             created_at: Utc::now(),
         };
 

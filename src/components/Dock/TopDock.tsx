@@ -39,7 +39,7 @@ export default function TopDock({ onClose, onSubmit }: TopDockProps) {
   return (
     <div
       className={`
-        fixed top-0 left-0 w-full h-40 
+        absolute top-0 left-0 w-full h-40 
         bg-transparent backdrop-blur-xl 
         transition-all duration-300 z-[99999]
         flex flex-col items-center justify-start pt-4
@@ -60,23 +60,51 @@ export default function TopDock({ onClose, onSubmit }: TopDockProps) {
 
       {/* Botões */}
       <div className="mt-3 flex gap-3">
-        <button className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
-          ⌘E Capturar tela
+        <button className="flex justify-center items-center px-4 py-2 gap-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
+          <span className="text-[12px] font-bold bg-black/40 px-1.5 py-0.5 rounded text-white/70 group-hover:text-white transition">
+            Ctrl
+          </span>
+          <span className="text-[12px] font-bold bg-black/40 px-1.5 py-0.5 rounded text-white/70 group-hover:text-white transition">
+            E
+          </span>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="18" 
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect width="20" height="14" x="2" y="3" rx="2"/>
+            <line x1="8" x2="16" y1="21" y2="21"/>
+            <line x1="12" x2="12" y1="17" y2="21"/>
+          </svg>
+
+          Capturar tela
         </button>
 
         <button 
           onClick={handleSubmit}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm"
+          className="flex justify-center items-center px-4 py-2 gap-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm"
         >
+          <span className="text-[12px] font-bold bg-black/40 px-1.5 py-0.5 rounded text-white/70 group-hover:text-white transition">
+            Enter
+          </span>
           Enter Enviar
         </button>
 
         {/* Botão de fechar */}
         <button
           onClick={onClose}
-          className="px-4 py-2 rounded-lg bg-red-600/80 hover:bg-red-700 text-white text-sm"
+          className="flex justify-center items-center px-4 py-2 gap-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm"
         >
-          ESC Fechar
+          <span className="text-[12px] font-bold bg-black/40 px-1.5 py-0.5 rounded text-white/70 group-hover:text-white transition">
+            ESC
+          </span>
+          Fechar
         </button>
       </div>
     </div>

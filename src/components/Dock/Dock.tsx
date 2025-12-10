@@ -1,45 +1,104 @@
 import { useRef } from "react";
 import Draggable from "react-draggable";
-import { Settings, History, CornerDownLeft, GripHorizontal } from "lucide-react";
-import DockItem from "./DockItem";
+
+import GeneralAssistant from "./GeneralAssistant";
 
 interface DockProps {
   onOpenModal: (modal: string) => void;
+  active?: boolean; // <- para indicar que o modal está aberto
 }
 
-export default function Dock({ onOpenModal }: DockProps) {
+export default function Dock({ onOpenModal, active }: DockProps) {
   const nodeRef = useRef(null);
 
   return (
     <Draggable nodeRef={nodeRef} handle=".drag-handle">
       <div
         ref={nodeRef}
-        className="
-          fixed bottom-6 left-0 right-0 mx-auto w-fit
+        className="absolute bottom-6 left-0 right-0 mx-auto w-fit flex flex-col items-center gap-3 z-[9999]"
+      >
+        <GeneralAssistant onOpenChat={() => onOpenModal("chat")} />
+
+        <div className="
           flex items-center gap-3
           bg-black/40 backdrop-blur-xl
           px-5 py-3 rounded-2xl
           border border-white/10
           shadow-lg
-          z-[9999]
-        "
-      >
+        ">
         {/* Drag Handle */}
         <div className="drag-handle cursor-grab active:cursor-grabbing p-2 -ml-2 mr-1 text-white/50 hover:text-white transition flex items-center justify-center">
-            <GripHorizontal size={20} />
+          <svg 
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="9" cy="12" r="1"/>
+            <circle cx="9" cy="5" r="1"/>
+            <circle cx="9" cy="19" r="1"/>
+            <circle cx="15" cy="12" r="1"/>
+            <circle cx="15" cy="5" r="1"/>
+            <circle cx="15" cy="19" r="1"/>
+          </svg>
         </div>
 
-        <DockItem
-          label="Settings"
-          icon={Settings}
-          onClick={() => onOpenModal("settings")}
-        />
+        <button onClick={() => onOpenModal("settings")}
+          className={`
+          relative group
+          flex flex-col items-center justify-center
+          p-3 rounded-xl
+          transition
+          ${active ? "bg-white/20" : "hover:bg-white/10"}
+        `}>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className={`text-white transition-transform ${active ? "scale-110" : "group-hover:scale-125"}`}
+          >
+            <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
 
-        <DockItem
-          label="History"
-          icon={History}
-          onClick={() => onOpenModal("history")}
-        />
+        <button onClick={() => onOpenModal("history")}
+          className={`
+            relative group
+            flex flex-col items-center justify-center
+            p-3 rounded-xl
+            transition
+            ${active ? "bg-white/20" : "hover:bg-white/10"}
+          `}
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className={`text-white transition-transform ${active ? "scale-110" : "group-hover:scale-125"}`}
+          >
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+            <path d="M12 7v5l4 2"/>
+          </svg>
+        </button>
 
         <div className="w-px h-8 bg-white/10 mx-1" />
 
@@ -49,7 +108,20 @@ export default function Dock({ onOpenModal }: DockProps) {
         >
           <span className="text-[12px] font-bold bg-white/10 px-1.5 py-0.5 rounded text-white/70 group-hover:text-white transition">Ctrl</span>
           <span className="text-[10px] font-bold bg-white/10 px-1.5 py-0.5 rounded text-white/70 group-hover:text-white transition">
-            <CornerDownLeft size={14} className="text-white/70 group-hover:text-white transition" />
+            <svg 
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M20 4v7a4 4 0 0 1-4 4H4"/>
+              <path d="m9 10-5 5 5 5"/>
+            </svg>
           </span>
           <span className="text-sm font-medium text-white/90 group-hover:text-white">Perguntar</span>
         </button>
@@ -75,6 +147,7 @@ export default function Dock({ onOpenModal }: DockProps) {
             Começar a ouvir
           </span>
         </button>
+        </div>
       </div>
     </Draggable>
   );

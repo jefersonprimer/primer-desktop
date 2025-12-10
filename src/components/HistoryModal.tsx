@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { Trash2 } from "lucide-react";
 import ChatHistory from "./ChatHistory";
 
 interface ChatSession {
@@ -53,7 +52,7 @@ export default function HistoryModal({
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-[9999]">
-      <div className="relative w-[90%] max-w-5xl bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl flex h-[80vh]">
+      <div className="relative w-full max-w-[900px] bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl flex h-[80vh]">
 
         {/* Botão fechar */}
         <button
@@ -120,7 +119,23 @@ export default function HistoryModal({
                   className="absolute right-2 p-2 text-neutral-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"
                   title="Apagar conversa"
                 >
-                  <Trash2 size={16} />
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M10 11v6"/>
+                    <path d="M14 11v6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                    <path d="M3 6h18"/>
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
                 </button>
               </div>
             ))}

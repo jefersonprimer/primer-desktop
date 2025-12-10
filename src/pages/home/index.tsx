@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Dock } from "@/components/Dock";
+import Dock from "../../components/Dock/Dock";
 import VisibleButton from "../../components/settings/VisibleButton"; 
 import TopDock from "@/components/Dock/TopDock";
 
@@ -9,6 +9,7 @@ import SettingsModal from "@/components/settings/SettingsModal";
 import HistoryModal from "@/components/HistoryModal";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useAi } from "@/contexts/AiContext";
 
 interface CreateChatResponse {
   chat_id: string;
@@ -46,12 +47,7 @@ export default function HomePage() {
   const [historyMessages, setHistoryMessages] = useState<ChatMessage[]>([]);
   
   const { userId } = useAuth();
-
-  useEffect(() => {
-    if (activeModal === "history" && userId) {
-      fetchSessions();
-    }
-  }, [activeModal, userId]);
+  const { activeProvider, activeModel } = useAi();
 
   const fetchSessions = async () => {
     if (!userId) return;
@@ -86,6 +82,12 @@ export default function HomePage() {
     }
   };
 
+  useEffect(() => {
+    if (activeModal === "history" && userId) {
+      fetchSessions();
+    }
+  }, [activeModal, userId]);
+
   const handleChatSubmit = async (text: string) => {
     if (!userId) {
         console.error("User not logged in");
@@ -111,14 +113,17 @@ export default function HomePage() {
         setChatId(currentChatId);
       }
 
+      // Map provider name for backend
+      const providerName = activeProvider === "Google" ? "Gemini" : activeProvider;
+      
       // Send message
       const response = await invoke<SendMessageResponse>("send_message", {
         dto: {
           user_id: userId,
           chat_id: currentChatId,
-          provider_name: "Gemini",
+          provider_name: providerName,
           content: text,
-          model: "gemini-2.5-flash", 
+          model: activeModel || (activeProvider === "Google" ? "gemini-1.5-flash" : "gpt-4o"), 
           temperature: 0.7,
         },
       });
@@ -132,7 +137,9 @@ export default function HomePage() {
   };
 
   return (
-    <div className="w-screen h-screen bg-gray-600 relative">
+  
+    <div className="w-full max-w-[1440px] bg-transparent mx-auto h-screen relative">
+
 
       {/* TopDock */}
       {activeModal === "chat" && (
@@ -193,6 +200,7 @@ export default function HomePage() {
 
       {/* Dock */}
       <Dock onOpenModal={(modal) => setActiveModal(modal)} />
+      
       <VisibleButton/>
     </div>
   );

@@ -86,9 +86,8 @@ SUPABASE_CONNECTION_STRING=postgresql://user:password@host:port/database
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-ACCESS_TOKEN_TTL=1h
-REFRESH_TOKEN_TTL=7d
-ONE_TIME_TOKEN_DURATION=1h
+REFRESH_TOKEN=720h
+ACCESS_TOKEN=1h
 
 # SMTP Configuration (for email)
 SMTP_HOST=smtp.gmail.com
@@ -254,9 +253,9 @@ Output will be in `frontend/src-tauri/target/release/`
 ### JWT Configuration
 
 - **JWT_SECRET**: Must be a strong, random string (minimum 32 characters)
-- **ACCESS_TOKEN_TTL**: How long access tokens are valid (e.g., "1h", "30m")
-- **REFRESH_TOKEN_TTL**: How long refresh tokens are valid (e.g., "7d", "30d")
-- **ONE_TIME_TOKEN_DURATION**: Duration for password reset tokens
+- **REFRESH_TOKEN**: How long sessions are valid (e.g., "720h", "30d")
+
+- **ACCESS_TOKEN**: Duration for password reset tokens
 
 ### SMTP Configuration
 

@@ -10,6 +10,7 @@ pub enum AIProviderType {
     Gemini,
     OpenAI,
     Claude,
+    OpenRouter,
 }
 
 impl FromStr for AIProviderType {
@@ -20,6 +21,7 @@ impl FromStr for AIProviderType {
             "gemini" => Ok(AIProviderType::Gemini),
             "openai" => Ok(AIProviderType::OpenAI),
             "claude_code" | "claude" => Ok(AIProviderType::Claude),
+            "openrouter" => Ok(AIProviderType::OpenRouter),
             _ => Err(anyhow::anyhow!("Unknown AI provider type: {}", s)), // Use anyhow for error
         }
     }
@@ -31,6 +33,7 @@ impl AIProviderType {
             AIProviderType::Gemini => "gemini".to_string(),
             AIProviderType::OpenAI => "openai".to_string(),
             AIProviderType::Claude => "claude_code".to_string(),
+            AIProviderType::OpenRouter => "openrouter".to_string(),
         }
     }
 }

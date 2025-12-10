@@ -20,6 +20,7 @@ pub struct ChatServiceImpl {
     gemini_provider: Arc<dyn AiProvider>,
     openai_provider: Arc<dyn AiProvider>,
     claude_provider: Arc<dyn AiProvider>,
+    openrouter_provider: Arc<dyn AiProvider>,
 }
 
 impl ChatServiceImpl {
@@ -29,6 +30,7 @@ impl ChatServiceImpl {
         gemini_provider: Arc<dyn AiProvider>,
         openai_provider: Arc<dyn AiProvider>,
         claude_provider: Arc<dyn AiProvider>,
+        openrouter_provider: Arc<dyn AiProvider>,
     ) -> Self {
         Self {
             user_api_key_repo,
@@ -36,6 +38,7 @@ impl ChatServiceImpl {
             gemini_provider,
             openai_provider,
             claude_provider,
+            openrouter_provider,
         }
     }
 }
@@ -91,6 +94,7 @@ impl ChatService for ChatServiceImpl {
             AIProviderType::Gemini => self.gemini_provider.chat_completion(api_key, chat_req).await?,
             AIProviderType::OpenAI => self.openai_provider.chat_completion(api_key, chat_req).await?,
             AIProviderType::Claude => self.claude_provider.chat_completion(api_key, chat_req).await?,
+            AIProviderType::OpenRouter => self.openrouter_provider.chat_completion(api_key, chat_req).await?,
         };
 
         // 5. Extract AI response content

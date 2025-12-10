@@ -8,5 +8,6 @@ pub struct UserApiKey {
     pub user_id: Uuid,
     pub provider: String,
     pub api_key: String,
+    pub selected_model: Option<String>,
     pub created_at: DateTime<Utc>,
 }

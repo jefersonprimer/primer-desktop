@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use sqlx::{SqlitePool, PgPool};
+use sqlx::SqlitePool;
 
 use crate::{
     config::Config,
@@ -25,6 +25,7 @@ use crate::{
                 user_repository::UserRepository,
                 user_api_key_repository::UserApiKeyRepository,
                 session_repository::SessionRepository,
+                shortcut_repository::ShortcutRepository,
             },
             service::{
                 password_hasher::PasswordHasher,
@@ -45,6 +46,7 @@ use crate::{
                 gemini::GeminiClient,
                 openai::OpenAIProvider,
                 claude::ClaudeProvider,
+                openrouter::OpenRouterProvider,
             },
         },
         database::{
@@ -55,7 +57,11 @@ use crate::{
         user::{
             sql_user_repository::SqlUserRepository,
             sql_user_api_key_repository::SqlUserApiKeyRepository,
+            sql_shortcut_repository::SqlShortcutRepository,
             sqlite_session_repository::SqliteSessionRepository,
+            sqlite_user_repository::SqliteUserRepository,
+            sqlite_user_api_key_repository::SqliteUserApiKeyRepository,
+            sqlite_shortcut_repository::SqliteShortcutRepository,
         },
     },
 };
@@ -64,6 +70,9 @@ pub struct AppState {
     pub user_repo: Arc<dyn UserRepository>,
     pub user_api_key_repo: Arc<dyn UserApiKeyRepository>,
     pub session_repo: Arc<dyn SessionRepository>,
+    pub shortcut_repo: Arc<dyn ShortcutRepository>,
+    pub sqlite_shortcut_repo: Arc<dyn ShortcutRepository>,
+    pub postgres_shortcut_repo: Option<Arc<dyn ShortcutRepository>>,
 
     pub sqlite_chat_repo: Arc<dyn ChatRepository>,
     pub postgres_chat_repo: Arc<dyn ChatRepository>,
@@ -86,28 +95,42 @@ impl AppState {
         let sqlite_pool: SqlitePool = connect_sqlite(&sqlite_url).await?;
         migrate_sqlite(&sqlite_pool).await?;
 
-        let pg_url = &config.database.supabase_connection_string;
-        let pg_pool: PgPool = connect_pg(pg_url).await?;
-        migrate_pg(&pg_pool).await?;
-
-        // --- User & session repositories ---
-        let user_repo: Arc<dyn UserRepository> =
-            Arc::new(SqlUserRepository::new(pg_pool.clone()));
-        let user_api_key_repo: Arc<dyn UserApiKeyRepository> =
-            Arc::new(SqlUserApiKeyRepository::new(pg_pool.clone()));
+        // Initialize Sqlite Repos (always needed)
+        let sqlite_chat_repo: Arc<dyn ChatRepository> =
+            Arc::new(SqliteChatRepository::new(sqlite_pool.clone()));
+        let sqlite_message_repo: Arc<dyn MessageRepository> =
+            Arc::new(SqliteMessageRepository::new(sqlite_pool.clone()));
         let session_repo: Arc<dyn SessionRepository> =
             Arc::new(SqliteSessionRepository::new(sqlite_pool.clone()));
 
-        // --- Chat & message repositories ---
-        let sqlite_chat_repo: Arc<dyn ChatRepository> =
-            Arc::new(SqliteChatRepository::new(sqlite_pool.clone()));
-        let postgres_chat_repo: Arc<dyn ChatRepository> =
-            Arc::new(PostgresChatRepository::new(pg_pool.clone()));
+        let sqlite_shortcut_repo: Arc<dyn ShortcutRepository> =
+            Arc::new(SqliteShortcutRepository::new(sqlite_pool.clone()));
 
-        let sqlite_message_repo: Arc<dyn MessageRepository> =
-            Arc::new(SqliteMessageRepository::new(sqlite_pool.clone()));
-        let postgres_message_repo: Arc<dyn MessageRepository> =
-            Arc::new(PostgresMessageRepository::new(pg_pool.clone()));
+        let pg_url = &config.database.database_url;
+        let pg_pool_result = connect_pg(pg_url).await;
+
+        let (user_repo, user_api_key_repo, postgres_shortcut_repo, postgres_chat_repo, postgres_message_repo) = match pg_pool_result {
+            Ok(pg_pool) => {
+                migrate_pg(&pg_pool).await?;
+                (
+                    Arc::new(SqlUserRepository::new(pg_pool.clone())) as Arc<dyn UserRepository>,
+                    Arc::new(SqlUserApiKeyRepository::new(pg_pool.clone())) as Arc<dyn UserApiKeyRepository>,
+                    Some(Arc::new(SqlShortcutRepository::new(pg_pool.clone())) as Arc<dyn ShortcutRepository>),
+                    Arc::new(PostgresChatRepository::new(pg_pool.clone())) as Arc<dyn ChatRepository>,
+                    Arc::new(PostgresMessageRepository::new(pg_pool.clone())) as Arc<dyn MessageRepository>,
+                )
+            },
+            Err(e) => {
+                eprintln!("WARNING: Failed to connect to Postgres. Falling back to Sqlite. Error: {}", e);
+                (
+                    Arc::new(SqliteUserRepository::new(sqlite_pool.clone())) as Arc<dyn UserRepository>,
+                    Arc::new(SqliteUserApiKeyRepository::new(sqlite_pool.clone())) as Arc<dyn UserApiKeyRepository>,
+                    None,
+                    Arc::new(SqliteChatRepository::new(sqlite_pool.clone())) as Arc<dyn ChatRepository>,
+                    Arc::new(SqliteMessageRepository::new(sqlite_pool.clone())) as Arc<dyn MessageRepository>,
+                )
+            }
+        };
 
         // --- AI providers ---
         let gemini_provider: Arc<dyn AiProvider> =
@@ -116,6 +139,8 @@ impl AppState {
             Arc::new(OpenAIProvider::new());
         let claude_provider: Arc<dyn AiProvider> =
             Arc::new(ClaudeProvider::new());
+        let openrouter_provider: Arc<dyn AiProvider> =
+            Arc::new(OpenRouterProvider::new());
 
         // --- Chat service ---
         let chat_service_impl = ChatServiceImpl::new(
@@ -124,6 +149,7 @@ impl AppState {
             gemini_provider,
             openai_provider,
             claude_provider,
+            openrouter_provider,
         );
         let chat_service: Arc<dyn ChatService> = Arc::new(chat_service_impl);
 
@@ -134,8 +160,8 @@ impl AppState {
         let token_generator: Arc<dyn TokenGenerator> =
             Arc::new(crate::domain::user::service::token_generator::JwtTokenGenerator::new(
                 config.jwt.jwt_secret.clone(),
-                config.jwt.access_token_ttl,
-                config.jwt.one_time_token_duration,
+                config.jwt.refresh_token,
+                config.jwt.access_token,
             ));
 
         // --- Email service ---
@@ -153,6 +179,9 @@ impl AppState {
             user_repo,
             user_api_key_repo,
             session_repo,
+            shortcut_repo: sqlite_shortcut_repo.clone(),
+            sqlite_shortcut_repo,
+            postgres_shortcut_repo,
             sqlite_chat_repo,
             postgres_chat_repo,
             sqlite_message_repo,
@@ -164,4 +193,3 @@ impl AppState {
         })
     }
 }
-

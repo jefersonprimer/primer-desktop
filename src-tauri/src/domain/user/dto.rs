@@ -39,6 +39,7 @@ pub struct AddApiKeyDto {
     pub user_id: String,
     pub provider: String,
     pub api_key: String,
+    pub selected_model: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -63,6 +64,7 @@ pub struct ApiKeyDto {
     pub user_id: String,
     pub provider: String,
     pub api_key: String,
+    pub selected_model: Option<String>,
     pub created_at: String,
 }
 
@@ -96,5 +98,47 @@ pub struct SessionResponse {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ClearSessionResponse {
+    pub message: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ShortcutDto {
+    pub id: String,
+    pub user_id: String,
+    pub action: String,
+    pub keys: String,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct SaveShortcutDto {
+    pub user_id: String,
+    pub action: String,
+    pub keys: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct SaveShortcutResponse {
+    pub shortcut: ShortcutDto,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetShortcutsDto {
+    pub user_id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetShortcutsResponse {
+    pub shortcuts: Vec<ShortcutDto>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct BackupShortcutsDto {
+    pub user_id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct BackupShortcutsResponse {
     pub message: String,
 }

@@ -5,3 +5,6 @@ pub mod reset_password;
 pub mod add_api_key;
 pub mod get_api_keys;
 pub mod delete_api_key;
+pub mod save_shortcut;
+pub mod get_shortcuts;
+pub mod backup_shortcuts;

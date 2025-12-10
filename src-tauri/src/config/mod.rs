@@ -3,23 +3,16 @@ use serde::Deserialize;
 use std::env;
 use chrono::Duration;
 
-
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct DatabaseConfig {
-    pub supabase_connection_string: String,
+    pub database_url: String,
 }
-
-
-
-
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct JwtConfig {
     pub jwt_secret: String,
-    pub access_token_ttl: Duration,
-
-    pub one_time_token_duration: Duration,
+    pub refresh_token: Duration,
+    pub access_token: Duration,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -31,23 +24,11 @@ pub struct SmtpConfig {
     pub smtp_from: String,
 }
 
-
-
-
-
-
-
 #[derive(Debug, Clone)]
 pub struct Config {
-
     pub database: DatabaseConfig,
-
-
     pub jwt: JwtConfig,
     pub smtp: SmtpConfig,
-
-
-
 }
 
 impl Config {
@@ -55,17 +36,15 @@ impl Config {
         dotenv().ok();
 
         Self {
-
             database: DatabaseConfig {
-                supabase_connection_string: get("SUPABASE_CONNECTION_STRING"),
+                database_url: get("DATABASE_URL"),
             },
-
 
             jwt: JwtConfig {
                 jwt_secret: get("JWT_SECRET"),
-                access_token_ttl: parse_duration(&get("ACCESS_TOKEN_TTL")),
+                refresh_token: parse_duration(&get("REFRESH_TOKEN")),
 
-                one_time_token_duration: parse_duration(&get("ONE_TIME_TOKEN_DURATION")),
+                access_token: parse_duration(&get("ACCESS_TOKEN")),
             },
             smtp: SmtpConfig {
                 smtp_host: get("SMTP_HOST"),
@@ -74,9 +53,6 @@ impl Config {
                 smtp_pass: get("SMTP_PASS"),
                 smtp_from: get("SMTP_FROM"),
             },
-
-
-
         }
     }
 }
