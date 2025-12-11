@@ -61,6 +61,7 @@ pub async fn send_message(dto: SendMessageDto, state: State<'_, AppState>) -> Re
         model: dto.model,
         temperature: dto.temperature,
         max_tokens: dto.max_tokens,
+        image: dto.image,
     };
 
     send_message_usecase.execute(request)

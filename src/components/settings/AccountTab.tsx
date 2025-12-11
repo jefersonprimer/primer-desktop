@@ -4,7 +4,7 @@ export default function AccountTab() {
   const [language, setLanguage] = useState("pt-BR");
 
   return (
-    <div className="w-full p-6 pb-8 text-white">
+    <div className="w-full bg-black p-6 pb-8 text-white">
       {/* CONTA */}
       <h2 className="text-xl font-semibold mb-4">Conta</h2>
       <p className="text-sm text-gray-300 mb-4">

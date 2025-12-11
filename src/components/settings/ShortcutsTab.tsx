@@ -20,6 +20,8 @@ export default function ShortcutsTab() {
     ask: "Ctrl + Enter",
     screenshot: "Ctrl + E",
     voice: "Ctrl + D",
+    toggle_window: "Ctrl + B",
+    toggle_top_bar: "Ctrl + M",
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -42,6 +44,8 @@ export default function ShortcutsTab() {
         if (s.action === "ask") newShortcuts.ask = s.keys;
         if (s.action === "screenshot") newShortcuts.screenshot = s.keys;
         if (s.action === "voice") newShortcuts.voice = s.keys;
+        if (s.action === "toggle_window") newShortcuts.toggle_window = s.keys;
+        if (s.action === "toggle_top_bar") newShortcuts.toggle_top_bar = s.keys;
       });
       setShortcuts(newShortcuts);
     } catch (error) {
@@ -59,6 +63,8 @@ export default function ShortcutsTab() {
         { action: "ask", keys: shortcuts.ask },
         { action: "screenshot", keys: shortcuts.screenshot },
         { action: "voice", keys: shortcuts.voice },
+        { action: "toggle_window", keys: shortcuts.toggle_window },
+        { action: "toggle_top_bar", keys: shortcuts.toggle_top_bar },
       ];
 
       for (const item of actions) {
@@ -83,63 +89,134 @@ export default function ShortcutsTab() {
     setShortcuts(prev => ({ ...prev, [key]: value }));
   }
 
-  if (loading) return <div className="p-6 text-neutral-400">Carregando atalhos...</div>;
+  function resetToDefaults() {
+    setShortcuts({
+      ask: "Ctrl + Enter",
+      screenshot: "Ctrl + E",
+      voice: "Ctrl + D",
+      toggle_window: "Ctrl + B",
+      toggle_top_bar: "Ctrl + M",
+    });
+  }
+
+  if (loading) return <div className="px-6 py-4 text-neutral-400">Carregando atalhos...</div>;
 
   return (
-    <div className="p-6 w-full space-y-6 pb-8">
-      <h2 className="text-2xl font-semibold">Atalhos de Teclado</h2>
-      <p className="text-neutral-400">
-        Personalize os atalhos de teclado para corresponder ao seu fluxo.
-        Clique em "Alterar" para gravar um novo atalho.
-      </p>
-
-      {/* Card — Perguntar */}
-      <div className="bg-neutral-900 p-5 rounded-xl border border-neutral-800">
-        <h3 className="text-lg font-medium">Perguntar Qualquer Coisa / Enviar</h3>
-        <p className="text-neutral-400 mt-1 mb-4 text-sm">
-          Envie seu prompt ou abra a entrada de texto para fazer uma pergunta.
+    <div className="px-6 py-4 pb-8 bg-black text-neutral-300 h-full overflow-y-auto">
+      {/* Cabeçalho */}
+      <div className="mb-6">
+        <h2 className="text-lg font-medium text-white mb-2">Atalhos de Teclado</h2>
+        <p className="text-sm text-neutral-400">
+          Personalize os atalhos de teclado para corresponder ao seu fluxo de trabalho. Clique em "Alterar" para gravar um novo atalho.
         </p>
-
-        <ShortcutInputButton
-          label={shortcuts.ask}
-          onChange={(v) => updateShortcut("ask", v)}
-        />
       </div>
 
-      {/* Card — Captura */}
-      <div className="bg-neutral-900 p-5 rounded-xl border border-neutral-800">
-        <h3 className="text-lg font-medium">Capturar Captura de Tela</h3>
-        <p className="text-neutral-400 mt-1 mb-4 text-sm">
-          Capture uma captura de tela da sua tela para análise.
-        </p>
+      {/* Atalhos */}
+      <div className="space-y-4">
+        {/* Perguntar Qualquer Coisa / Enviar */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
+          <h3 className="text-base font-medium text-white mb-1">
+            Perguntar Qualquer Coisa / Enviar
+          </h3>
+          <p className="text-sm text-neutral-400 mb-3">
+            Envie seu prompt ou abra a entrada de texto para fazer uma pergunta
+          </p>
+          <ShortcutInputButton
+            label={shortcuts.ask}
+            onChange={(v) => updateShortcut("ask", v)}
+          />
+        </div>
 
-        <ShortcutInputButton
-          label={shortcuts.screenshot}
-          onChange={(v) => updateShortcut("screenshot", v)}
-        />
+        {/* Capturar Captura de Tela */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
+          <h3 className="text-base font-medium text-white mb-1">
+            Capturar Captura de Tela
+          </h3>
+          <p className="text-sm text-neutral-400 mb-3">
+            Capture uma captura de tela da sua tela para análise
+          </p>
+          <ShortcutInputButton
+            label={shortcuts.screenshot}
+            onChange={(v) => updateShortcut("screenshot", v)}
+          />
+        </div>
+
+        {/* Gravação de Voz */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
+          <h3 className="text-base font-medium text-white mb-1">
+            Gravação de Voz
+          </h3>
+          <p className="text-sm text-neutral-400 mb-3">
+            Inicie ou pare a gravação de voz para transcrição
+          </p>
+          <ShortcutInputButton
+            label={shortcuts.voice}
+            onChange={(v) => updateShortcut("voice", v)}
+          />
+        </div>
+
+        {/* Alternar Visibilidade da Janela */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
+          <h3 className="text-base font-medium text-white mb-1">
+            Alternar Visibilidade da Janela
+          </h3>
+          <p className="text-sm text-neutral-400 mb-3">
+            Oculte ou mostre a janela inteira do aplicativo
+          </p>
+          <ShortcutInputButton
+            label={shortcuts.toggle_window}
+            onChange={(v) => updateShortcut("toggle_window", v)}
+          />
+        </div>
+
+        {/* Alternar Barra Superior */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
+          <h3 className="text-base font-medium text-white mb-1">
+            Alternar Barra Superior
+          </h3>
+          <p className="text-sm text-neutral-400 mb-3">
+            Mostre ou oculte a Barra Superior e ative/desative o clique transparente
+          </p>
+          <ShortcutInputButton
+            label={shortcuts.toggle_top_bar}
+            onChange={(v) => updateShortcut("toggle_top_bar", v)}
+          />
+        </div>
       </div>
 
-      {/* Card — Voz */}
-      <div className="bg-neutral-900 p-5 rounded-xl border border-neutral-800">
-        <h3 className="text-lg font-medium">Gravação de Voz</h3>
-        <p className="text-neutral-400 mt-1 mb-4 text-sm">
-          Inicie ou pare a gravação de voz para transcrição.
-        </p>
-
-        <ShortcutInputButton
-          label={shortcuts.voice}
-          onChange={(v) => updateShortcut("voice", v)}
-        />
-      </div>
-
-      <div className="w-full flex justify-end mt-6">
-        <button 
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg text-white disabled:opacity-50"
+      {/* Botão de Reset */}
+      <div className="flex justify-end mt-6">
+        <button
+          onClick={resetToDefaults}
+          className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg border border-neutral-700 transition"
         >
-          {saving ? "Salvando..." : "Salvar"}
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+            <path d="M3 21v-5h5" />
+          </svg>
+          Redefinir Todos para Padrões
         </button>
+      </div>
+
+      {/* Dicas */}
+      <div className="mt-6 bg-blue-950/30 border border-blue-900/50 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10" opacity="0.2"/>
+            <path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          <div className="text-sm text-neutral-300 space-y-1">
+            <p className="font-medium text-blue-300 mb-2">Dicas:</p>
+            <ul className="space-y-1 list-disc list-inside">
+              <li>Os atalhos devem incluir uma tecla modificadora (Command/Ctrl ou Alt), exceto quando usar uma tecla única permitida como Caps Lock</li>
+              <li>As alterações têm efeito imediato</li>
+              <li>Os atalhos não podem ser duplicados</li>
+              <li>Pressione ESC durante a gravação para cancelar</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -107,6 +107,7 @@ impl AiProvider for ClaudeProvider {
                     message: ChatMessage {
                         role: response.role,
                         content: content_text,
+                        image: None,
                     },
                     finish_reason: response.stop_sequence.unwrap_or("STOP".to_string()),
                 },

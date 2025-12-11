@@ -93,6 +93,7 @@ impl AiProvider for OpenRouterProvider {
             message: ChatMessage {
                 role: choice.message.role,
                 content: choice.message.content,
+                image: None,
             },
             finish_reason: choice.finish_reason.unwrap_or_else(|| "stop".to_string()),
         }).collect();

@@ -7,6 +7,7 @@ import TopDock from "@/components/Dock/TopDock";
 import AiModal from "@/components/AiModal";
 import SettingsModal from "@/components/settings/SettingsModal";
 import HistoryModal from "@/components/HistoryModal";
+import VoiceChatModal from "@/components/Dock/VoiceChatModal";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useAi } from "@/contexts/AiContext";
@@ -88,7 +89,7 @@ export default function HomePage() {
     }
   }, [activeModal, userId]);
 
-  const handleChatSubmit = async (text: string) => {
+  const handleChatSubmit = async (text: string, image?: string) => {
     if (!userId) {
         console.error("User not logged in");
         return;
@@ -125,6 +126,7 @@ export default function HomePage() {
           content: text,
           model: activeModel || (activeProvider === "Google" ? "gemini-1.5-flash" : "gpt-4o"), 
           temperature: 0.7,
+          image: image, // Pass the image
         },
       });
 
@@ -154,6 +156,13 @@ export default function HomePage() {
         isOpen={activeModal === "ai-response"} 
         onClose={() => setActiveModal(null)}
         message={aiMessage}
+      />
+
+      {/* Voice Chat Modal */}
+      <VoiceChatModal 
+        isOpen={activeModal === "listen"} 
+        onClose={() => setActiveModal(null)} 
+        onSend={handleChatSubmit}
       />
 
       {/* Settings Modal */}

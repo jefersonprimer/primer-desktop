@@ -15,8 +15,22 @@ interface AiContextType {
   setActiveProvider: (provider: ProviderType) => void;
   activeModel: string;
   setActiveModel: (model: string) => void;
+  
+  transcriptionModel: string;
+  setTranscriptionModel: (model: string) => void;
+  
+  imageModel: string;
+  setImageModel: (model: string) => void;
+
+  inputDeviceId: string;
+  setInputDeviceId: (id: string) => void;
+
+  outputDeviceId: string;
+  setOutputDeviceId: (id: string) => void;
+
   refreshConfig: () => Promise<void>;
   getModelForProvider: (provider: ProviderType) => string | undefined;
+  getApiKeyForProvider: (provider: ProviderType) => string | undefined;
 }
 
 const AiContext = createContext<AiContextType | undefined>(undefined);
@@ -31,6 +45,22 @@ export function AiProvider({ children }: { children: ReactNode }) {
 
   const [activeModel, setActiveModelState] = useState<string>(() => {
     return localStorage.getItem("ai_active_model") || "gemini-1.5-flash";
+  });
+
+  const [transcriptionModel, setTranscriptionModelState] = useState<string>(() => {
+    return localStorage.getItem("ai_transcription_model") || "whisper-1";
+  });
+
+  const [imageModel, setImageModelState] = useState<string>(() => {
+    return localStorage.getItem("ai_image_model") || "dall-e-3";
+  });
+
+  const [inputDeviceId, setInputDeviceIdState] = useState<string>(() => {
+    return localStorage.getItem("ai_input_device") || "default";
+  });
+
+  const [outputDeviceId, setOutputDeviceIdState] = useState<string>(() => {
+    return localStorage.getItem("ai_output_device") || "default";
   });
 
   const [apiKeys, setApiKeys] = useState<ApiKeyDto[]>([]);
@@ -87,9 +117,34 @@ export function AiProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("ai_active_model", model);
   };
 
+  const setTranscriptionModel = (model: string) => {
+    setTranscriptionModelState(model);
+    localStorage.setItem("ai_transcription_model", model);
+  };
+
+  const setImageModel = (model: string) => {
+    setImageModelState(model);
+    localStorage.setItem("ai_image_model", model);
+  };
+
+  const setInputDeviceId = (id: string) => {
+    setInputDeviceIdState(id);
+    localStorage.setItem("ai_input_device", id);
+  };
+
+  const setOutputDeviceId = (id: string) => {
+    setOutputDeviceIdState(id);
+    localStorage.setItem("ai_output_device", id);
+  };
+
   const getModelForProvider = (provider: ProviderType) => {
      const providerKey = provider === "Google" ? "gemini" : provider.toLowerCase();
      return apiKeys.find(k => k.provider === providerKey)?.selected_model;
+  }
+
+  const getApiKeyForProvider = (provider: ProviderType) => {
+     const providerKey = provider === "Google" ? "gemini" : provider.toLowerCase();
+     return apiKeys.find(k => k.provider === providerKey)?.api_key;
   }
 
   return (
@@ -98,8 +153,17 @@ export function AiProvider({ children }: { children: ReactNode }) {
       setActiveProvider, 
       activeModel, 
       setActiveModel,
+      transcriptionModel,
+      setTranscriptionModel,
+      imageModel,
+      setImageModel,
+      inputDeviceId,
+      setInputDeviceId,
+      outputDeviceId,
+      setOutputDeviceId,
       refreshConfig,
-      getModelForProvider
+      getModelForProvider,
+      getApiKeyForProvider
     }}>
       {children}
     </AiContext.Provider>

@@ -76,9 +76,17 @@ impl ChatService for ChatServiceImpl {
         // We'll include all previous messages (which now includes the user message we just saved)
         let chat_messages: Vec<ChatMessage> = previous_messages
             .iter()
-            .map(|msg| ChatMessage {
-                role: msg.role.clone(),
-                content: msg.content.clone(),
+            .map(|msg| {
+                let image = if msg.id == user_message.id {
+                    request.image.clone()
+                } else {
+                    None
+                };
+                ChatMessage {
+                    role: msg.role.clone(),
+                    content: msg.content.clone(),
+                    image,
+                }
             })
             .collect();
 

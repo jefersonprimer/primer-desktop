@@ -3,7 +3,7 @@ interface Props {
   size: number;
 }
 
-export default function MicIcon({ color="currentColor", size }: Props) {
+export default function HeadsetIcon({ color="currentColor", size }: Props) {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg"
@@ -16,9 +16,8 @@ export default function MicIcon({ color="currentColor", size }: Props) {
       stroke-linecap="round"
       stroke-linejoin="round"
     >
-      <path d="M12 19v3"/>
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-      <rect x="9" y="2" width="6" height="13" rx="3"/>
+      <path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/>
+      <path d="M21 16v2a4 4 0 0 1-4 4h-5"/>
     </svg>
   );
 }

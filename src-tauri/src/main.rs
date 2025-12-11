@@ -2,7 +2,7 @@
 
 use app_lib::{
     app_state::AppState,
-    commands::{chat_commands, email_commands, user_commands, window_commands},
+    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands},
     config::Config,
     clickthrough,
     visibility,
@@ -195,6 +195,8 @@ async fn main() {
             window_commands::get_window_opacity,
             window_commands::enable_full_stealth,
             window_commands::disable_full_stealth,
+            // Screen commands
+            screen_commands::capture_screen,
         ])
         .setup(|app| {
             let win = app.get_webview_window("main").unwrap();

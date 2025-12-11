@@ -1,6 +1,6 @@
 export default function PremiumTab() {
   return (
-    <div className="w-full p-6 pb-8 text-white">
+    <div className="w-full bg-black h-full p-6 pb-8 text-white">
       <h2 className="text-2xl font-semibold mb-8">Assinatura</h2>
 
       <div className="bg-black/30 border border-white/10 rounded-2xl w-full max-w-3xl">

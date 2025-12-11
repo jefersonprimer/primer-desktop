@@ -21,6 +21,7 @@ pub struct SendMessageDto {
     pub model: String,
     pub temperature: Option<f32>,
     pub max_tokens: Option<u32>,
+    pub image: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

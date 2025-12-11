@@ -14,6 +14,7 @@ pub struct ChatCompletionRequest {
 pub struct ChatMessage {
     pub role: String, // e.g., "user", "assistant"
     pub content: String,
+    pub image: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

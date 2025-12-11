@@ -18,7 +18,7 @@ impl AddApiKeyUseCase {
 
     pub async fn execute(&self, user_id: Uuid, provider: String, api_key_value: String, selected_model: Option<String>) -> Result<UserApiKey> {
         // Basic validation for provider
-        if !["openai", "gemini", "claude_code"].contains(&provider.as_str()) {
+        if !["openai", "gemini", "claude_code", "openrouter"].contains(&provider.as_str()) {
             return Err(anyhow!("Invalid AI provider specified."));
         }
 

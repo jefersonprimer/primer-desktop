@@ -1,14 +1,13 @@
-import React from "react";
 
 export default function HelpTab() {
   return (
-    <div className="w-full p-6 text-white flex flex-col gap-6 pb-8">
+    <div className="w-full bg-black p-6 text-white flex flex-col gap-6 pb-8">
       <h2 className="text-2xl font-semibold mb-6">Ajuda</h2>
       <div className="w-full gap-6">
         <div className="col-span-9 bg-black/30 rounded-2xl p-6 border border-white/10 space-y-8">
             <h3 className="text-xl font-semibold mb-4">Comunidade</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-black/40 border-white/10 text-white rounded-2xl">
+              <div className="bg-black/40 border border-white text-white rounded-2xl">
                 <div className="p-4 space-y-4">
                   <p className="text-lg font-medium flex items-center gap-2">💬 Discord</p>
                   <p className="text-sm text-gray-300">Junte-se à nossa comunidade no Discord para obter ajuda, compartilhar feedback e conectar-se.</p>
@@ -16,7 +15,7 @@ export default function HelpTab() {
                 </div>
               </div>
 
-              <div className="bg-black/40 border-white/10 text-white rounded-2xl">
+              <div className="bg-black/40 border border-white text-white rounded-2xl">
                 <div className="p-4 space-y-4">
                   <p className="text-lg font-medium flex items-center gap-2">🔧 Suporte</p>
                   <p className="text-sm text-gray-300">Precisa de ajuda com algo específico? Confira nossa documentação.</p>

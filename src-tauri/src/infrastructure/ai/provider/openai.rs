@@ -91,6 +91,7 @@ impl AiProvider for OpenAIProvider {
             message: ChatMessage {
                 role: choice.message.role,
                 content: choice.message.content,
+                image: None,
             },
             finish_reason: choice.finish_reason,
         }).collect();
