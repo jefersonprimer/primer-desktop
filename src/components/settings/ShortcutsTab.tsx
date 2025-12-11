@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import ShortcutInputButton from "./ShortcutInputButton";
 import { useAuth } from "../../contexts/AuthContext";
@@ -14,7 +14,11 @@ interface GetShortcutsResponse {
   shortcuts: ShortcutDto[];
 }
 
-export default function ShortcutsTab() {
+export interface ShortcutsTabHandle {
+  save: () => Promise<void>;
+}
+
+const ShortcutsTab = forwardRef<ShortcutsTabHandle>((_, ref) => {
   const { userId } = useAuth();
   const [shortcuts, setShortcuts] = useState({
     ask: "Ctrl + Enter",
@@ -24,7 +28,10 @@ export default function ShortcutsTab() {
     toggle_top_bar: "Ctrl + M",
   });
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    save: handleSave
+  }));
 
   useEffect(() => {
     if (userId) {
@@ -58,7 +65,6 @@ export default function ShortcutsTab() {
   async function handleSave() {
     if (!userId) return;
     try {
-      setSaving(true);
       const actions = [
         { action: "ask", keys: shortcuts.ask },
         { action: "screenshot", keys: shortcuts.screenshot },
@@ -80,8 +86,6 @@ export default function ShortcutsTab() {
     } catch (error) {
       console.error("Failed to save shortcuts:", error);
       alert("Erro ao salvar atalhos.");
-    } finally {
-      setSaving(false);
     }
   }
 
@@ -220,4 +224,6 @@ export default function ShortcutsTab() {
       </div>
     </div>
   );
-}
+});
+
+export default ShortcutsTab;

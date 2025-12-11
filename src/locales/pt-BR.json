@@ -1,0 +1,24 @@
+{
+  "welcome": {
+    "title": "Bem-vindo ao Perssua",
+    "description": "Seu assistente em tempo real durante reuniões, aulas, podcasts, entrevistas e atividades online",
+    "loginButton": "Entrar ou Criar Conta"
+  },
+  "account": {
+    "title": "Conta",
+    "description": "Faça login para acessar recursos premium, sincronizar suas configurações e acompanhar seu uso.",
+    "signOut": "Sair",
+    "language": {
+      "title": "Idioma",
+      "description": "Escolha o idioma da sua preferência para a interface do aplicativo."
+    },
+    "dataManagement": {
+      "title": "Gerenciamento de Dados",
+      "description": "Gerencie seus dados de conversa armazenados localmente. Todos os dados são armazenados localmente no seu dispositivo.",
+      "sessions": "SESSÕES",
+      "messages": "MENSAGENS",
+      "active": "ATIVO",
+      "clearAll": "Limpar Todos os Dados"
+    }
+  }
+}

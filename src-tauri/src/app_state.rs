@@ -32,6 +32,7 @@ use crate::{
                 token_generator::TokenGenerator,
             },
         },
+        config::repository::ConfigRepository,
     },
     infrastructure::{
         ai::{
@@ -63,6 +64,7 @@ use crate::{
             sqlite_user_api_key_repository::SqliteUserApiKeyRepository,
             sqlite_shortcut_repository::SqliteShortcutRepository,
         },
+        config::sqlite::SqliteConfigRepository,
     },
 };
 
@@ -78,6 +80,8 @@ pub struct AppState {
     pub postgres_chat_repo: Arc<dyn ChatRepository>,
     pub sqlite_message_repo: Arc<dyn MessageRepository>,
     pub postgres_message_repo: Arc<dyn MessageRepository>,
+
+    pub config_repo: Arc<dyn ConfigRepository>,
 
     pub chat_service: Arc<dyn ChatService>,
 
@@ -105,6 +109,9 @@ impl AppState {
 
         let sqlite_shortcut_repo: Arc<dyn ShortcutRepository> =
             Arc::new(SqliteShortcutRepository::new(sqlite_pool.clone()));
+        
+        let config_repo: Arc<dyn ConfigRepository> =
+            Arc::new(SqliteConfigRepository::new(sqlite_pool.clone()));
 
         let pg_url = &config.database.database_url;
         let pg_pool_result = connect_pg(pg_url).await;
@@ -186,6 +193,7 @@ impl AppState {
             postgres_chat_repo,
             sqlite_message_repo,
             postgres_message_repo,
+            config_repo,
             chat_service,
             password_hasher,
             token_generator,

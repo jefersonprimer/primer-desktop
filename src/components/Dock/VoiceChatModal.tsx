@@ -109,7 +109,7 @@ export default function VoiceChatModal({ isOpen, onClose, onSend }: Props) {
     } catch (err: any) {
       console.error("Error accessing microphone:", err);
       if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-          setError("Permissão de microfone negada. Verifique as configurações do sistema.");
+          setError(`Permissão de microfone negada (${err.message}). Verifique as configurações do sistema.`);
       } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
           setError("Nenhum microfone encontrado.");
       } else {

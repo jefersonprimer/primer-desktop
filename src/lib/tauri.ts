@@ -35,3 +35,15 @@ export async function hideFromTaskbar(): Promise<void> {
 export async function showInTaskbar(): Promise<void> {
   return await invoke('show_in_taskbar_cmd');
 }
+
+export interface AppConfig {
+  language: string;
+}
+
+export async function getAppConfig(): Promise<AppConfig> {
+  return await invoke('get_app_config');
+}
+
+export async function setAppLanguage(language: string): Promise<void> {
+  return await invoke('set_language', { language });
+}

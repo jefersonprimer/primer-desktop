@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import WelcomeModal from "../components/WelcomoModal.tsx";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -47,27 +47,38 @@ function AuthRedirectHandler() {
   return null;
 }
 
+function RootRoute() {
+  const { isAuthenticated } = useAuth();
+  if (isAuthenticated) {
+    return <Navigate to="/home" replace />;
+  }
+  return <WelcomeModal />;
+}
+
 export default function AppRoutes() {
+  const { isLoading } = useAuth();
+
   return (
     <>
       <SplashHandler />
       <AuthRedirectHandler />
-      <Routes>
-        <Route path="/" element={<WelcomeModal/>} />
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />   
-      </Routes>
+      {!isLoading && (
+        <Routes>
+          <Route path="/" element={<RootRoute />} />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />   
+        </Routes>
+      )}
     </>
   );
 }
-

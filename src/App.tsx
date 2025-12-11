@@ -4,9 +4,28 @@ import { StealthModeProvider } from "./contexts/StealthModeContext";
 import { AiProvider } from "./contexts/AiContext";
 import AppRoutes from "./routes";
 import StealthMirror from "./components/StealthMirror";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { getAppConfig } from "./lib/tauri";
 
 
 function App() {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    const initLanguage = async () => {
+      try {
+        const config = await getAppConfig();
+        if (config.language) {
+          await i18n.changeLanguage(config.language);
+        }
+      } catch (e) {
+        console.error("Failed to load app config:", e);
+      }
+    };
+    initLanguage();
+  }, [i18n]);
+
   return (
     <AuthProvider>
       <StealthModeProvider>

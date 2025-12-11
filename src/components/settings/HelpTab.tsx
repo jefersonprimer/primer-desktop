@@ -36,7 +36,7 @@ export default function HelpTab() {
           <div>
             <h3 className="text-xl font-semibold mb-3">Logs de Depuração</h3>
             <p className="text-sm text-gray-300 mb-2 font-mono bg-black/50 p-2 rounded border border-white/5 overflow-x-auto">
-              /home/primer/.config/perssua/logs/main.log
+              /home/primer/.config/primer/logs/main.log
             </p>
 
             <div className="flex flex-wrap gap-4">

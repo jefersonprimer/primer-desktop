@@ -1,44 +1,62 @@
-import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { setAppLanguage } from "../../lib/tauri";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function AccountTab() {
-  const [language, setLanguage] = useState("pt-BR");
+  const { t, i18n } = useTranslation();
+  const { userEmail, logout } = useAuth();
+
+  const handleLanguageChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const lang = e.target.value;
+      await i18n.changeLanguage(lang);
+      try {
+          await setAppLanguage(lang);
+      } catch (err) {
+          console.error("Failed to save language preference:", err);
+      }
+  };
+  
+  const currentLang = (i18n.language === 'pt' || i18n.language === 'pt-BR') ? 'pt-BR' : 'en-US';
 
   return (
     <div className="w-full bg-black p-6 pb-8 text-white">
       {/* CONTA */}
-      <h2 className="text-xl font-semibold mb-4">Conta</h2>
+      <h2 className="text-xl font-semibold mb-4">{t("account.title")}</h2>
       <p className="text-sm text-gray-300 mb-4">
-        Faça login para acessar recursos premium, sincronizar suas configurações e acompanhar seu uso.
+        {t("account.description")}
       </p>
 
       <div className="bg-black/40 border border-white/10 rounded-2xl p-5 mb-8">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-lg font-semibold">
-            S
+            {userEmail?.[0]?.toUpperCase() || "U"}
           </div>
 
           <div className="flex-1">
-            <p className="text-base font-medium">User</p>
-            <p className="text-sm text-gray-300">gabriellprimer@gmail.com</p>
+            <p className="text-base font-medium">{userEmail || "User"}</p>
+            <p className="text-sm text-gray-300">Plano Gratuito</p>
           </div>
 
-          <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-sm">
-            Sign Out
+          <button 
+            onClick={logout}
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-sm cursor-pointer"
+          >
+            {t("account.signOut")}
           </button>
         </div>
       </div>
 
       {/* IDIOMA */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-1">Idioma</h3>
+        <h3 className="text-lg font-semibold mb-1">{t("account.language.title")}</h3>
         <p className="text-sm text-gray-300 mb-2">
-          Escolha o idioma da sua preferência para a interface do aplicativo.
+          {t("account.language.description")}
         </p>
 
         <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none"
+          value={currentLang}
+          onChange={handleLanguageChange}
+          className="w-full text-black border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none"
         >
           <option value="pt-BR">Português (Brasil)</option>
           <option value="en-US">English (US)</option>
@@ -47,30 +65,30 @@ export default function AccountTab() {
 
       {/* GERENCIAMENTO DE DADOS */}
       <div>
-        <h3 className="text-lg font-semibold mb-1">Gerenciamento de Dados</h3>
+        <h3 className="text-lg font-semibold mb-1">{t("account.dataManagement.title")}</h3>
         <p className="text-sm text-gray-300 mb-4">
-          Gerencie seus dados de conversa armazenados localmente. Todos os dados são armazenados localmente no seu dispositivo.
+          {t("account.dataManagement.description")}
         </p>
 
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="bg-black/40 border border-white/10 rounded-xl p-4 flex flex-col items-center">
             <p className="text-2xl font-semibold">2</p>
-            <p className="text-xs text-gray-300">SESSÕES</p>
+            <p className="text-xs text-gray-300">{t("account.dataManagement.sessions")}</p>
           </div>
 
           <div className="bg-black/40 border border-white/10 rounded-xl p-4 flex flex-col items-center">
             <p className="text-2xl font-semibold">4</p>
-            <p className="text-xs text-gray-300">MENSAGENS</p>
+            <p className="text-xs text-gray-300">{t("account.dataManagement.messages")}</p>
           </div>
 
           <div className="bg-black/40 border border-white/10 rounded-xl p-4 flex flex-col items-center">
             <p className="text-2xl font-semibold">0</p>
-            <p className="text-xs text-gray-300">ATIVO</p>
+            <p className="text-xs text-gray-300">{t("account.dataManagement.active")}</p>
           </div>
         </div>
 
         <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-sm">
-          Limpar Todos os Dados
+          {t("account.dataManagement.clearAll")}
         </button>
       </div>
     </div>

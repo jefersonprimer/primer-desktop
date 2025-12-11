@@ -10,15 +10,21 @@ export default function PermissionsTab() {
   }, []);
 
   const checkPermissions = async () => {
-    // Check Mic (Check if we already have labels, meaning permission granted)
+    // Check Mic (Check if we already have labels, meaning permission granted OR if we have a manual override)
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const hasMicPermission = devices.some(d => d.kind === 'audioinput' && d.label !== '');
-      if (hasMicPermission) {
+      const hasOverride = localStorage.getItem("app_permission_mic_override") === "true";
+      
+      if (hasMicPermission || hasOverride) {
         setMicPermission(true);
       }
     } catch (e) {
       console.error("Error checking mic permission", e);
+      // Even if check fails, trust the override if it exists
+      if (localStorage.getItem("app_permission_mic_override") === "true") {
+        setMicPermission(true);
+      }
     }
 
     // Check Screen (Local Storage)
@@ -28,8 +34,9 @@ export default function PermissionsTab() {
 
   const handleMicToggle = async () => {
     if (micPermission) {
-        // User wants to disable? Usually we can't revoke, but we can update UI state.
+        // User wants to disable?
         setMicPermission(false);
+        localStorage.removeItem("app_permission_mic_override");
         return;
     }
 
@@ -39,6 +46,7 @@ export default function PermissionsTab() {
       // Stop immediately, we just wanted permission
       stream.getTracks().forEach(t => t.stop());
       setMicPermission(true);
+      localStorage.setItem("app_permission_mic_override", "true");
     } catch (e: any) {
       console.error("Mic permission denied", e);
       // Allow manual override
@@ -47,6 +55,7 @@ export default function PermissionsTab() {
       );
       if (force) {
         setMicPermission(true);
+        localStorage.setItem("app_permission_mic_override", "true");
       }
     } finally {
       setLoadingMic(false);

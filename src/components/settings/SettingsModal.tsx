@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import Modal from "./Modal";
 import Sidebar from "./SideBar";
@@ -10,7 +10,7 @@ import AudioScreenTab from "./AudioScreenTab";
 import PrivacyTab from "./PrivacyTab";
 import PermissionsTab from "./PermissionsTab";
 import ResourcesTab from "./ResourcesTab";
-import ShortcutsTab from "./ShortcutsTab";
+import ShortcutsTab, { type ShortcutsTabHandle } from "./ShortcutsTab";
 import AccountTab from "./AccountTab";
 import PremiumTab from "./PremiumTab";
 import HelpTab from "./HelpTab";
@@ -41,6 +41,7 @@ export default function SettingsModal({ open, onClose }: Props) {
   const [activeItem, setActiveItem] = useState("API e Modelos");
   const [activeApiTab, setActiveApiTab] = useState("Google");
   const [apiKeys, setApiKeys] = useState<ApiKeyDto[]>([]);
+  const shortcutsRef = useRef<ShortcutsTabHandle>(null);
 
   // Form State
   const [activeApiKey, setActiveApiKey] = useState("");
@@ -119,6 +120,8 @@ export default function SettingsModal({ open, onClose }: Props) {
       } catch (error) {
         console.error("Failed to save:", error);
       }
+    } else if (activeItem === "Atalhos" && shortcutsRef.current) {
+      await shortcutsRef.current.save();
     } else {
       console.log("Save not implemented for this tab yet");
     }
@@ -173,7 +176,7 @@ export default function SettingsModal({ open, onClose }: Props) {
       case "Recursos":
         return <ResourcesTab />;
       case "Atalhos":
-        return <ShortcutsTab />;
+        return <ShortcutsTab ref={shortcutsRef} />;
       case "Privacidade":
         return <PrivacyTab />;
       case "Conta":

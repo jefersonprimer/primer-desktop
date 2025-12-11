@@ -2,7 +2,7 @@
 
 use app_lib::{
     app_state::AppState,
-    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands},
+    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands},
     config::Config,
     clickthrough,
     visibility,
@@ -189,6 +189,9 @@ async fn main() {
             enable_stealth_mode_cmd,
             disable_stealth_mode_cmd,
             get_stealth_status_cmd,
+            // config commands
+            config_commands::get_app_config,
+            config_commands::set_language,
             // New commands
             window_commands::set_always_on_top,
             window_commands::set_window_opacity,

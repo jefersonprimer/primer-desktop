@@ -1,0 +1,24 @@
+{
+  "welcome": {
+    "title": "Welcome to Perssua",
+    "description": "Your realtime assistant during meetings, classes, podcasts, interviews, and online activities",
+    "loginButton": "Login or Create Account"
+  },
+  "account": {
+    "title": "Account",
+    "description": "Log in to access premium features, sync your settings and track your usage.",
+    "signOut": "Sign Out",
+    "language": {
+      "title": "Language",
+      "description": "Choose your preferred language for the application interface."
+    },
+    "dataManagement": {
+      "title": "Data Management",
+      "description": "Manage your conversation data stored locally. All data is stored locally on your device.",
+      "sessions": "SESSIONS",
+      "messages": "MESSAGES",
+      "active": "ACTIVE",
+      "clearAll": "Clear All Data"
+    }
+  }
+}
