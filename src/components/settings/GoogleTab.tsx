@@ -126,10 +126,9 @@ export default function GoogleTab({
       </p>
 
       <div className="grid grid-cols-4 gap-3 mb-6">
-        {/* Rápido */}
         <button
           onClick={() => handlePerformanceChange("rapido")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition ${
+          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition ${
             performanceMode === "rapido"
               ? "bg-neutral-800 border-neutral-600"
               : "bg-black border-neutral-800 hover:border-neutral-700"
@@ -139,14 +138,12 @@ export default function GoogleTab({
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
           </svg>
           <span className="font-medium mb-1">Rápido</span>
-          <span className="font-medium mb-1">Respostas rápidas, respostas curtas</span>
-          <span className="text-xs text-neutral-400 text-center">Flash Lite</span>
+          <span className="font-medium text-xs">Respostas rápidas, respostas curtas</span>
         </button>
 
-        {/* Padrão */}
         <button
           onClick={() => handlePerformanceChange("padrao")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition ${
+          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition ${
             performanceMode === "padrao"
               ? "bg-neutral-800 border-neutral-600"
               : "bg-black border-neutral-800 hover:border-neutral-700"
@@ -157,14 +154,12 @@ export default function GoogleTab({
             <circle cx="12" cy="12" r="3" fill="currentColor" />
           </svg>
           <span className="font-medium mb-1">Padrão</span>
-          <span className="font-medium mb-1">Boa combinação de velocidade e qualidade</span>
-          <span className="text-xs text-neutral-400 text-center">Gemini 2.5 Flash</span>
+          <span className="font-medium text-xs">Boa combinação de velocidade e qualidade</span>
         </button>
 
-        {/* Qualidade */}
         <button
           onClick={() => handlePerformanceChange("qualidade")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition ${
+          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition ${
             performanceMode === "qualidade"
               ? "bg-neutral-800 border-neutral-600"
               : "bg-black border-neutral-800 hover:border-neutral-700"
@@ -174,14 +169,12 @@ export default function GoogleTab({
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
           <span className="font-medium mb-1">Qualidade</span>
-          <span className="font-medium mb-1">Respostas completas, respostas detalhadas</span>
-          <span className="text-xs text-neutral-400 text-center">Gemini 2.5 Pro</span>
+          <span className="font-medium text-xs">Respostas completas, respostas detalhadas</span>
         </button>
 
-        {/* Personalizado */}
         <button
           onClick={() => handlePerformanceChange("personalizado")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${
+          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition relative ${
             performanceMode === "personalizado"
               ? "bg-indigo-950 border-indigo-700"
               : "bg-black border-neutral-800 hover:border-neutral-700"
@@ -196,7 +189,7 @@ export default function GoogleTab({
             <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.364 6.364l-2.121-2.121M8.757 8.757L6.636 6.636m12.728 0l-2.121 2.121m-9.9 9.9l-2.121 2.121" />
           </svg>
           <span className="font-medium mb-1">Personalizado</span>
-          <span className="text-xs text-neutral-400 text-center">Escolha seus próprios modelos</span>
+          <span className="text-xs">Escolha seus próprios modelos</span>
         </button>
       </div>
 
@@ -302,6 +295,17 @@ export default function GoogleTab({
           </p>
         </div>
       )}
+
+      <div className="mt-4">
+        <a 
+          href="https://ai.google.dev/gemini-api/docs/models" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-sm text-blue-400 hover:text-blue-300 underline"
+        >
+          Ver detalhes do modelo
+        </a>
+      </div>
     </div>
   );
 }

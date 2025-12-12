@@ -47,3 +47,15 @@ export async function getAppConfig(): Promise<AppConfig> {
 export async function setAppLanguage(language: string): Promise<void> {
   return await invoke('set_language', { language });
 }
+
+export async function openLogFolder(): Promise<void> {
+  return await invoke('open_log_folder');
+}
+
+export async function readLogContent(): Promise<string> {
+  return await invoke('read_log_content');
+}
+
+export async function getLogPath(): Promise<string> {
+  return await invoke('get_log_path_cmd');
+}

@@ -1,16 +1,22 @@
+import CircleStarIcon from "../ui/icons/CircleStarIcon";
+import LockKeyHoleIcon from "../ui/icons/LockKeyHoleIcon";
+
 export default function PremiumTab() {
   return (
     <div className="w-full bg-black h-full p-6 pb-8 text-white">
-      <h2 className="text-2xl font-semibold mb-8">Assinatura</h2>
+      <div className="flex items-center mb-6 gap-2">
+        <CircleStarIcon size={24} color="#FAC936"/>
+        <h2 className="text-2xl font-semibold">Assinatura</h2>
+      </div>
 
-      <div className="bg-black/30 border border-white/10 rounded-2xl w-full max-w-3xl">
+      <div className="bg-[#141414] border border-neutral-700 rounded-2xl w-full max-w-3xl">
         <div className="p-6 space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-yellow-400 text-xl font-semibold">
+            <div className="flex items-center gap-2 text-[#F9F9F9] text-xl font-semibold">
               Plano Grátis
             </div>
-            <div className="px-3 py-1 text-sm bg-gray-700 rounded-lg border border-white/10 text-gray-300 flex items-center gap-1">
+            <div className="px-3 py-1 text-sm bg-[#27292D] rounded-lg border border-white/10 text-gray-300 flex items-center gap-1">
               Grátis
             </div>
           </div>
@@ -22,21 +28,25 @@ export default function PremiumTab() {
           {/* Features */}
           <div className="grid grid-cols-2 gap-3 text-gray-300 text-sm">
             <div className="flex items-center gap-2">
-               Uso ilimitado
+              <LockKeyHoleIcon size={18} />
+              Uso ilimitado
             </div>
             <div className="flex items-center gap-2">
-               Assistentes personalizados
+              <LockKeyHoleIcon size={18} />
+              Assistentes personalizados
             </div>
             <div className="flex items-center gap-2">
-               Histórico de sessões
+              <LockKeyHoleIcon size={18} />
+              Histórico de sessões
             </div>
             <div className="flex items-center gap-2">
-               Modo furtivo
+              <LockKeyHoleIcon size={18} />
+              Modo furtivo
             </div>
           </div>
 
           {/* button */}
-          <button className="w-full bg-gray-700 hover:bg-gray-600 border border-white/10 rounded-xl py-5 text-base">
+          <button className="w-full bg-[#262626] hover:bg-[#262626]/40 border border-neutral-700 rounded-xl py-5 text-base">
             Ver Planos
           </button>
         </div>

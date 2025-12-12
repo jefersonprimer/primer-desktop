@@ -1,4 +1,5 @@
 import { useStealthMode } from '../../contexts/StealthModeContext'; // Adjust path as needed
+import CircleStarIcon from "../ui/icons/CircleStarIcon";
 
 export default function PrivacyTab() {
   const { isStealth, toggleStealth } = useStealthMode();
@@ -6,26 +7,14 @@ export default function PrivacyTab() {
 
   return (
     <div className="w-full bg-black p-6 text-white flex flex-col gap-6 pb-8">
-      <h2 className="text-2xl font-semibold flex items-center gap-2">
-       <svg 
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
-          <path d="M12 22V2"/>
-       </svg>
-        Privacidade
-      </h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold flex items-center gap-2">Modo furtivo</h2>
+        <p className="text-sm uppercase bg-[#141414] border border-neutral-700 py-1 px-4 rounded-2xl">privacidade</p>
+      </div>
 
-      <div className="border border-neutral-800 rounded-2xl shadow-xl">
-        <div className="p-6 flex flex-col gap-6">
+      <div >
+        <div className="flex flex-col gap-6">
+         <div className="p-4 border border-neutral-800 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-medium">Modo Furtivo</h3>
             <button
@@ -42,9 +31,11 @@ export default function PrivacyTab() {
             </button>
           </div>
 
-          <div className="bg-neutral-800 border border-yellow-600/40 text-yellow-400 p-4 rounded-xl text-sm">
+          <div className="flex items-center bg-[#1A1501] border border-yellow-600/40 text-yellow-400 p-2 gap-2 my-2 rounded-xl text-sm">
+            <CircleStarIcon size={18} color="#F8E23A"/>
             Stealth Mode é premium. Faça upgrade para ocultar o app da dock e taskbar.
           </div>
+          </div> 
 
           <p className="text-neutral-400 text-sm leading-relaxed">
             O modo furtivo é ativado sempre na inicialização para máxima privacidade. Essa configuração controla se o conteúdo está visível para outros aplicativos.
@@ -53,7 +44,7 @@ export default function PrivacyTab() {
           {isLinux && (
             <div className="bg-neutral-800 border border-red-600/40 text-red-400 p-4 rounded-xl text-sm mt-4">
               <h4 className="font-semibold text-base mb-2">Atenção: Modo Furtivo no Linux (X11 Apenas)</h4>
-              <p className="mb-3">
+              <p className="mb-3 text-white">
                 O Modo Furtivo e recursos de Click-Through **são compatíveis apenas com X11 no Linux**. Se você estiver usando Wayland, essas funcionalidades não estarão disponíveis. Por favor, mude para X11 para usar o Modo Furtivo.
               </p>
               <h5 className="font-medium text-sm mb-1">Como mudar para X11 no Ubuntu (GNOME):</h5>
@@ -65,7 +56,7 @@ export default function PrivacyTab() {
                 <li>Agora faça login normalmente.</li>
               </ol>
               <p className="mt-3 text-xs text-neutral-300">
-                <strong>🔍 Como confirmar depois:</strong> Abra o terminal e rode <code>echo $XDG_SESSION_TYPE</code>. Você deve ver <code>x11</code>.
+                <strong>Como confirmar depois:</strong> Abra o terminal e rode <code>echo $XDG_SESSION_TYPE</code>. Você deve ver <code>x11</code>.
               </p>
             </div>
           )}
@@ -80,15 +71,8 @@ export default function PrivacyTab() {
               Sempre teste com um amigo antes da reunião para garantir invisibilidade.
             </p>
           </div>
-
-          <div className="flex justify-end">
-            <button className="px-6 py-2 rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-lg">
-              Salvar
-            </button>
-          </div>
         </div>
       </div>
-
     </div>
   );
 }

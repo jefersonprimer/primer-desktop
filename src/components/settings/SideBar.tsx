@@ -27,7 +27,7 @@ interface Props {
 
 export default function Sidebar({ activeItem, onSelectItem }: Props) {
   return (
-    <aside className="w-64 bg-[#141414] border-r border-neutral-700 h-full py-3 px-2">
+    <aside className="w-52 bg-[#141414] border-r border-neutral-700 h-full py-3 px-2">
       <nav className="flex flex-col space-y-2">
         {items.map((item) => (
           <button
@@ -38,13 +38,13 @@ export default function Sidebar({ activeItem, onSelectItem }: Props) {
               text-sm font-medium rounded-lg
               transition
               text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === item.label ? "border border-[#3A409F] bg-neutral-800 text-white" : ""}
+              ${activeItem === item.label ? "border border-[#3A409F] bg-neutral-800" : ""}
             `}
           >
             {activeItem === item.label && (
               <div className="absolute left-0 h-8 w-1 bg-[#3A409F] rounded-r-full" />
             )}
-            <span className="text-lg">{item.icon}</span>
+            <span className={`text-lg ${activeItem === item.label ? "text-[#4B63ED]" : ""}`}>{item.icon}</span>
             {item.label}
           </button>
         ))}

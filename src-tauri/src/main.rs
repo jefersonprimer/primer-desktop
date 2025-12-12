@@ -2,7 +2,7 @@
 
 use app_lib::{
     app_state::AppState,
-    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands},
+    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands},
     config::Config,
     clickthrough,
     visibility,
@@ -192,6 +192,10 @@ async fn main() {
             // config commands
             config_commands::get_app_config,
             config_commands::set_language,
+            // Log commands
+            log_commands::open_log_folder,
+            log_commands::read_log_content,
+            log_commands::get_log_path_cmd,
             // New commands
             window_commands::set_always_on_top,
             window_commands::set_window_opacity,

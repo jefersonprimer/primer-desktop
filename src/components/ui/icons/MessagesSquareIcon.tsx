@@ -1,10 +1,10 @@
 interface Props {
   color?: string;
   fill?: string;
-  size: number;
+  size?: number;
 }
 
-export default function CircleQuestionMarkIcon({ color="currentColor", fill="none", size }: Props) {
+export default function MessagesSquareIcon({ color="currentColor", fill="none", size=24 }: Props) {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg"
@@ -17,9 +17,7 @@ export default function CircleQuestionMarkIcon({ color="currentColor", fill="non
       stroke-linecap="round"
       stroke-linejoin="round"
     >
-      <circle cx="12" cy="12" r="10"/>
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-      <path d="M12 17h.01"/>
+      <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
     </svg>
   );
 }

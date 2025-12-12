@@ -1,6 +1,7 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import ShortcutInputButton from "./ShortcutInputButton";
+import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
 import { useAuth } from "../../contexts/AuthContext";
 
 interface ShortcutDto {
@@ -206,13 +207,12 @@ const ShortcutsTab = forwardRef<ShortcutsTabHandle>((_, ref) => {
 
       {/* Dicas */}
       <div className="mt-6 bg-blue-950/30 border border-blue-900/50 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="12" cy="12" r="10" opacity="0.2"/>
-            <path d="M12 16v-4M12 8h.01"/>
-          </svg>
+        <div className="flex flex-col items-start gap-3">
+          <div className="flex items-center mb-2 gap-1">
+            <CircleAlertIcon size={18}/> 
+            <p className="font-medium">Dicas:</p>
+          </div>
           <div className="text-sm text-neutral-300 space-y-1">
-            <p className="font-medium text-blue-300 mb-2">Dicas:</p>
             <ul className="space-y-1 list-disc list-inside">
               <li>Os atalhos devem incluir uma tecla modificadora (Command/Ctrl ou Alt), exceto quando usar uma tecla única permitida como Caps Lock</li>
               <li>As alterações têm efeito imediato</li>

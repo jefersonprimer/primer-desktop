@@ -270,7 +270,7 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
           rel="noopener noreferrer"
           className="text-sm text-blue-400 hover:text-blue-300 underline"
         >
-          Ver detalhes do modelo no OpenRouter →
+          Ver detalhes do modelo
         </a>
       </div>
     </div>
