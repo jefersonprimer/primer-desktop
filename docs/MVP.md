@@ -11,9 +11,6 @@ futuro:
 4- screenshot automatico.
 5- modelo local.
 6- suporta MCPs (Google Calendar, Drive, Slack).
-7- follow-up questions.
-8- Always on top.
-9- Prompt personalizavel para ser enviado junto a pergunta para a ia.
 
 * os chats vao ser salvos no sqlite, e o usuario pode fazer backups no supabase.
 - frontend tauri 2, vite, ts.

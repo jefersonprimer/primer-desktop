@@ -89,6 +89,12 @@ export default function HomePage() {
     }
   }, [activeModal, userId]);
 
+  useEffect(() => {
+    if (activeModal === "ai-response" && chatId) {
+      fetchMessages(chatId);
+    }
+  }, [activeModal, chatId]);
+
   const handleChatSubmit = async (text: string, image?: string) => {
     if (!userId) {
         console.error("User not logged in");
@@ -131,11 +137,35 @@ export default function HomePage() {
       });
 
       setAiMessage(response.message.content);
+      fetchMessages(currentChatId);
 
     } catch (error) {
       console.error("Chat error:", error);
       setAiMessage("Erro ao processar sua solicitação: " + error);
     }
+  };
+
+  const handleEndSession = async (sendSummary?: boolean) => {
+    if (sendSummary && chatId && userId) {
+      try {
+        await invoke("send_chat_summary", { 
+          dto: { 
+            user_id: userId, 
+            chat_id: chatId 
+          } 
+        });
+        // Optionally show success message (e.g. toast), but for now we just close.
+        console.log("Summary email sent successfully");
+      } catch (e) {
+        console.error("Failed to send summary email", e);
+        alert("Falha ao enviar email com resumo: " + e);
+      }
+    }
+    
+    setChatId(null);
+    setAiMessage("");
+    setHistoryMessages([]);
+    setActiveModal(null);
   };
 
   return (
@@ -156,6 +186,8 @@ export default function HomePage() {
         isOpen={activeModal === "ai-response"} 
         onClose={() => setActiveModal(null)}
         message={aiMessage}
+        messages={historyMessages}
+        onEndSession={handleEndSession}
       />
 
       {/* Voice Chat Modal */}
@@ -208,7 +240,10 @@ export default function HomePage() {
       />
 
       {/* Dock */}
-      <Dock onOpenModal={(modal) => setActiveModal(modal)} />
+      <Dock 
+        onOpenModal={(modal) => setActiveModal(modal)} 
+        hasActiveSession={!!chatId}
+      />
       
       <VisibleButton/>
     </div>

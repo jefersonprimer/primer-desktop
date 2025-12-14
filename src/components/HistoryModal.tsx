@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ChatHistory from "./ChatHistory";
 
 interface ChatSession {
@@ -39,6 +39,11 @@ export default function HistoryModal({
   onDeleteAll,
 }: HistoryModalProps) {
 
+  const [confirmState, setConfirmState] = useState<{
+    type: 'single' | 'all';
+    id?: string;
+  } | null>(null);
+
   // ESC to close
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -52,7 +57,46 @@ export default function HistoryModal({
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-[9999]">
-      <div className="relative w-full max-w-[900px] bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl flex h-[80vh]">
+      <div className="relative w-full max-w-[900px] bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl flex h-[80vh] overflow-hidden">
+        
+        {/* Custom Confirmation Modal Overlay */}
+        {confirmState && (
+          <div className="absolute inset-0 z-50 bg-black/50 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl p-6 w-full max-w-xs transform transition-all scale-100 animate-in zoom-in-95 duration-200">
+              <div className="text-center mb-6">
+                <h3 className="text-white font-semibold text-lg mb-2">
+                  {confirmState.type === 'all' ? 'Limpar Histórico?' : 'Apagar Conversa?'}
+                </h3>
+                <p className="text-neutral-400 text-[13px] leading-relaxed">
+                  {confirmState.type === 'all' 
+                    ? 'Esta ação apagará todas as conversas permanentemente. Não é possível desfazer.' 
+                    : 'Esta conversa será apagada permanentemente. Não é possível desfazer.'}
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    if (confirmState.type === 'all') {
+                      onDeleteAll();
+                    } else if (confirmState.type === 'single' && confirmState.id) {
+                      onDelete(confirmState.id);
+                    }
+                    setConfirmState(null);
+                  }}
+                  className="w-full py-3 px-4 bg-red-500/90 hover:bg-red-500 text-white text-[15px] font-medium rounded-xl transition-all active:scale-[0.98]"
+                >
+                  Apagar
+                </button>
+                <button
+                  onClick={() => setConfirmState(null)}
+                  className="w-full py-3 px-4 bg-[#2c2c2e] hover:bg-[#3a3a3c] text-white text-[15px] font-medium rounded-xl transition-all active:scale-[0.98]"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Botão fechar */}
         <button
@@ -70,11 +114,7 @@ export default function HistoryModal({
             </h2>
             {sessions.length > 0 && (
               <button 
-                onClick={() => {
-                  if (confirm("Tem certeza que deseja apagar todo o histórico?")) {
-                    onDeleteAll();
-                  }
-                }}
+                onClick={() => setConfirmState({ type: 'all' })}
                 className="text-xs text-red-400 hover:text-red-300 hover:underline"
               >
                 Limpar tudo
@@ -112,9 +152,7 @@ export default function HistoryModal({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (confirm("Apagar esta conversa?")) {
-                      onDelete(s.id);
-                    }
+                    setConfirmState({ type: 'single', id: s.id });
                   }}
                   className="absolute right-2 p-2 text-neutral-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"
                   title="Apagar conversa"

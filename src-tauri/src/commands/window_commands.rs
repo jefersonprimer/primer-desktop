@@ -21,50 +21,7 @@ pub async fn set_always_on_top<R: Runtime>(window: WebviewWindow<R>, enabled: bo
     #[cfg(target_os = "macos")]
     return crate::stealth::macos::set_always_on_top(&window, enabled);
     #[cfg(target_os = "linux")]
-    {
-        use std::ffi::CString;
-        use x11::xlib::{XChangeProperty, XCloseDisplay, XFlush, XInternAtom, XOpenDisplay, PropModeReplace, XA_ATOM};
-        use raw_window_handle::{HasWindowHandle, RawWindowHandle};
-        use std::ptr;
-
-        let xid = match window.window_handle().map_err(|e| e.to_string())?.as_raw() {
-            RawWindowHandle::Xlib(h) => h.window,
-            _ => return Err("Not running on X11.".to_string()),
-        };
-
-        unsafe {
-            let display = XOpenDisplay(ptr::null());
-            if display.is_null() {
-                return Err("Failed to open X display".to_string());
-            }
-
-            let net_wm_state = XInternAtom(display, CString::new("_NET_WM_STATE").unwrap().as_ptr(), x11::xlib::False);
-            let net_wm_state_above = XInternAtom(display, CString::new("_NET_WM_STATE_ABOVE").unwrap().as_ptr(), x11::xlib::False);
-
-            let mut atoms = Vec::new();
-            if enabled {
-                atoms.push(net_wm_state_above);
-            }
-            // To be truly correct, we should read the existing _NET_WM_STATE property,
-            // add/remove _NET_WM_STATE_ABOVE, and then write it back.
-            // For now, this replaces the state.
-
-            XChangeProperty(
-                display,
-                xid,
-                net_wm_state,
-                XA_ATOM,
-                32,
-                PropModeReplace,
-                atoms.as_ptr() as *const u8,
-                atoms.len() as i32,
-            );
-
-            XFlush(display);
-            XCloseDisplay(display);
-        }
-        Ok(())
-    }
+    return crate::stealth::linux::set_always_on_top(&window, enabled);
     #[cfg(target_os = "windows")]
     {
         use windows::Win32::UI::WindowsAndMessaging::{SetWindowPos, HWND_TOPMOST, HWND_NOTOPMOST, SWP_NOMOVE, SWP_NOSIZE};

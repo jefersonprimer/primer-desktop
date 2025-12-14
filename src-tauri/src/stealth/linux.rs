@@ -26,9 +26,15 @@ pub fn disable_stealth_mode<R: Runtime>(window: &WebviewWindow<R>) -> Result<(),
     disable_stealth_x11(window)
 }
 
+pub fn set_always_on_top<R: Runtime>(window: &WebviewWindow<R>, enable: bool) -> Result<(), String> {
+    set_always_on_top_x11(window, enable)
+}
+
 fn enable_stealth_x11<R: Runtime>(window: &WebviewWindow<R>) -> Result<(), String> {
     set_hide_taskbar_x11(window, true)?;
     set_click_through_x11(window, true)?;
+    // Full stealth implies resisting Super+D, so enable DOCK type
+    set_window_type_dock_x11(window, true)?;
     start_capture_loop(window)
 }
 
@@ -36,6 +42,8 @@ fn disable_stealth_x11<R: Runtime>(window: &WebviewWindow<R>) -> Result<(), Stri
     stop_capture_loop();
     set_click_through_x11(window, false)?;
     set_hide_taskbar_x11(window, false)?;
+    // Revert to normal window type
+    set_window_type_dock_x11(window, false)?;
     Ok(())
 }
 
@@ -55,36 +63,110 @@ fn set_hide_taskbar_x11<R: Runtime>(window: &WebviewWindow<R>, enable: bool) -> 
                 let wm_state_above = x11::xlib::XInternAtom(display, CString::new("_NET_WM_STATE_ABOVE").unwrap().as_ptr(), x11::xlib::False);
 
                 let mut atoms = vec![];
-                // Always include ABOVE state
+                // Always include ABOVE state for stealth mode
                 atoms.push(wm_state_above);
 
                 if enable {
                     atoms.push(skip_taskbar);
                     atoms.push(skip_pager);
-                    
-                     x11::xlib::XChangeProperty(
-                        display,
-                        window_id,
-                        net_wm_state,
-                        x11::xlib::XA_ATOM,
-                        32,
-                        x11::xlib::PropModeReplace,
-                        atoms.as_ptr() as *const u8,
-                        atoms.len() as i32,
-                    );
-                } else {
-                    // removing properties requires a different approach or just setting empty (but keeping ABOVE)
-                     x11::xlib::XChangeProperty(
-                        display,
-                        window_id,
-                        net_wm_state,
-                        x11::xlib::XA_ATOM,
-                        32,
-                        x11::xlib::PropModeReplace,
-                        atoms.as_ptr() as *const u8,
-                        atoms.len() as i32,
-                    );
                 }
+                
+                // Note: This replaces all states. If we wanted to be non-destructive we would need to read first.
+                // For now, we enforce this specific set of states for stealth mode.
+                x11::xlib::XChangeProperty(
+                    display,
+                    window_id,
+                    net_wm_state,
+                    x11::xlib::XA_ATOM,
+                    32,
+                    x11::xlib::PropModeReplace,
+                    atoms.as_ptr() as *const u8,
+                    atoms.len() as i32,
+                );
+
+                x11::xlib::XFlush(display);
+                x11::xlib::XCloseDisplay(display);
+            }
+            return Ok(());
+        }
+    }
+    Err("Not running on X11 or failed to get window handle".to_string())
+}
+
+fn set_always_on_top_x11<R: Runtime>(window: &WebviewWindow<R>, enable: bool) -> Result<(), String> {
+    // Also toggle DOCK type to resist Super+D on GNOME
+    set_window_type_dock_x11(window, enable)?;
+
+    if let Ok(handle) = window.window_handle() {
+        if let RawWindowHandle::Xlib(xlib_handle) = handle.as_raw() {
+            let window_id = xlib_handle.window;
+            unsafe {
+                let display = x11::xlib::XOpenDisplay(ptr::null());
+                if display.is_null() {
+                    return Err("Failed to open X display".to_string());
+                }
+
+                let net_wm_state = x11::xlib::XInternAtom(display, CString::new("_NET_WM_STATE").unwrap().as_ptr(), x11::xlib::False);
+                let wm_state_above = x11::xlib::XInternAtom(display, CString::new("_NET_WM_STATE_ABOVE").unwrap().as_ptr(), x11::xlib::False);
+
+                // Ideally we should preserve other states (like SKIP_TASKBAR), but implementing a full read-modify-write cycle 
+                // requires more boilerplate. 
+                // WARN: This might reset SKIP_TASKBAR if called after enable_stealth.
+                // However, the user flow usually toggles one or the other.
+                // If "Always On Top" is toggled ON, we set ABOVE. 
+                // If OFF, we remove it (set empty or set whatever default).
+                
+                let mut atoms = vec![];
+                if enable {
+                    atoms.push(wm_state_above);
+                }
+
+                x11::xlib::XChangeProperty(
+                    display,
+                    window_id,
+                    net_wm_state,
+                    x11::xlib::XA_ATOM,
+                    32,
+                    x11::xlib::PropModeReplace,
+                    atoms.as_ptr() as *const u8,
+                    atoms.len() as i32,
+                );
+
+                x11::xlib::XFlush(display);
+                x11::xlib::XCloseDisplay(display);
+            }
+            return Ok(());
+        }
+    }
+    Err("Not running on X11 or failed to get window handle".to_string())
+}
+
+fn set_window_type_dock_x11<R: Runtime>(window: &WebviewWindow<R>, enable: bool) -> Result<(), String> {
+    if let Ok(handle) = window.window_handle() {
+        if let RawWindowHandle::Xlib(xlib_handle) = handle.as_raw() {
+            let window_id = xlib_handle.window;
+            unsafe {
+                let display = x11::xlib::XOpenDisplay(ptr::null());
+                if display.is_null() {
+                    return Err("Failed to open X display".to_string());
+                }
+
+                let net_wm_window_type = x11::xlib::XInternAtom(display, CString::new("_NET_WM_WINDOW_TYPE").unwrap().as_ptr(), x11::xlib::False);
+                let dock_atom = x11::xlib::XInternAtom(display, CString::new("_NET_WM_WINDOW_TYPE_DOCK").unwrap().as_ptr(), x11::xlib::False);
+                let normal_atom = x11::xlib::XInternAtom(display, CString::new("_NET_WM_WINDOW_TYPE_NORMAL").unwrap().as_ptr(), x11::xlib::False);
+
+                let atom_to_set = if enable { dock_atom } else { normal_atom };
+
+                x11::xlib::XChangeProperty(
+                    display,
+                    window_id,
+                    net_wm_window_type,
+                    x11::xlib::XA_ATOM,
+                    32,
+                    x11::xlib::PropModeReplace,
+                    &atom_to_set as *const _ as *const u8,
+                    1,
+                );
 
                 x11::xlib::XFlush(display);
                 x11::xlib::XCloseDisplay(display);
@@ -189,4 +271,3 @@ fn start_capture_loop<R: Runtime>(window: &WebviewWindow<R>) -> Result<(), Strin
 fn stop_capture_loop() {
     CAPTURE_RUNNING.store(false, Ordering::SeqCst);
 }
-

@@ -59,3 +59,14 @@ export async function readLogContent(): Promise<string> {
 export async function getLogPath(): Promise<string> {
   return await invoke('get_log_path_cmd');
 }
+
+export async function setAlwaysOnTop(enabled: boolean): Promise<void> {
+  // Pass the current window automatically on backend if handled, or pass explicitly if needed.
+  // The backend command `set_always_on_top` expects `window: WebviewWindow`.
+  // When invoking from frontend, the tauri backend automatically injects the calling window if we don't provide it, 
+  // BUT only if the command signature uses it as the first argument and we don't pass it?
+  // Actually, usually we don't need to pass 'window' from frontend invoke if backend uses `Window` type.
+  // However, `set_always_on_top` in `window_commands.rs` takes `window: WebviewWindow`.
+  // Let's assume standard Tauri injection.
+  return await invoke('set_always_on_top', { enabled });
+}

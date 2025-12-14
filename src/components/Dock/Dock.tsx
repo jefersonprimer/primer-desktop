@@ -1,14 +1,17 @@
 import { useRef } from "react";
 import Draggable from "react-draggable";
 
+import MessagesSquareIcon from "../ui/icons/MessagesSquareIcon";
+import SettingsIcon from "../ui/icons/SettingsIcon";
 import GeneralAssistant from "./GeneralAssistant";
 
 interface DockProps {
   onOpenModal: (modal: string) => void;
   active?: boolean; // <- para indicar que o modal está aberto
+  hasActiveSession?: boolean;
 }
 
-export default function Dock({ onOpenModal, active }: DockProps) {
+export default function Dock({ onOpenModal, active, hasActiveSession }: DockProps) {
   const nodeRef = useRef(null);
 
   return (
@@ -56,21 +59,7 @@ export default function Dock({ onOpenModal, active }: DockProps) {
           transition
           ${active ? "bg-white/20" : "hover:bg-white/10"}
         `}>
-          <svg 
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            className={`text-white transition-transform ${active ? "scale-110" : "group-hover:scale-125"}`}
-          >
-            <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
+          <SettingsIcon size={24} color="#fff"/>  
         </button>
 
         <button onClick={() => onOpenModal("history")}
@@ -99,6 +88,21 @@ export default function Dock({ onOpenModal, active }: DockProps) {
             <path d="M12 7v5l4 2"/>
           </svg>
         </button>
+
+        {hasActiveSession && (
+          <button 
+            onClick={() => onOpenModal("ai-response")}
+            className={`
+              relative group
+              flex flex-col items-center justify-center
+              p-3 rounded-xl
+              transition
+              ${active ? "bg-white/20" : "hover:bg-white/10"}
+            `}
+          >
+            <MessagesSquareIcon size={18} color="#fff"/>
+          </button>
+        )}
 
         <div className="w-px h-8 bg-white/10 mx-1" />
 
