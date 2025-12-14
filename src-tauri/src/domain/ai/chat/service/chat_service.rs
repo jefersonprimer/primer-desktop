@@ -51,6 +51,6 @@ pub struct ChatServiceRequest {
 
 #[async_trait]
 pub trait ChatService: Send + Sync {
-    async fn send_message_to_ai(&self, request: ChatServiceRequest) -> Result<Message>;
+    async fn send_message_to_ai(&self, request: ChatServiceRequest) -> Result<(Message, Vec<String>)>;
 }
 

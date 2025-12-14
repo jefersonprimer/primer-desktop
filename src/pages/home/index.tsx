@@ -21,6 +21,7 @@ interface SendMessageResponse {
     content: string;
     role: string;
   };
+  follow_ups: string[];
 }
 
 interface ChatSession {
@@ -35,6 +36,7 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   createdAt: string;
+  followUps?: string[];
 }
 
 export default function HomePage() {
@@ -54,8 +56,6 @@ export default function HomePage() {
     if (!userId) return;
     try {
       const res = await invoke<{ chats: any[] }>("get_chats", { dto: { user_id: userId } });
-      // Sort by newest first (assuming backend doesn't sort, or just to be safe)
-      // Actually backend might not sort. Let's just map.
       const mapped = res.chats.map((c) => ({
         id: c.id,
         title: c.title || "Nova conversa",
@@ -68,15 +68,20 @@ export default function HomePage() {
     }
   };
 
-  const fetchMessages = async (sessionId: string) => {
+  const fetchMessages = async (sessionId: string, lastFollowUps?: string[]) => {
     try {
       const res = await invoke<{ messages: any[] }>("get_messages", { dto: { chat_id: sessionId } });
-      const mapped = res.messages.map((m) => ({
+      const mapped: ChatMessage[] = res.messages.map((m) => ({
         id: m.id,
         role: m.role as "user" | "assistant",
         content: m.content,
         createdAt: m.created_at,
       }));
+      
+      if (lastFollowUps && mapped.length > 0) {
+          mapped[mapped.length - 1].followUps = lastFollowUps;
+      }
+
       setHistoryMessages(mapped);
     } catch (e) {
       console.error("Failed to fetch messages", e);
@@ -91,7 +96,11 @@ export default function HomePage() {
 
   useEffect(() => {
     if (activeModal === "ai-response" && chatId) {
-      fetchMessages(chatId);
+      // If we already have messages (e.g. from submit), don't fetch immediately unless chatId changed
+      // But here we might want to refresh.
+      if (historyMessages.length === 0) {
+         fetchMessages(chatId);
+      }
     }
   }, [activeModal, chatId]);
 
@@ -139,7 +148,7 @@ export default function HomePage() {
       });
 
       setAiMessage(response.message.content);
-      fetchMessages(currentChatId);
+      fetchMessages(currentChatId, response.follow_ups);
 
     } catch (error) {
       console.error("Chat error:", error);
@@ -190,6 +199,7 @@ export default function HomePage() {
         message={aiMessage}
         messages={historyMessages}
         onEndSession={handleEndSession}
+        onSendMessage={handleChatSubmit}
       />
 
       {/* Voice Chat Modal */}

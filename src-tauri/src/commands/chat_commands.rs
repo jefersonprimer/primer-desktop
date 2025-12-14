@@ -66,7 +66,7 @@ pub async fn send_message(dto: SendMessageDto, state: State<'_, AppState>) -> Re
 
     send_message_usecase.execute(request)
     .await
-    .map(|message| SendMessageResponse {
+    .map(|(message, follow_ups)| SendMessageResponse {
         message: MessageDto {
             id: message.id.to_string(),
             chat_id: message.chat_id.to_string(),
@@ -75,6 +75,7 @@ pub async fn send_message(dto: SendMessageDto, state: State<'_, AppState>) -> Re
             content: message.content,
             created_at: message.created_at,
         },
+        follow_ups,
     })
     .map_err(|e| e.to_string())
 }

@@ -5,6 +5,7 @@ Requisitos funcionais:
 1- Stealth Mode (nao ficar visivel em compartilhamento de tela).
 2- integracao com ia (OpenAi, gemini, claude code, qualquer api key).
 3- click-throught (como e um janela que fica acima de outras, o app nao pode roubar o foco das outras janelas).
+3.1- preciso implementar para quando mover o mouse para acima de algo do meu app, ele desabilita o click-throught.
 4- esconder o app da dock do so, DOCK/ALT+TAB não mostra: App oculto
 
 futuro:
@@ -14,6 +15,7 @@ futuro:
 7- follow-up questions.
 8- Always on top.
 9- Prompt personalizavel para ser enviado junto a pergunta para a ia.
+9.1- Criar um prompt para o envio do email, deixando ele customizavel, como: (me de 10 ideias de twiters sobre o tema).
 
 * os chats vao ser salvos no sqlite, e o usuario pode fazer backups no supabase.
 - frontend tauri 2, vite, ts.

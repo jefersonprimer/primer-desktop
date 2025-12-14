@@ -39,6 +39,7 @@ pub struct MessageDto {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SendMessageResponse {
     pub message: MessageDto,
+    pub follow_ups: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

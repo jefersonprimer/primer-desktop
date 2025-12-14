@@ -14,7 +14,7 @@ impl SendMessageUseCase {
         Self { chat_service }
     }
 
-    pub async fn execute(&self, request: ChatServiceRequest) -> Result<Message> {
+    pub async fn execute(&self, request: ChatServiceRequest) -> Result<(Message, Vec<String>)> {
         self.chat_service.send_message_to_ai(request).await
     }
 }

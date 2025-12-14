@@ -7,6 +7,7 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   createdAt: string;
+  followUps?: string[];
 }
 
 interface AiModalProps {
@@ -15,9 +16,10 @@ interface AiModalProps {
   message: string;
   onEndSession?: (sendSummary?: boolean) => void;
   messages?: ChatMessage[];
+  onSendMessage?: (text: string) => void;
 }
 
-export default function AiModal({ isOpen, onClose, message, onEndSession, messages }: AiModalProps) {
+export default function AiModal({ isOpen, onClose, message, onEndSession, messages, onSendMessage }: AiModalProps) {
   const nodeRef = useRef(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const opacityBarRef = useRef<HTMLDivElement>(null);
@@ -167,6 +169,20 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
                         </button>
                       )}
                     </div>
+                    {/* Follow-ups */}
+                    {msg.role === 'assistant' && msg.followUps && msg.followUps.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2 max-w-[90%]">
+                            {msg.followUps.map((q, i) => (
+                            <button
+                                key={i}
+                                onClick={() => onSendMessage && onSendMessage(q)}
+                                className="px-3 py-1 text-xs border border-gray-600 rounded-full hover:bg-gray-700 transition text-gray-300 text-left"
+                            >
+                                {q}
+                            </button>
+                            ))}
+                        </div>
+                    )}
                   </div>
                 ))}
               </>
@@ -188,10 +204,6 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
               </>
             )}
 
-            {/* Follow-ups */}
-            <button className="mt-auto px-3 py-2 bg-gray-800 rounded-md text-sm self-center w-full">
-              Load follow-ups
-            </button>
             <div ref={messagesEndRef} />
           </div>
 

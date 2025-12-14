@@ -50,11 +50,25 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
   async function handleSave() {
       if (!selected) return;
 
+      let finalName = editName.trim();
+      const defaultName = 'New Assistant';
+      
+      // Smart naming: if name is empty or default, try to grab first line of prompt
+      if (!finalName || finalName === defaultName) {
+          const firstLine = editPrompt.trim().split('\n')[0].trim();
+          if (firstLine) {
+              finalName = firstLine.substring(0, 50);
+              if (firstLine.length > 50) finalName += '...';
+          } else {
+              finalName = defaultName;
+          }
+      }
+
       try {
           if (selected.id === 'new') {
                // Create
                const newPreset = await createPromptPreset({
-                   name: editName,
+                   name: finalName,
                    description: editDesc,
                    prompt: editPrompt
                });
@@ -64,11 +78,11 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
               // Update
               await updatePromptPreset({
                   id: selected.id,
-                  name: editName,
+                  name: finalName,
                   description: editDesc,
                   prompt: editPrompt
-              });
-              await loadPresets();
+               });
+               await loadPresets();
           }
       } catch (e) {
           console.error("Failed to save:", e);
@@ -78,7 +92,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
   async function handleCreateNew() {
       const newPlaceholder: PromptPreset = {
           id: 'new',
-          name: 'New Assistant',
+          name: '', // Empty name so placeholder shows and smart naming kicks in
           description: '',
           prompt: '',
           is_built_in: false,
@@ -86,7 +100,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
           updated_at: ''
       };
       setSelected(newPlaceholder);
-      setEditName('New Assistant');
+      setEditName('');
       setEditPrompt('');
       setEditDesc('');
   }

@@ -3,6 +3,7 @@ use anyhow::{Result, anyhow};
 use std::sync::Arc;
 use uuid::Uuid;
 use chrono::Utc;
+use serde::Deserialize;
 use crate::domain::ai::provider::{
     AiProvider, ChatCompletionRequest, ChatMessage,
 };
@@ -15,6 +16,11 @@ use crate::domain::ai::chat::service::{
 };
 use crate::domain::user::repository::user_api_key_repository::UserApiKeyRepository;
 
+#[derive(Deserialize)]
+struct AiResponse {
+    answer: String,
+    follow_ups: Vec<String>,
+}
 
 pub struct ChatServiceImpl {
     user_api_key_repo: Arc<dyn UserApiKeyRepository>,
@@ -55,7 +61,7 @@ impl ChatServiceImpl {
 
 #[async_trait]
 impl ChatService for ChatServiceImpl {
-    async fn send_message_to_ai(&self, request: ChatServiceRequest) -> Result<Message> {
+    async fn send_message_to_ai(&self, request: ChatServiceRequest) -> Result<(Message, Vec<String>)> {
         // 1. Get user's API key
         let user_api_keys = self.user_api_key_repo.find_by_user_id(request.user_id).await?;
         let provider_type = request.provider_name.parse::<AIProviderType>() // Changed from AIProviderType::from_str
@@ -94,10 +100,18 @@ impl ChatService for ChatServiceImpl {
         // Convert previous messages to ChatMessage format for the AI provider
         let mut chat_messages: Vec<ChatMessage> = Vec::new();
 
+        let json_instruction = "\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas\n\nResponda em JSON no formato:\n{\n  \"answer\": string,\n  \"follow_ups\": string[]\n}";
+
         if let Some(prompt) = system_prompt {
              chat_messages.push(ChatMessage {
                  role: "system".to_string(),
-                 content: prompt,
+                 content: format!("{}{}", prompt, json_instruction),
+                 image: None,
+             });
+        } else {
+             chat_messages.push(ChatMessage {
+                 role: "system".to_string(),
+                 content: json_instruction.to_string(),
                  image: None,
              });
         }
@@ -144,17 +158,38 @@ impl ChatService for ChatServiceImpl {
             .map(|choice| choice.message.role.clone()) // Changed .and_then to .map
             .unwrap_or_else(|| "assistant".to_string()); // Default to "assistant"
 
-        // 6. Save AI response to message repository
+        // Parse JSON response
+        let (content, follow_ups) = match serde_json::from_str::<AiResponse>(&ai_response_message_content) {
+            Ok(parsed) => (parsed.answer, parsed.follow_ups),
+            Err(_) => {
+                    // Try to strip markdown code blocks if present ```json ... ```
+                    let clean_content = ai_response_message_content.trim();
+                    let clean_content = if clean_content.starts_with("```json") {
+                        clean_content.trim_start_matches("```json").trim_end_matches("```").trim()
+                    } else if clean_content.starts_with("```") {
+                        clean_content.trim_start_matches("```").trim_end_matches("```").trim()
+                    } else {
+                        clean_content
+                    };
+                    
+                    match serde_json::from_str::<AiResponse>(clean_content) {
+                        Ok(parsed) => (parsed.answer, parsed.follow_ups),
+                        Err(_) => (ai_response_message_content.clone(), vec![]) // Fallback to original
+                    }
+            }
+        };
+
+        // 6. Save AI response to message repository (only content)
         let ai_message = Message {
             id: Uuid::new_v4(),
             chat_id: request.chat_id,
             role: ai_response_message_role,
-            content: ai_response_message_content,
+            content: content,
             created_at: Utc::now(),
         };
 
         self.message_repo.create(ai_message.clone()).await?;
 
-        Ok(ai_message)
+        Ok((ai_message, follow_ups))
     }
 }
