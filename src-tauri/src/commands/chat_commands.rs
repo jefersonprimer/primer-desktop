@@ -36,7 +36,7 @@ pub async fn create_chat(dto: CreateChatDto, state: State<'_, AppState>) -> Resu
     let user_id = Uuid::parse_str(&dto.user_id)
         .map_err(|e| format!("Invalid user_id format: {}", e))?;
 
-    create_chat_usecase.execute(user_id, dto.title)
+    create_chat_usecase.execute(user_id, dto.title, dto.prompt_preset_id, dto.model)
         .await
         .map(|chat| CreateChatResponse { chat_id: chat.id.to_string() })
         .map_err(|e| e.to_string())
@@ -138,6 +138,7 @@ pub async fn get_chats(dto: GetChatsDto, state: State<'_, AppState>) -> Result<G
                 id: c.id.to_string(),
                 user_id: c.user_id.to_string(),
                 title: c.title.unwrap_or_else(|| "New Chat".to_string()),
+                model: c.model,
                 created_at: c.created_at,
                 updated_at: c.updated_at,
             }).collect()

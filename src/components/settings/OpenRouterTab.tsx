@@ -60,6 +60,13 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
   useEffect(() => {
     if (!model) {
       setModel(defaultFreeModels[0].id);
+    } else {
+        // Se já temos um modelo salvo, mas ele não está na lista padrão,
+        // tentamos buscar os modelos para exibir as informações corretas.
+        const isDefault = defaultFreeModels.some(m => m.id === model);
+        if (!isDefault && availableModels.length === 0) {
+            fetchOpenRouterModels();
+        }
     }
   }, []);
 
@@ -102,8 +109,20 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
 
   const displayedModels = availableModels.length > 0 ? availableModels : defaultFreeModels;
   
-  const selectedModelInfo = displayedModels.find(m => m.id === model);
+  // Encontrar info do modelo. Se não estiver na lista, cria um placeholder
+  let selectedModelInfo = displayedModels.find(m => m.id === model);
+  if (!selectedModelInfo && model) {
+      selectedModelInfo = {
+          id: model,
+          name: model,
+          pricing: { prompt: "?", completion: "?" },
+          context_length: 0,
+          description: "Modelo salvo (detalhes não carregados)"
+      };
+  }
+
   const isFreeModel = selectedModelInfo && 
+    selectedModelInfo.pricing.prompt !== "?" &&
     parseFloat(selectedModelInfo.pricing.prompt) === 0 && 
     parseFloat(selectedModelInfo.pricing.completion) === 0;
 
@@ -205,6 +224,13 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
           onChange={(e) => setModel(e.target.value)}
           className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none"
         >
+          {/* Fallback option for saved model */}
+          {model && !displayedModels.find(m => m.id === model) && (
+              <option key={model} value={model}>
+                  {model} (Salvo)
+              </option>
+          )}
+
           {displayedModels.map((m) => {
             const isFree = parseFloat(m.pricing.prompt) === 0 && parseFloat(m.pricing.completion) === 0;
             return (

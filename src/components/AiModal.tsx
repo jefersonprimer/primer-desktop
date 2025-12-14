@@ -39,7 +39,7 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
   }, [isOpen]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (startTime !== null) {
       interval = setInterval(() => {
         const now = Date.now();

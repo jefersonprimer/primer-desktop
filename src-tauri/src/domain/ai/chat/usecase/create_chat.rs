@@ -16,15 +16,34 @@ impl CreateChatUseCase {
         Self { chat_repo }
     }
 
-    pub async fn execute(&self, user_id: Uuid, title: Option<String>) -> Result<Chat> {
-        let new_chat = Chat {
-            id: Uuid::new_v4(),
-            user_id,
-            title,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-        };
+            pub async fn execute(&self, user_id: Uuid, title: Option<String>, prompt_preset_id: Option<String>, model: Option<String>) -> Result<Chat> {
 
-        self.chat_repo.create(new_chat).await
+                let new_chat = Chat {
+
+                    id: Uuid::new_v4(),
+
+                    user_id,
+
+                    title,
+
+                    prompt_preset_id,
+
+                    model,
+
+                    created_at: Utc::now(),
+
+                    updated_at: Utc::now(),
+
+                };
+
+        
+
+                self.chat_repo.create(new_chat).await
+
+            }
+
+        
+
     }
-}
+
+    

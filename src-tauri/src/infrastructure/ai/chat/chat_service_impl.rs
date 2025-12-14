@@ -7,6 +7,8 @@ use crate::domain::ai::provider::{
     AiProvider, ChatCompletionRequest, ChatMessage,
 };
 use crate::domain::ai::chat::repository::message_repository::MessageRepository;
+use crate::domain::ai::chat::repository::chat_repository::ChatRepository;
+use crate::domain::prompt_preset::repository::PromptPresetRepository;
 use crate::domain::ai::chat::entity::message::Message;
 use crate::domain::ai::chat::service::{
     chat_service::{ChatService, ChatServiceRequest, AIProviderType},
@@ -16,7 +18,9 @@ use crate::domain::user::repository::user_api_key_repository::UserApiKeyReposito
 
 pub struct ChatServiceImpl {
     user_api_key_repo: Arc<dyn UserApiKeyRepository>,
-    message_repo: Arc<dyn MessageRepository>, // This will be the main message repo (e.g., SQLite)
+    message_repo: Arc<dyn MessageRepository>,
+    chat_repo: Arc<dyn ChatRepository>,
+    prompt_preset_repo: Arc<dyn PromptPresetRepository>,
     gemini_provider: Arc<dyn AiProvider>,
     openai_provider: Arc<dyn AiProvider>,
     claude_provider: Arc<dyn AiProvider>,
@@ -27,6 +31,8 @@ impl ChatServiceImpl {
     pub fn new(
         user_api_key_repo: Arc<dyn UserApiKeyRepository>,
         message_repo: Arc<dyn MessageRepository>,
+        chat_repo: Arc<dyn ChatRepository>,
+        prompt_preset_repo: Arc<dyn PromptPresetRepository>,
         gemini_provider: Arc<dyn AiProvider>,
         openai_provider: Arc<dyn AiProvider>,
         claude_provider: Arc<dyn AiProvider>,
@@ -35,6 +41,8 @@ impl ChatServiceImpl {
         Self {
             user_api_key_repo,
             message_repo,
+            chat_repo,
+            prompt_preset_repo,
             gemini_provider,
             openai_provider,
             claude_provider,
@@ -69,12 +77,32 @@ impl ChatService for ChatServiceImpl {
         };
         self.message_repo.create(user_message.clone()).await?;
 
+        // Fetch chat and preset
+        let chat = self.chat_repo.find_by_id(request.chat_id).await?
+            .ok_or_else(|| anyhow!("Chat not found"))?;
+        
+        let mut system_prompt = None;
+        if let Some(preset_id) = chat.prompt_preset_id {
+             if let Some(preset) = self.prompt_preset_repo.find_by_id(&preset_id).await? {
+                 system_prompt = Some(preset.prompt);
+             }
+        }
+
         // 3. Fetch previous messages from the chat to provide context
         let previous_messages = self.message_repo.find_by_chat_id(request.chat_id).await?;
         
         // Convert previous messages to ChatMessage format for the AI provider
-        // We'll include all previous messages (which now includes the user message we just saved)
-        let chat_messages: Vec<ChatMessage> = previous_messages
+        let mut chat_messages: Vec<ChatMessage> = Vec::new();
+
+        if let Some(prompt) = system_prompt {
+             chat_messages.push(ChatMessage {
+                 role: "system".to_string(),
+                 content: prompt,
+                 image: None,
+             });
+        }
+
+        let history_messages: Vec<ChatMessage> = previous_messages
             .iter()
             .map(|msg| {
                 let image = if msg.id == user_message.id {
@@ -89,6 +117,8 @@ impl ChatService for ChatServiceImpl {
                 }
             })
             .collect();
+        
+        chat_messages.extend(history_messages);
 
         let chat_req = ChatCompletionRequest {
             model: request.model.clone(),

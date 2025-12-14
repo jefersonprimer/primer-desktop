@@ -1,5 +1,6 @@
 import { useState } from "react";
 import SelectAssistantModal from "./SelectAssistantModal";
+import { useAi } from "../../contexts/AiContext";
 
 interface GeneralAssistantProps {
   onOpenChat: () => void;
@@ -7,10 +8,10 @@ interface GeneralAssistantProps {
 
 export default function GeneralAssistant({ onOpenChat }: GeneralAssistantProps) {
   const [isSelectAssistantModalOpen, setIsSelectAssistantModalOpen] = useState(false);
-  const [selectedAssistantId, setSelectedAssistantId] = useState("general");
+  const { activePromptPreset, setActivePromptPreset } = useAi();
 
   const handleAssistantChange = (id: string) => {
-    setSelectedAssistantId(id);
+    setActivePromptPreset(id);
     setIsSelectAssistantModalOpen(false);
     onOpenChat();
   };
@@ -60,7 +61,7 @@ export default function GeneralAssistant({ onOpenChat }: GeneralAssistantProps) 
 
       {isSelectAssistantModalOpen && (
         <SelectAssistantModal
-          value={selectedAssistantId}
+          value={activePromptPreset}
           onChange={handleAssistantChange}
           onClose={() => setIsSelectAssistantModalOpen(false)}
         />

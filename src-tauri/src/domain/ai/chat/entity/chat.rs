@@ -7,6 +7,10 @@ pub struct Chat {
     pub id: Uuid,
     pub user_id: Uuid,
     pub title: Option<String>,
+    #[sqlx(default)]
+    pub prompt_preset_id: Option<String>,
+    #[sqlx(default)]
+    pub model: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

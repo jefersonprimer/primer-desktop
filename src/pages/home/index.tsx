@@ -48,7 +48,7 @@ export default function HomePage() {
   const [historyMessages, setHistoryMessages] = useState<ChatMessage[]>([]);
   
   const { userId } = useAuth();
-  const { activeProvider, activeModel } = useAi();
+  const { activeProvider, activeModel, activePromptPreset } = useAi();
 
   const fetchSessions = async () => {
     if (!userId) return;
@@ -59,7 +59,7 @@ export default function HomePage() {
       const mapped = res.chats.map((c) => ({
         id: c.id,
         title: c.title || "Nova conversa",
-        model: "Gemini",
+        model: c.model || "Gemini",
         createdAt: new Date(c.created_at).toLocaleString(),
       }));
       setSessions(mapped);
@@ -114,6 +114,8 @@ export default function HomePage() {
           dto: {
             user_id: userId,
             title: text.substring(0, 30) || "New Chat",
+            prompt_preset_id: activePromptPreset,
+            model: activeModel || (activeProvider === "Google" ? "gemini-1.5-flash" : "gpt-4o"),
           },
         });
         currentChatId = chatRes.chat_id;

@@ -5,6 +5,8 @@ use chrono::{DateTime, Utc};
 pub struct CreateChatDto {
     pub user_id: String,
     pub title: Option<String>,
+    pub prompt_preset_id: Option<String>,
+    pub model: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -71,6 +73,7 @@ pub struct ChatDto {
     pub id: String,
     pub user_id: String,
     pub title: String,
+    pub model: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

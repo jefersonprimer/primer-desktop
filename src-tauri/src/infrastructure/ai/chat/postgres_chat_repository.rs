@@ -20,13 +20,15 @@ impl ChatRepository for PostgresChatRepository {
     async fn create(&self, chat: Chat) -> Result<Chat> {
         sqlx::query(
             r#"
-            INSERT INTO chats (id, user_id, title, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO chats (id, user_id, title, prompt_preset_id, model, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#
         )
         .bind(chat.id)
         .bind(chat.user_id)
         .bind(chat.title.clone())
+        .bind(chat.prompt_preset_id.clone())
+        .bind(chat.model.clone())
         .bind(chat.created_at)
         .bind(chat.updated_at)
         .execute(&self.pool)
@@ -38,7 +40,7 @@ impl ChatRepository for PostgresChatRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Chat>> {
         let record = sqlx::query_as::<_, Chat>(
             r#"
-            SELECT id, user_id, title, created_at, updated_at
+            SELECT id, user_id, title, prompt_preset_id, model, created_at, updated_at
             FROM chats
             WHERE id = $1
             "#
@@ -53,7 +55,7 @@ impl ChatRepository for PostgresChatRepository {
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Chat>> {
         let records = sqlx::query_as::<_, Chat>(
             r#"
-            SELECT id, user_id, title, created_at, updated_at
+            SELECT id, user_id, title, prompt_preset_id, model, created_at, updated_at
             FROM chats
             WHERE user_id = $1
             ORDER BY created_at DESC

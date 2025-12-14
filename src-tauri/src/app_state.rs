@@ -33,6 +33,7 @@ use crate::{
             },
         },
         config::repository::ConfigRepository,
+        prompt_preset::repository::PromptPresetRepository,
     },
     infrastructure::{
         ai::{
@@ -65,6 +66,7 @@ use crate::{
             sqlite_shortcut_repository::SqliteShortcutRepository,
         },
         config::sqlite::SqliteConfigRepository,
+        prompt_preset::sqlite_repository::SqlitePromptPresetRepository,
     },
 };
 
@@ -82,6 +84,7 @@ pub struct AppState {
     pub postgres_message_repo: Arc<dyn MessageRepository>,
 
     pub config_repo: Arc<dyn ConfigRepository>,
+    pub prompt_preset_repo: Arc<dyn PromptPresetRepository>,
 
     pub chat_service: Arc<dyn ChatService>,
 
@@ -112,6 +115,9 @@ impl AppState {
         
         let config_repo: Arc<dyn ConfigRepository> =
             Arc::new(SqliteConfigRepository::new(sqlite_pool.clone()));
+
+        let prompt_preset_repo: Arc<dyn PromptPresetRepository> =
+            Arc::new(SqlitePromptPresetRepository::new(sqlite_pool.clone()));
 
         let pg_url = &config.database.database_url;
         let pg_pool_result = connect_pg(pg_url).await;
@@ -153,6 +159,8 @@ impl AppState {
         let chat_service_impl = ChatServiceImpl::new(
             user_api_key_repo.clone(),
             sqlite_message_repo.clone(),
+            sqlite_chat_repo.clone(),
+            prompt_preset_repo.clone(),
             gemini_provider,
             openai_provider,
             claude_provider,
@@ -191,13 +199,15 @@ impl AppState {
             postgres_shortcut_repo,
             sqlite_chat_repo,
             postgres_chat_repo,
-            sqlite_message_repo,
-            postgres_message_repo,
-            config_repo,
-            chat_service,
-            password_hasher,
-            token_generator,
-            email_service,
-        })
-    }
-}
+                        sqlite_message_repo,
+                        postgres_message_repo,
+                        config_repo,
+                        prompt_preset_repo,
+                        chat_service,
+                        password_hasher,
+                        token_generator,
+                        email_service,
+                    })
+                }
+            }
+            

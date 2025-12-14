@@ -28,6 +28,9 @@ interface AiContextType {
   outputDeviceId: string;
   setOutputDeviceId: (id: string) => void;
 
+  activePromptPreset: string;
+  setActivePromptPreset: (id: string) => void;
+
   refreshConfig: () => Promise<void>;
   getModelForProvider: (provider: ProviderType) => string | undefined;
   getApiKeyForProvider: (provider: ProviderType) => string | undefined;
@@ -61,6 +64,10 @@ export function AiProvider({ children }: { children: ReactNode }) {
 
   const [outputDeviceId, setOutputDeviceIdState] = useState<string>(() => {
     return localStorage.getItem("ai_output_device") || "default";
+  });
+
+  const [activePromptPreset, setActivePromptPresetState] = useState<string>(() => {
+    return localStorage.getItem("ai_active_prompt_preset") || "general";
   });
 
   const [apiKeys, setApiKeys] = useState<ApiKeyDto[]>([]);
@@ -137,6 +144,11 @@ export function AiProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("ai_output_device", id);
   };
 
+  const setActivePromptPreset = (id: string) => {
+    setActivePromptPresetState(id);
+    localStorage.setItem("ai_active_prompt_preset", id);
+  };
+
   const getModelForProvider = (provider: ProviderType) => {
      const providerKey = provider === "Google" ? "gemini" : provider.toLowerCase();
      return apiKeys.find(k => k.provider === providerKey)?.selected_model;
@@ -161,6 +173,8 @@ export function AiProvider({ children }: { children: ReactNode }) {
       setInputDeviceId,
       outputDeviceId,
       setOutputDeviceId,
+      activePromptPreset,
+      setActivePromptPreset,
       refreshConfig,
       getModelForProvider,
       getApiKeyForProvider

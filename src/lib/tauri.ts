@@ -61,12 +61,46 @@ export async function getLogPath(): Promise<string> {
 }
 
 export async function setAlwaysOnTop(enabled: boolean): Promise<void> {
-  // Pass the current window automatically on backend if handled, or pass explicitly if needed.
-  // The backend command `set_always_on_top` expects `window: WebviewWindow`.
-  // When invoking from frontend, the tauri backend automatically injects the calling window if we don't provide it, 
-  // BUT only if the command signature uses it as the first argument and we don't pass it?
-  // Actually, usually we don't need to pass 'window' from frontend invoke if backend uses `Window` type.
-  // However, `set_always_on_top` in `window_commands.rs` takes `window: WebviewWindow`.
-  // Let's assume standard Tauri injection.
   return await invoke('set_always_on_top', { enabled });
+}
+
+// Prompt Presets
+
+export interface PromptPreset {
+  id: string;
+  name: string;
+  description?: string;
+  prompt: string;
+  is_built_in: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreatePromptPresetDto {
+  name: string;
+  description?: string;
+  prompt: string;
+}
+
+export interface UpdatePromptPresetDto {
+  id: string;
+  name: string;
+  description?: string;
+  prompt: string;
+}
+
+export async function getPromptPresets(): Promise<PromptPreset[]> {
+  return await invoke('get_prompt_presets');
+}
+
+export async function createPromptPreset(dto: CreatePromptPresetDto): Promise<PromptPreset> {
+  return await invoke('create_prompt_preset', { dto });
+}
+
+export async function updatePromptPreset(dto: UpdatePromptPresetDto): Promise<PromptPreset> {
+  return await invoke('update_prompt_preset', { dto });
+}
+
+export async function deletePromptPreset(id: string): Promise<void> {
+  return await invoke('delete_prompt_preset', { id });
 }

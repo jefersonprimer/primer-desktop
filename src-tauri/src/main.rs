@@ -2,7 +2,7 @@
 
 use app_lib::{
     app_state::AppState,
-    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands},
+    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands},
     config::Config,
     clickthrough,
     visibility,
@@ -192,6 +192,11 @@ async fn main() {
             // config commands
             config_commands::get_app_config,
             config_commands::set_language,
+            // prompt preset commands
+            prompt_preset_commands::get_prompt_presets,
+            prompt_preset_commands::create_prompt_preset,
+            prompt_preset_commands::update_prompt_preset,
+            prompt_preset_commands::delete_prompt_preset,
             // Log commands
             log_commands::open_log_folder,
             log_commands::read_log_content,

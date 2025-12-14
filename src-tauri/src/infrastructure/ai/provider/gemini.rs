@@ -16,6 +16,8 @@ const GEMINI_API_BASE_URL: &str = "https://generativelanguage.googleapis.com/v1b
 #[derive(Debug, Serialize)]
 struct GeminiChatRequest {
     contents: Vec<GeminiContent>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "systemInstruction")]
+    system_instruction: Option<GeminiContent>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "generationConfig")]
     generation_config: Option<GenerationConfig>,
 }
@@ -31,7 +33,8 @@ struct GenerationConfig {
 
 #[derive(Debug, Serialize, Deserialize)] // Deserialize added for response content parsing
 struct GeminiContent {
-    role: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    role: Option<String>,
     parts: Vec<GeminiPart>,
 }
 
@@ -116,8 +119,21 @@ impl AiProvider for GeminiClient {
             None
         };
 
+        // Extract system prompt if present
+        let system_message = request.messages.iter().find(|msg| msg.role == "system");
+        let system_instruction = system_message.map(|msg| GeminiContent {
+            role: None, // Role is optional/ignored for system instruction
+            parts: vec![GeminiPart {
+                text: Some(msg.content.clone()),
+                inline_data: None,
+            }],
+        });
+
         let gemini_request = GeminiChatRequest {
-            contents: request.messages.into_iter().map(|msg| {
+            system_instruction,
+            contents: request.messages.into_iter()
+                .filter(|msg| msg.role != "system")
+                .map(|msg| {
                 // Gemini API expects roles "user" and "model".
                 // Our domain ChatMessage uses "user" and "assistant".
                 // We need to map "assistant" to "model".
@@ -159,7 +175,7 @@ impl AiProvider for GeminiClient {
                 }
                 
                 GeminiContent {
-                    role,
+                    role: Some(role),
                     parts,
                 }
             }).collect(),
@@ -192,7 +208,9 @@ impl AiProvider for GeminiClient {
                 return Err(anyhow!("Gemini candidate content parts are empty"));
             }
             // Gemini API response role is "model", convert back to "assistant" for our domain
-            let role = if candidate.content.role == "model" { "assistant".to_string() } else { candidate.content.role };
+            let role = candidate.content.role
+                .map(|r| if r == "model" { "assistant".to_string() } else { r })
+                .unwrap_or_else(|| "assistant".to_string());
 
             // Find the first text part
             let content = candidate.content.parts.iter()

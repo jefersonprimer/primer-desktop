@@ -21,13 +21,15 @@ impl ChatRepository for SqliteChatRepository {
     async fn create(&self, chat: Chat) -> Result<Chat> {
         sqlx::query(
             r#"
-            INSERT INTO chats (id, user_id, title, created_at, updated_at)
-            VALUES (?1, ?2, ?3, ?4, ?5)
+            INSERT INTO chats (id, user_id, title, prompt_preset_id, model, created_at, updated_at)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
             "#
         )
         .bind(chat.id.to_string())
         .bind(chat.user_id.to_string())
         .bind(chat.title.clone())
+        .bind(chat.prompt_preset_id.clone())
+        .bind(chat.model.clone())
         .bind(chat.created_at)
         .bind(chat.updated_at)
         .execute(&self.pool)
@@ -39,7 +41,7 @@ impl ChatRepository for SqliteChatRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Chat>> {
         let record = sqlx::query(
             r#"
-            SELECT id, user_id, title, created_at, updated_at
+            SELECT id, user_id, title, prompt_preset_id, model, created_at, updated_at
             FROM chats
             WHERE id = ?1
             "#
@@ -53,6 +55,8 @@ impl ChatRepository for SqliteChatRepository {
                 id: Uuid::parse_str(&id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
                 user_id: Uuid::parse_str(&user_id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
                 title: row.get("title"),
+                prompt_preset_id: row.get("prompt_preset_id"),
+                model: row.get("model"),
                 created_at: row.get("created_at"),
                 updated_at: row.get("updated_at"),
             })
@@ -66,7 +70,7 @@ impl ChatRepository for SqliteChatRepository {
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Chat>> {
         let records = sqlx::query(
             r#"
-            SELECT id, user_id, title, created_at, updated_at
+            SELECT id, user_id, title, prompt_preset_id, model, created_at, updated_at
             FROM chats
             WHERE user_id = ?1
             ORDER BY created_at DESC
@@ -81,6 +85,8 @@ impl ChatRepository for SqliteChatRepository {
                 id: Uuid::parse_str(&id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
                 user_id: Uuid::parse_str(&user_id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
                 title: row.get("title"),
+                prompt_preset_id: row.get("prompt_preset_id"),
+                model: row.get("model"),
                 created_at: row.get("created_at"),
                 updated_at: row.get("updated_at"),
             })

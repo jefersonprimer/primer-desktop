@@ -1,20 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AssistantsManagerModal from "../AssistantsManagerModal";
 import CheckIcon from "../ui/icons/CheckIcon";
-
-interface Assistant {
-  id: string;
-  name: string;
-  builtIn?: boolean;
-}
-
-const assistants: Assistant[] = [
-  { id: "general", name: "General Assistant", builtIn: true },
-  { id: "sales", name: "Sales Assistant", builtIn: true },
-  { id: "leetcode", name: "LeetCode Assistant", builtIn: true },
-  { id: "study", name: "Study Assistant", builtIn: true },
-  { id: "tech", name: "Tech Candidate", builtIn: true },
-];
+import { getPromptPresets, type PromptPreset } from "../../lib/tauri";
 
 interface Props {
   value: string;
@@ -24,6 +11,27 @@ interface Props {
 
 export default function SelectAssistantModal({ value, onChange, onClose }: Props) {
   const [showAssistantManager, setShowAssistantManager] = useState(false);
+  const [assistants, setAssistants] = useState<PromptPreset[]>([]);
+
+  useEffect(() => {
+    loadPresets();
+  }, []);
+
+  useEffect(() => {
+    // Reload when manager closes to reflect changes
+    if (!showAssistantManager) {
+      loadPresets();
+    }
+  }, [showAssistantManager]);
+
+  async function loadPresets() {
+    try {
+      const data = await getPromptPresets();
+      setAssistants(data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   if (showAssistantManager) {
     return <AssistantsManagerModal open={true} onClose={() => setShowAssistantManager(false)} />;
@@ -67,7 +75,7 @@ export default function SelectAssistantModal({ value, onChange, onClose }: Props
             >
               <div className="flex flex-col text-left">
                 <span>{a.name}</span>
-                {a.builtIn && (
+                {a.is_built_in && (
                   <span className="text-xs text-white/50">Built-in</span>
                 )}
               </div>
@@ -84,10 +92,9 @@ export default function SelectAssistantModal({ value, onChange, onClose }: Props
               setShowAssistantManager(true);
           }}
           className="w-full text-left px-4 py-3 border-t border-gray-400 text-white text-sm hover:bg-white/10 transition">
-          Gerenciar Assistentes
+          Manage Assistants
         </button>
       </div>
     </>
   );
 }
-

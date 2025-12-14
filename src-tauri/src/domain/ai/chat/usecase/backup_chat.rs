@@ -45,6 +45,8 @@ impl BackupChatUseCase {
                 id: sqlite_chat.id,
                 user_id: sqlite_chat.user_id,
                 title: sqlite_chat.title.clone(),
+                prompt_preset_id: None,
+                model: sqlite_chat.model.clone(),
                 created_at: sqlite_chat.created_at,
                 updated_at: sqlite_chat.updated_at,
             };
@@ -55,6 +57,8 @@ impl BackupChatUseCase {
                 id: sqlite_chat.id,
                 user_id: sqlite_chat.user_id,
                 title: sqlite_chat.title.clone(),
+                prompt_preset_id: None,
+                model: sqlite_chat.model.clone(),
                 created_at: sqlite_chat.created_at,
                 updated_at: sqlite_chat.updated_at,
             };
