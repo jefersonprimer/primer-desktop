@@ -37,7 +37,7 @@ interface GetApiKeysResponse {
 
 export default function SettingsModal({ open, onClose }: Props) {
   const { userId } = useAuth();
-  const { refreshConfig } = useAi();
+  const { refreshConfig, activeProvider } = useAi();
   const [activeItem, setActiveItem] = useState("API e Modelos");
   const [activeApiTab, setActiveApiTab] = useState("Google");
   const [apiKeys, setApiKeys] = useState<ApiKeyDto[]>([]);
@@ -50,6 +50,7 @@ export default function SettingsModal({ open, onClose }: Props) {
   useEffect(() => {
     if (open && userId) {
       fetchApiKeys();
+      setActiveApiTab(activeProvider);
     }
   }, [open, userId]);
 

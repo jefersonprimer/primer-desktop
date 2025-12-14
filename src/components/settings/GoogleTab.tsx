@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CheckIcon from "../ui/icons/CheckIcon";
 import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
 import { useAi } from "../../contexts/AiContext";
@@ -30,8 +30,6 @@ export default function GoogleTab({
     setImageModel
   } = useAi();
   
-  const [performanceMode, setPerformanceMode] = useState<PerformanceMode>("personalizado");
-
   // Modelos principais do Gemini (Atualizado para a solicitação)
   const analysisModels = [
     { id: "gemini-3-pro-preview", label: "Gemini 3 Pro Preview", description: "O modelo de próxima geração do Gemini, com capacidades avançadas e multimodais." },
@@ -59,6 +57,19 @@ export default function GoogleTab({
     qualidade: { model: "gemini-2.5-pro", label: "Qualidade" }, // gemini-3-pro-preview is a preview, so keep 2.5-pro for stable "qualidade"
     personalizado: { model: model, label: "Personalizado" }
   };
+
+  const getInitialPerformanceMode = (currentModel: string): PerformanceMode => {
+    if (currentModel === performanceModes.rapido.model) return "rapido";
+    if (currentModel === performanceModes.padrao.model) return "padrao";
+    if (currentModel === performanceModes.qualidade.model) return "qualidade";
+    return "personalizado";
+  };
+
+  const [performanceMode, setPerformanceMode] = useState<PerformanceMode>(() => getInitialPerformanceMode(model));
+
+  useEffect(() => {
+    setPerformanceMode(getInitialPerformanceMode(model));
+  }, [model]);
 
   const currentStatus = savedKey && savedKey === apiKey ? "success" : "idle";
 

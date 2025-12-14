@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CheckIcon from "../ui/icons/CheckIcon";
 import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
 import { useAi } from "../../contexts/AiContext";
@@ -30,8 +30,6 @@ export default function OpenAiTab({
     setImageModel
   } = useAi();
   
-  const [performanceMode, setPerformanceMode] = useState<PerformanceMode>("personalizado");
-
   // Os 4 melhores modelos da OpenAI (Atualizado para a solicitação)
   const topModels = [
     { id: "gpt-4.1", label: "GPT-4.1", description: "O modelo mais avançado para análise complexa e multimodality." },
@@ -68,6 +66,19 @@ export default function OpenAiTab({
     qualidade: { model: "gpt-4.1", label: "Qualidade" },
     personalizado: { model: model, label: "Personalizado" }
   };
+
+  const getInitialPerformanceMode = (currentModel: string): PerformanceMode => {
+    if (currentModel === performanceModes.rapido.model) return "rapido";
+    if (currentModel === performanceModes.padrao.model) return "padrao";
+    if (currentModel === performanceModes.qualidade.model) return "qualidade";
+    return "personalizado";
+  };
+
+  const [performanceMode, setPerformanceMode] = useState<PerformanceMode>(() => getInitialPerformanceMode(model));
+
+  useEffect(() => {
+    setPerformanceMode(getInitialPerformanceMode(model));
+  }, [model]);
 
   const currentStatus = savedKey && savedKey === apiKey ? "success" : "idle";
 
