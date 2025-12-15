@@ -4,6 +4,7 @@ import Draggable from "react-draggable";
 import MessagesSquareIcon from "../ui/icons/MessagesSquareIcon";
 import SettingsIcon from "../ui/icons/SettingsIcon";
 import GeneralAssistant from "./GeneralAssistant";
+import MicIcon from "../ui/icons/MicIcon";
 
 interface DockProps {
   onOpenModal: (modal: string) => void;
@@ -147,9 +148,7 @@ export default function Dock({ onOpenModal, active, hasActiveSession }: DockProp
             D
           </span>
 
-          <span className="text-sm font-medium text-white/90 group-hover:text-white transition">
-            Começar a ouvir
-          </span>
+          <MicIcon size={18}/>
         </button>
         </div>
       </div>
