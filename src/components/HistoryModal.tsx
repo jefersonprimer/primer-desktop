@@ -101,9 +101,22 @@ export default function HistoryModal({
         {/* Botão fechar */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-neutral-300 hover:text-white z-10"
+          className="absolute top-3 right-3 text-neutral-400 hover:text-black hover:bg-[#F34325] rounded-xl z-10"
         >
-          ✕
+          <svg 
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 6 6 18"/>
+            <path d="m6 6 12 12"/>
+          </svg>
         </button>
 
         {/* Sidebar esquerda */}
@@ -181,7 +194,7 @@ export default function HistoryModal({
         </aside>
 
         {/* Área direita */}
-        <main className="flex-1 p-6 text-neutral-300 overflow-hidden flex flex-col">
+        <main className="flex-1 p-6 text-neutral-300 overflow-y-auto flex flex-col">
 
           {!selected && (
             <div className="flex-1 flex items-center justify-center text-neutral-500 text-center">
@@ -199,7 +212,7 @@ export default function HistoryModal({
               </h3>
 
               {/* Container do chat */}
-              <div className="flex-1 border border-neutral-700 rounded-xl p-4 bg-neutral-950 overflow-hidden">
+              <div className="flex-1 border border-neutral-700 rounded-xl p-4 bg-neutral-950 overflow-y-auto">
                 <ChatHistory messages={messages} />
               </div>
             </div>

@@ -145,8 +145,26 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                ) : (
                   <h2 className="text-lg text-white font-semibold">{selected?.name}</h2>
                )}
-              
-              <button onClick={onClose} className="text-white/50 hover:text-white text-xl">✕</button>
+
+              <button
+                onClick={onClose}
+                className="absolute top-3 right-3 text-neutral-400 hover:text-black hover:bg-[#F34325] rounded-xl z-10"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M18 6 6 18"/>
+                  <path d="m6 6 12 12"/>
+                </svg>
+              </button>
             </div>
 
             {/* TABS */}

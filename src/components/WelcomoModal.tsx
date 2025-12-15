@@ -25,7 +25,7 @@ const WelcomeModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-transparent backdrop-blur-sm z-50">
-      <div className="bg-neutral-900 text-white w-[420px] p-8 rounded-xl shadow-xl border border-neutral-800">
+      <div className="flex flex-col items-center justify-center bg-neutral-900 text-white w-[420px] p-8 rounded-xl shadow-xl border border-neutral-800">
         <div className="w-20 h-20 rounded-xl border border-neutral-700 flex items-center justify-center pointer-events-none">
           <span className="text-3xl font-bold">P</span>
         </div>
