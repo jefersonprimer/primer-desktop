@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import Dock from "../../components/Dock/Dock";
-import VisibleButton from "../../components/settings/VisibleButton"; 
-import TopDock from "@/components/Dock/TopDock";
 
 import AiModal from "@/components/AiModal";
 import SettingsModal from "@/components/settings/SettingsModal";
@@ -43,6 +41,7 @@ export default function HomePage() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [aiMessage, setAiMessage] = useState("");
   const [chatId, setChatId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // History state
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -95,7 +94,7 @@ export default function HomePage() {
   }, [activeModal, userId]);
 
   useEffect(() => {
-    if (activeModal === "ai-response" && chatId) {
+    if ((activeModal === "chat") && chatId) {
       // If we already have messages (e.g. from submit), don't fetch immediately unless chatId changed
       // But here we might want to refresh.
       if (historyMessages.length === 0) {
@@ -110,9 +109,9 @@ export default function HomePage() {
         return;
     }
 
-    // Close TopDock and Open AiModal with loading state
-    setActiveModal("ai-response");
-    setAiMessage("Processando...");
+    // Open AiModal with loading state
+    setActiveModal("chat");
+    setIsLoading(true);
 
     try {
       let currentChatId = chatId;
@@ -153,6 +152,8 @@ export default function HomePage() {
     } catch (error) {
       console.error("Chat error:", error);
       setAiMessage("Erro ao processar sua solicitação: " + error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -183,21 +184,13 @@ export default function HomePage() {
   
     <div className="w-full max-w-[1440px] bg-transparent mx-auto h-screen relative">
 
-
-      {/* TopDock */}
-      {activeModal === "chat" && (
-        <TopDock 
-            onClose={() => setActiveModal(null)} 
-            onSubmit={handleChatSubmit}
-        />
-      )}
-
       {/* AiModal */}
       <AiModal 
-        isOpen={activeModal === "ai-response"} 
+        isOpen={activeModal === "chat" || activeModal === "ai-response"} 
         onClose={() => setActiveModal(null)}
         message={aiMessage}
         messages={historyMessages}
+        isLoading={isLoading}
         onEndSession={handleEndSession}
         onSendMessage={handleChatSubmit}
       />
@@ -254,10 +247,7 @@ export default function HomePage() {
       {/* Dock */}
       <Dock 
         onOpenModal={(modal) => setActiveModal(modal)} 
-        hasActiveSession={!!chatId}
       />
-      
-      <VisibleButton/>
     </div>
   );
 }

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SelectAssistantModal from "./SelectAssistantModal";
 import { useAi } from "../../contexts/AiContext";
+import { getPromptPresets, type PromptPreset } from "../../lib/tauri";
 
 interface GeneralAssistantProps {
   onOpenChat: () => void;
@@ -9,6 +10,26 @@ interface GeneralAssistantProps {
 export default function GeneralAssistant({ onOpenChat }: GeneralAssistantProps) {
   const [isSelectAssistantModalOpen, setIsSelectAssistantModalOpen] = useState(false);
   const { activePromptPreset, setActivePromptPreset } = useAi();
+  const [activePresetName, setActivePresetName] = useState("General Assistant");
+
+  useEffect(() => {
+    loadActivePresetName();
+  }, [activePromptPreset]);
+
+  async function loadActivePresetName() {
+    try {
+      const presets = await getPromptPresets();
+      const found = presets.find(p => p.id === activePromptPreset);
+      if (found) {
+        setActivePresetName(found.name);
+      } else {
+        setActivePresetName("General Assistant");
+      }
+    } catch (e) {
+      console.error(e);
+      setActivePresetName("General Assistant");
+    }
+  }
 
   const handleAssistantChange = (id: string) => {
     setActivePromptPreset(id);
@@ -29,9 +50,9 @@ export default function GeneralAssistant({ onOpenChat }: GeneralAssistantProps) 
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
           <path d="M12 18V5"/>
           <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/>
@@ -42,7 +63,7 @@ export default function GeneralAssistant({ onOpenChat }: GeneralAssistantProps) 
           <path d="M6 18a4 4 0 0 1-2-7.464"/>
           <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/>
         </svg>
-        <span className="text-white text-sm">General Assistant</span>
+        <span className="text-white text-sm">{activePresetName}</span>
         <svg 
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -50,9 +71,9 @@ export default function GeneralAssistant({ onOpenChat }: GeneralAssistantProps) 
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           className={`w-4 h-4 text-white transition ${isSelectAssistantModalOpen ? "rotate-180" : ""}`}
         >
           <path d="m6 9 6 6 6-6"/>
