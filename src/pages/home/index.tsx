@@ -42,6 +42,7 @@ export default function HomePage() {
   const [chatId, setChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  const [showAiInput, setShowAiInput] = useState(true);
 
   // History state
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -114,6 +115,7 @@ export default function HomePage() {
     setIsLoading(true);
     setPendingMessage(text);
     setLastUserMessage(text);
+    setShowAiInput(false);
 
     try {
       let currentChatId = chatId;
@@ -184,6 +186,21 @@ export default function HomePage() {
     setPendingMessage(null);
   };
 
+  const handleOpenModal = (modal: string) => {
+    if (modal === "chat") {
+      if (activeModal === "chat" && showAiInput) {
+        // If already open and input is visible, close it
+        setActiveModal(null);
+      } else {
+        // Otherwise, open/ensure visible and show input
+        setActiveModal("chat");
+        setShowAiInput(true);
+      }
+    } else {
+      setActiveModal(modal);
+    }
+  };
+
   return (
   
     <div className="w-full max-w-[1440px] bg-transparent mx-auto h-screen relative">
@@ -198,6 +215,7 @@ export default function HomePage() {
         pendingMessage={pendingMessage}
         onEndSession={handleEndSession}
         onSendMessage={handleChatSubmit}
+        showInput={showAiInput}
       />
 
       {/* Settings Modal */}
@@ -244,10 +262,11 @@ export default function HomePage() {
 
       {/* Dock */}
       <Dock 
-        onOpenModal={(modal) => setActiveModal(modal)} 
+        onOpenModal={handleOpenModal} 
         onClose={() => setActiveModal(null)}
         onActionSelected={(action) => handleChatSubmit(action)}
         aiModalOpen={activeModal === "chat" || activeModal === "ai-response"}
+        isInputVisible={showAiInput}
       />
     </div>
   );

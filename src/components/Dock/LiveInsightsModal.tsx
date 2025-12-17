@@ -52,17 +52,17 @@ export default function LiveInsightsModal({
               
               <div className="flex gap-4">
                 <button className="flex items-center gap-2 hover:text-white">
-                  <EyeOffIcon size={18} />
+                  <EyeOffIcon size={16} />
                   <span className="text-sm font-medium text-white">Summary</span>
                 </button>
 
                 <button className="flex items-center gap-2 hover:text-white">
-                  <AudioLinesIcon size={18} />                  
+                  <AudioLinesIcon size={16} />                  
                   <span className="text-sm font-medium text-white">Show Transcript</span>
                 </button>
 
                 <button className="flex items-center gap-2 hover:text-white">
-                  <CopyIcon size={18} />
+                  <CopyIcon size={16} />
                 </button>
               </div>
             </div>

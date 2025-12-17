@@ -20,9 +20,10 @@ interface DockProps {
   onActionSelected?: (action: string) => void;
   active?: boolean;
   aiModalOpen?: boolean;
+  isInputVisible?: boolean;
 }
 
-export default function Dock({ onOpenModal, onClose, onActionSelected, active, aiModalOpen }: DockProps) {
+export default function Dock({ onOpenModal, onClose, onActionSelected, active, aiModalOpen, isInputVisible = true }: DockProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showLiveInsights, setShowLiveInsights] = useState(false);
   const [showAssistantsManager, setShowAssistantsManager] = useState(false);
@@ -233,7 +234,7 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
             className="flex items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 transition text-white group"
             
             onClick={() => {
-              if (aiModalOpen) {
+              if (aiModalOpen && isInputVisible) {
                 onClose?.();
               } else {
                 onOpenModal("chat");

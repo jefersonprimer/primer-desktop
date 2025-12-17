@@ -23,9 +23,10 @@ interface AiModalProps {
   onSendMessage?: (text: string, image?: string) => void;
   isLoading?: boolean;
   pendingMessage?: string | null;
+  showInput?: boolean;
 }
 
-export default function AiModal({ isOpen, message, onEndSession, messages, onSendMessage, isLoading, pendingMessage }: AiModalProps) {
+export default function AiModal({ isOpen, message, onEndSession, messages, onSendMessage, isLoading, pendingMessage, showInput = true }: AiModalProps) {
   const nodeRef = useRef(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -104,7 +105,8 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
           {/* Header - Only show if not compact */}
           {!isCompact && (
             <div className="drag-handle flex items-center justify-between cursor-move px-2 pt-1">
-                <div className="flex items-center overflow-hidden gap-4">
+                <div className="flex items-center overflow-hidden gap-2">
+                  <span className="text-xs border border-white px-1 rounded-full">P</span>
                   <span className="text-sm font-medium">
                     {isLoading ? "Thinking..." : "Ai response"}
                   </span>
@@ -145,11 +147,11 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                     </button>
 
                     <button 
-                      className="p-1.5 border border-neutral-700 rounded-full text-gray-400 hover:text-white hover:bg-[#141414]/40 transition" 
+                      className="p-0.5 border border-gray-400 rounded-full text-gray-400 hover:text-white hover:bg-[#141414]/40 transition" 
                       onClick={() => setTerminationStep('confirm_end')}
                       title="Close"
                     >
-                      <CloseIcon size={16}/>
+                      <CloseIcon size={14}/>
                     </button>
                 </div>
             </div>
@@ -215,7 +217,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                  {/* Loading Animation */}
                  {isLoading && (
                     <div className="flex justify-start">
-                        <div className="bg-gray-800/30 p-3 rounded-lg flex items-center gap-1.5">
+                        <div className="py-2 rounded-lg flex items-center gap-1.5">
                             <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                             <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                             <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
@@ -229,57 +231,53 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
 
           {/* Termination Flow UI */}
           {terminationStep !== 'none' && (
-             <div className="bg-[#1a1a1a] border border-gray-600 p-3 rounded-lg animate-in fade-in slide-in-from-top-2">
+             <div className=" border-t border-white/10 p-3 animate-in fade-in slide-in-from-top-2">
                {terminationStep === 'confirm_end' && (
-                  <div className="flex flex-col gap-2">
-                     <p className="text-center text-sm text-white font-medium">Encerrar sessão?</p>
-                     <div className="flex gap-2 justify-center">
-                        <button 
-                          className="px-4 py-1.5 bg-red-600 hover:bg-red-500 rounded text-xs font-semibold transition"
-                          onClick={() => setTerminationStep('confirm_email')}
-                        >
-                          Sim
-                        </button>
-                        <button 
-                          className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-xs transition"
-                          onClick={() => setTerminationStep('none')}
-                        >
-                          Não
-                        </button>
-                     </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-center text-sm text-white font-medium">End session?</p>
+                    <button 
+                      className="px-4 py-1.5 bg-red-600 hover:bg-red-500 rounded text-xs font-semibold transition"
+                      onClick={() => setTerminationStep('confirm_email')}
+                    >
+                      Yes
+                    </button>
+                    <button 
+                      className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-xs transition"
+                      onClick={() => setTerminationStep('none')}
+                    >
+                      No
+                    </button>
                   </div>
                )}
                {terminationStep === 'confirm_email' && (
-                  <div className="flex flex-col gap-2">
-                     <p className="text-center text-sm text-white font-medium">Enviar um resumo por email?</p>
-                     <div className="flex gap-2 justify-center">
-                        <button 
-                          className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-xs font-semibold transition"
-                          onClick={() => {
-                            if (onEndSession) onEndSession(true);
-                            setTerminationStep('none');
-                          }}
-                        >
-                          Sim
-                        </button>
-                        <button 
-                          className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-xs transition"
-                          onClick={() => {
-                             if (onEndSession) onEndSession(false);
-                             setTerminationStep('none');
-                          }}
-                        >
-                          Não
-                        </button>
-                     </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-white font-medium">Send a summary by email?</p>
+                    <button 
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-xs font-semibold transition"
+                      onClick={() => {
+                        if (onEndSession) onEndSession(true);
+                        setTerminationStep('none');
+                      }}
+                    >
+                      Yes
+                    </button>
+                    <button 
+                      className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-xs transition"
+                      onClick={() => {
+                          if (onEndSession) onEndSession(false);
+                          setTerminationStep('none');
+                      }}
+                    >
+                      No
+                    </button>
                   </div>
                )}
              </div>
           )}
 
           {/* Input Area (Replaces Footer) */}
-          {terminationStep === 'none' && (
-            <div className={`flex flex-col gap-2  ${isCompact ? 'drag-handle' : ''}`}> 
+          {terminationStep === 'none' && showInput && (
+            <div className={`flex flex-col gap-2 ${!isCompact ? 'border-t border-white/10 pt-2' : ''} ${isCompact ? 'drag-handle' : ''}`}> 
                 {/* Captured Image Preview */}
                 {capturedImage && (
                     <div className="relative w-fit">
@@ -310,7 +308,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                         onBlur={() => setIsFocused(false)}
                         disabled={isLoading}
                         className={`flex-1 rounded-xl bg-transparent px-4 py-2
-                                text-white placeholder-white/40 focus:outline-none text-sm transition-all
+                                text-white placeholder-white/40 focus:outline-none focus:ring-0 border-none outline-none text-sm transition-all
                                 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         placeholder="Ask anything..."
                     />
@@ -319,7 +317,6 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                       <button 
                         onClick={toggleAutoFocus}
                         className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 text-white opacity-40 transition disabled:opacity-50"
-                        title={autoFocusEnabled ? "Disable Auto focus" : "Enable Auto focus"}
                       >
                         <span className="text-sm font-medium">Auto focus</span> 
                         <span className="border border-white/40 rounded-lg p-0.5 min-w-[22px] min-h-[22px] flex items-center justify-center">
@@ -330,17 +327,18 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
 
                     <button 
                       className="flex items-center gap-2 py-2 px-4 rounded-full border border-white/40 hover:bg-white/10 transition text-white group"
-                      title="Smart Mode"
+                      title="Good for coding, reasoning, and web searches"
                     >
                       <ZapIcon size={16}/>
-                      <span className="text-sm font-medium">Smart</span>
+                      {!isFocused && (
+                        <span className="text-sm font-medium">Smart</span>
+                      )}
                     </button>
                 
                     <button 
                       onClick={handleSubmit}
                       disabled={isLoading}
                       className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 text-white transition disabled:opacity-50 group"
-                      title="Submit"
                     >
                       <span className="text-sm font-medium">Submit</span>
                       <span className="bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">
