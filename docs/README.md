@@ -24,7 +24,7 @@ Complete documentation for the Primer application.
 Primer is a desktop application that provides:
 
 - **User Management**: Registration, authentication, password reset, account deletion
-- **AI Chat**: Conversations with OpenAI, Gemini, and Claude
+- **AI Chat**: Conversations with OpenAI, Gemini,
 - **Local Storage**: SQLite for fast, local chat storage
 - **Cloud Backup**: Supabase/PostgreSQL for chat backup and sync
 - **Email Notifications**: Send chat summaries via email
@@ -42,7 +42,7 @@ Primer is a desktop application that provides:
 ### User Domain
 - Email/password authentication
 - JWT token generation
-- API key management (OpenAI, Gemini, Claude)
+- API key management (OpenAI, Gemini)
 - Secure password hashing (Argon2)
 
 ### Chat Domain

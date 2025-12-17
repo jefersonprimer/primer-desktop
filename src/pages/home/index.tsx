@@ -5,7 +5,6 @@ import Dock from "../../components/Dock/Dock";
 import AiModal from "@/components/AiModal";
 import SettingsModal from "@/components/settings/SettingsModal";
 import HistoryModal from "@/components/HistoryModal";
-import VoiceChatModal from "@/components/Dock/VoiceChatModal";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useAi } from "@/contexts/AiContext";
@@ -195,13 +194,6 @@ export default function HomePage() {
         onSendMessage={handleChatSubmit}
       />
 
-      {/* Voice Chat Modal */}
-      <VoiceChatModal 
-        isOpen={activeModal === "listen"} 
-        onClose={() => setActiveModal(null)} 
-        onSend={handleChatSubmit}
-      />
-
       {/* Settings Modal */}
        <SettingsModal 
         open={activeModal === "settings"} 
@@ -247,6 +239,8 @@ export default function HomePage() {
       {/* Dock */}
       <Dock 
         onOpenModal={(modal) => setActiveModal(modal)} 
+        onActionSelected={(action) => handleChatSubmit(action)}
+        aiModalOpen={activeModal === "chat" || activeModal === "ai-response"}
       />
     </div>
   );

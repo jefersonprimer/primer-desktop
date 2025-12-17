@@ -6,7 +6,7 @@ Complete documentation of the PostgreSQL database schema used for Supabase cloud
 
 The PostgreSQL database stores:
 - **Users**: User accounts and authentication data
-- **User API Keys**: API keys for AI providers (OpenAI, Gemini, Claude)
+- **User API Keys**: API keys for AI providers (OpenAI, Gemini)
 - **Chats**: Backup copies of chat conversations (synced from SQLite)
 - **Messages**: Backup copies of chat messages (synced from SQLite)
 
@@ -41,7 +41,7 @@ CREATE TABLE users (
 
 ### User API Keys Table
 
-Stores API keys for AI providers (OpenAI, Gemini, Claude).
+Stores API keys for AI providers (OpenAI, Gemini).
 
 ```sql
 CREATE TABLE user_api_keys (
@@ -57,7 +57,7 @@ CREATE TABLE user_api_keys (
 **Columns**:
 - `id` (UUID): Primary key, auto-generated UUID
 - `user_id` (UUID): Foreign key to `users.id`, cascade delete
-- `provider` (VARCHAR(50)): AI provider name ('openai', 'gemini', 'claude_code')
+- `provider` (VARCHAR(50)): AI provider name ('openai', 'gemini')
 - `api_key` (TEXT): Encrypted API key value
 - `created_at` (TIMESTAMP WITH TIME ZONE): Creation timestamp
 

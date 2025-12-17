@@ -2,7 +2,7 @@
 
 use app_lib::{
     app_state::AppState,
-    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands},
+    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands, audio_commands, whisper_commands},
     config::Config,
     clickthrough,
     visibility,
@@ -132,6 +132,8 @@ async fn main() {
 
     tauri::Builder::default()
         .manage(app_state)
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_log::Builder::default().build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
@@ -201,6 +203,7 @@ async fn main() {
             log_commands::open_log_folder,
             log_commands::read_log_content,
             log_commands::get_log_path_cmd,
+            log_commands::log_frontend_message,
             // New commands
             window_commands::set_always_on_top,
             window_commands::set_window_opacity,
@@ -209,6 +212,12 @@ async fn main() {
             window_commands::disable_full_stealth,
             // Screen commands
             screen_commands::capture_screen,
+            // Audio commands
+            audio_commands::start_recording,
+            audio_commands::stop_recording,
+            audio_commands::get_recording_status,
+            // Whisper commands
+            whisper_commands::transcribe_with_whisper,
         ])
         .setup(|app| {
             let win = app.get_webview_window("main").unwrap();

@@ -96,14 +96,14 @@ await invoke('reset_password', {
 
 ### `add_api_key`
 
-Adds an API key for an AI provider (OpenAI, Gemini, or Claude).
+Adds an API key for an AI provider (OpenAI, Gemini,).
 
 **Request:**
 ```typescript
 await invoke('add_api_key', {
   dto: {
     user_id: '550e8400-e29b-41d4-a716-446655440000',
-    provider: 'openai', // or 'gemini' or 'claude_code'
+    provider: 'openai', // or 'gemini'
     api_key: 'sk-...'
   }
 });
@@ -117,7 +117,7 @@ await invoke('add_api_key', {
 ```
 
 **Errors:**
-- `"Invalid AI provider specified"` - Provider must be 'openai', 'gemini', or 'claude_code'
+- `"Invalid AI provider specified"` - Provider must be 'openai', 'gemini',
 - `"User already has an API key for this provider"` - Key already exists
 
 ---
@@ -241,7 +241,7 @@ await invoke('send_message', {
     user_id: '550e8400-e29b-41d4-a716-446655440000',
     chat_id: '770e8400-e29b-41d4-a716-446655440000',
     content: 'What is the capital of France?',
-    provider_name: 'openai', // or 'gemini' or 'claude_code'
+    provider_name: 'openai', // or 'gemini'
     model: 'gpt-4',
     temperature: 0.7, // Optional, 0.0-2.0
     max_tokens: 1000  // Optional
@@ -445,7 +445,7 @@ interface RegisterDto {
 
 interface AddApiKeyDto {
   user_id: string;
-  provider: 'openai' | 'gemini' | 'claude_code';
+  provider: 'openai' | 'gemini';
   api_key: string;
 }
 
@@ -459,7 +459,7 @@ interface SendMessageDto {
   user_id: string;
   chat_id: string;
   content: string;
-  provider_name: 'openai' | 'gemini' | 'claude_code';
+  provider_name: 'openai' | 'gemini';
   model: string;
   temperature?: number;
   max_tokens?: number;

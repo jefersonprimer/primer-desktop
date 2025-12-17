@@ -101,7 +101,7 @@ const login = async (email: string, password: string) => {
 ```typescript
 const addApiKey = async (
   userId: string,
-  provider: 'openai' | 'gemini' | 'claude_code',
+  provider: 'openai' | 'gemini',
   apiKey: string
 ) => {
   try {
@@ -167,7 +167,7 @@ interface SendMessageParams {
   userId: string;
   chatId: string;
   content: string;
-  providerName: 'openai' | 'gemini' | 'claude_code';
+  providerName: 'openai' | 'gemini';
   model: string;
   temperature?: number;
   maxTokens?: number;
@@ -534,7 +534,7 @@ interface RegisterDto {
 
 interface AddApiKeyDto {
   user_id: string;
-  provider: 'openai' | 'gemini' | 'claude_code';
+  provider: 'openai' | 'gemini';
   api_key: string;
 }
 
@@ -560,7 +560,7 @@ interface SendMessageDto {
   user_id: string;
   chat_id: string;
   content: string;
-  provider_name: 'openai' | 'gemini' | 'claude_code';
+  provider_name: 'openai' | 'gemini';
   model: string;
   temperature?: number;
   max_tokens?: number;

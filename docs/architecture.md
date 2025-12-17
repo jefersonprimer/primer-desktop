@@ -19,7 +19,7 @@ Aqui fica toda a **lógica de negócio**, independente de como os dados são arm
     * `service/` → `ChatService`, `ContextManager`
     * `usecase/` → `send_message`, `create_chat`, `backup_chat`, `sync_messages`
   * `audio/` → gravação e transcrição (`Whisper`)
-  * `provider/` → integração com APIs externas: `OpenAI`, `Gemini`, `Claude`
+  * `provider/` → integração com APIs externas: `OpenAI`, `Gemini`
   * `vision/` → processamento de imagens
 * **`notification/email`**: envio de emails
 

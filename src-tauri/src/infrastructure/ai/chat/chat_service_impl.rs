@@ -29,7 +29,6 @@ pub struct ChatServiceImpl {
     prompt_preset_repo: Arc<dyn PromptPresetRepository>,
     gemini_provider: Arc<dyn AiProvider>,
     openai_provider: Arc<dyn AiProvider>,
-    claude_provider: Arc<dyn AiProvider>,
     openrouter_provider: Arc<dyn AiProvider>,
 }
 
@@ -41,7 +40,6 @@ impl ChatServiceImpl {
         prompt_preset_repo: Arc<dyn PromptPresetRepository>,
         gemini_provider: Arc<dyn AiProvider>,
         openai_provider: Arc<dyn AiProvider>,
-        claude_provider: Arc<dyn AiProvider>,
         openrouter_provider: Arc<dyn AiProvider>,
     ) -> Self {
         Self {
@@ -51,7 +49,6 @@ impl ChatServiceImpl {
             prompt_preset_repo,
             gemini_provider,
             openai_provider,
-            claude_provider,
             openrouter_provider,
         }
     }
@@ -145,7 +142,6 @@ impl ChatService for ChatServiceImpl {
         let ai_response = match provider_type {
             AIProviderType::Gemini => self.gemini_provider.chat_completion(api_key, chat_req).await?,
             AIProviderType::OpenAI => self.openai_provider.chat_completion(api_key, chat_req).await?,
-            AIProviderType::Claude => self.claude_provider.chat_completion(api_key, chat_req).await?,
             AIProviderType::OpenRouter => self.openrouter_provider.chat_completion(api_key, chat_req).await?,
         };
 

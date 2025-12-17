@@ -47,7 +47,6 @@ use crate::{
             provider::{
                 gemini::GeminiClient,
                 openai::OpenAIProvider,
-                claude::ClaudeProvider,
                 openrouter::OpenRouterProvider,
             },
         },
@@ -150,8 +149,6 @@ impl AppState {
             Arc::new(GeminiClient::new("gemini-2.5-flash".to_string()));
         let openai_provider: Arc<dyn AiProvider> =
             Arc::new(OpenAIProvider::new());
-        let claude_provider: Arc<dyn AiProvider> =
-            Arc::new(ClaudeProvider::new());
         let openrouter_provider: Arc<dyn AiProvider> =
             Arc::new(OpenRouterProvider::new());
 
@@ -163,7 +160,6 @@ impl AppState {
             prompt_preset_repo.clone(),
             gemini_provider,
             openai_provider,
-            claude_provider,
             openrouter_provider,
         );
         let chat_service: Arc<dyn ChatService> = Arc::new(chat_service_impl);

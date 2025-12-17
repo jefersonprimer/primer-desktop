@@ -26,7 +26,7 @@ CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
 CREATE TABLE IF NOT EXISTS user_api_keys (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
-    provider TEXT NOT NULL,       -- "openai", "gemini", "claude_code"
+    provider TEXT NOT NULL,       -- "openai", "gemini"
     api_key TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

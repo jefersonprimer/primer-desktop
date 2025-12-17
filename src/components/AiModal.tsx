@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import Draggable from "react-draggable";
 import SettingsIcon from "./ui/icons/SettingsIcon";
-import { invoke } from "@tauri-apps/api/core";
 import ZapIcon from "./ui/icons/ZapIcon";
 import CheckIcon from "./ui/icons/CheckIcon";
 
@@ -38,7 +37,7 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
   // Input state
   const [input, setInput] = useState("");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [isCapturing, setIsCapturing] = useState(false);
+  // const [isCapturing, setIsCapturing] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -98,6 +97,7 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
     };
   }, [showOpacityControl]);
 
+  /*
   const handleCapture = async () => {
     setIsCapturing(true);
     try {
@@ -109,6 +109,7 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
         setIsCapturing(false);
     }
   };
+  */
 
   const handleSubmit = () => {
     if (!input.trim() && !capturedImage) return;

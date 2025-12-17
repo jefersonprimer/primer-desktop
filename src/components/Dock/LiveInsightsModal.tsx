@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from "framer-motion";
-import EyeIcon from "../ui/icons/EyeIcon";
 import EyeOffIcon from "../ui/icons/EyeOffIcon";
 import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
 import CopyIcon from "../ui/icons/CopyIcon";
@@ -8,15 +7,25 @@ interface DockModalProps {
   open: boolean;
   anchorX?: number; // posição X da dock (centro)
   onClose: () => void;
+  isListening?: boolean;
+  transcript?: string;
+  actions?: string[];
+  onActionClick?: (action: string) => void;
 }
 
-const actions = [
-  { icon: "✨", label: "Define Dyspepsia Analyze Online Stretch" },
-  { icon: "⭐", label: "Give me helpful information" },
-  { icon: "💡", label: "Suggest follow-up questions" },
-];
+export default function LiveInsightsModal({ 
+  open, 
+  anchorX = window.innerWidth / 2, 
+  onClose,
+  isListening = false,
+  transcript = "",
+  actions = [],
+  onActionClick
+}: DockModalProps) {
+  
+  const hasTranscript = transcript.trim().length > 0;
+  const showPlaceholder = isListening && !hasTranscript;
 
-export default function LiveInsightsModal({ open, anchorX = window.innerWidth / 2, onClose }: DockModalProps) {
   return (
     <AnimatePresence>
       {open && (
@@ -58,24 +67,55 @@ export default function LiveInsightsModal({ open, anchorX = window.innerWidth / 
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="p-2">
-              <div className="text-base text-white px-2 mb-1">Actions</div>
-              {actions.map((a) => (
-                <button
-                  key={a.label}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 transition"
-                >
-                  <span className="text-base">{a.icon}</span>
-                  <span className="text-left">{a.label}</span>
-                </button>
-              ))}
+            {/* Content Area */}
+            <div className="p-4 min-h-[100px] flex flex-col justify-center">
+               {showPlaceholder && (
+                 <div className="flex flex-col items-center justify-center gap-4">
+                   <div className="relative flex items-center justify-center">
+                     <span className="absolute inline-flex h-12 w-12 animate-ping rounded-full bg-red-400 opacity-20"></span>
+                     <span className="relative inline-flex h-6 w-6 rounded-full bg-red-500 shadow-lg shadow-red-500/50"></span>
+                   </div>
+                   <div className="text-center text-white/60 text-lg">
+                     Listening...
+                   </div>
+                 </div>
+               )}
+               
+               {hasTranscript && (
+                 <div className="text-white text-lg font-medium leading-relaxed">
+                   "{transcript}"
+                 </div>
+               )}
+
+               {!isListening && actions.length > 0 && (
+                 <div className="mt-4">
+                    <div className="text-xs font-semibold text-white/40 uppercase mb-2">Suggested Actions</div>
+                    <div className="space-y-2">
+                      {actions.map((action, i) => (
+                        <button
+                          key={i}
+                          onClick={() => onActionClick?.(action)}
+                          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition text-left group"
+                        >
+                          <span className="text-base">✨</span>
+                          <span className="text-sm text-white/90 group-hover:text-white">{action}</span>
+                        </button>
+                      ))}
+                    </div>
+                 </div>
+               )}
+               
+               {!isListening && !showPlaceholder && !hasTranscript && actions.length === 0 && (
+                  <div className="text-center text-white/40">
+                    Ready to listen.
+                  </div>
+               )}
             </div>
 
             {/* Footer */}
-            <div className="text-center px-4 py-2 text-sm font-medium text-white/40">
-              <button>
-                Click to ask Primer AI
+            <div className="text-center px-4 py-2 text-sm font-medium text-white/40 border-t border-white/5">
+              <button onClick={onClose}>
+                {isListening ? "Listening..." : "Click to ask Primer AI"}
               </button>
             </div>
           </motion.div>

@@ -72,7 +72,7 @@ infrastructure/
 │   └── provider/            # AI provider implementations
 │       ├── openai.rs
 │       ├── gemini.rs
-│       └── claude.rs
+│       └── 
 └── notification/            # Email infrastructure
     └── email/
         └── smtp_email_sender.rs
@@ -82,7 +82,7 @@ infrastructure/
 
 - **Repository Implementations**: Concrete implementations of domain repository traits
 - **Database Abstraction**: Supports both SQLite (local) and Postgres (Supabase)
-- **AI Provider Integration**: Implementations for OpenAI, Gemini, and Claude
+- **AI Provider Integration**: Implementations for OpenAI, Gemini,
 - **Email Sending**: SMTP-based email delivery
 
 ### 3. Interface Layer (`frontend/src-tauri/src/commands`)

@@ -109,3 +109,8 @@ pub async fn get_log_path_cmd<R: Runtime>(app: AppHandle<R>) -> Result<String, S
         Ok(log_dir.to_string_lossy().to_string())
     }
 }
+
+#[tauri::command]
+pub async fn log_frontend_message(message: String) {
+    println!("[Frontend] {}", message);
+}

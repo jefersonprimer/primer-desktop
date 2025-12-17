@@ -62,7 +62,7 @@ CREATE INDEX idx_user_api_keys_provider ON user_api_keys(provider);
 **Fields**:
 - `id`: Unique API key identifier (UUID)
 - `user_id`: Foreign key to users table
-- `provider`: AI provider name ('openai', 'gemini', 'claude_code')
+- `provider`: AI provider name ('openai', 'gemini')
 - `api_key`: Encrypted API key value
 - `created_at`: Creation timestamp
 
@@ -232,7 +232,7 @@ pub struct User {
 pub struct UserApiKey {
     pub id: Uuid,
     pub user_id: Uuid,
-    pub provider: String,  // "openai", "gemini", "claude_code"
+    pub provider: String,  // "openai", "gemini"
     pub api_key: String,   // Encrypted
     pub created_at: DateTime<Utc>,
 }

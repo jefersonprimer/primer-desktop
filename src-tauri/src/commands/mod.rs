@@ -6,3 +6,5 @@ pub mod screen_commands;
 pub mod config_commands;
 pub mod log_commands;
 pub mod prompt_preset_commands;
+pub mod audio_commands;
+pub mod whisper_commands;

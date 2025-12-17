@@ -139,7 +139,7 @@ Tauri Command (add_api_key)
   ↓ Validates provider name
   ↓ Creates AddApiKeyUseCase
 AddApiKeyUseCase
-  ↓ Validates provider ('openai', 'gemini', 'claude_code')
+  ↓ Validates provider ('openai', 'gemini')
   ↓ Checks if user already has key for this provider
   ↓ Creates UserApiKey entity
   ↓ Saves to database
@@ -173,7 +173,7 @@ Frontend
    - If not → Creates `UserApiKey` entity:
      - `id`: Generated UUID
      - `user_id`: User's UUID
-     - `provider`: 'openai', 'gemini', or 'claude_code'
+     - `provider`: 'openai', 'gemini',
      - `api_key`: Raw API key (should be encrypted in production)
      - `created_at`: Current timestamp
 
@@ -280,7 +280,7 @@ ChatServiceImpl
   │   ↓ Creates ChatCompletionRequest with full context
   │
   ├─ Step 5: Call AI provider
-  │   ↓ Selects provider (OpenAI, Gemini, or Claude)
+  │   ↓ Selects provider (OpenAI, Gemini,)
   │   ↓ Makes HTTP request to AI API
   │   ↓ Uses user's API key for authentication
   │   ↓ AI processes request with full conversation context
@@ -691,7 +691,7 @@ Frontend
 
 1. **Registration** → User creates account → Stored in PostgreSQL
 2. **Login** → User authenticates → JWT token generated
-3. **Add API Key** → User adds OpenAI/Gemini/Claude key → Stored in PostgreSQL
+3. **Add API Key** → User adds OpenAI/Gemini key → Stored in PostgreSQL
 4. **Create Chat** → User starts new conversation → Stored in SQLite
 5. **Send Messages** → User chats with AI → Messages stored in SQLite, AI responds with context
 6. **Backup Chat** (Optional) → User backs up to cloud → Synced to PostgreSQL
@@ -716,7 +716,7 @@ Frontend
 2. **Cloud Backup**: Optional sync to Supabase for persistence
 3. **Full Context**: AI receives entire conversation history
 4. **Email Summaries**: Formatted chat summaries via email
-5. **Multi-Provider**: Support for OpenAI, Gemini, and Claude
+5. **Multi-Provider**: Support for OpenAI, Gemini,
 
 ---
 

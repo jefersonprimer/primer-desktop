@@ -101,7 +101,7 @@ usecase.execute("recovery-token", "newPassword123").await?;
 - `UserApiKeyRepository` - To store API keys
 
 **Flow**:
-1. Validate provider name (must be 'openai', 'gemini', or 'claude_code')
+1. Validate provider name (must be 'openai', 'gemini',)
 2. Check if user already has API key for this provider
 3. Create new API key entity
 4. Save to repository
@@ -410,7 +410,7 @@ usecase.execute(user_id, chat_id).await?;
 2. Save user's message to repository
 3. Fetch all previous messages for context
 4. Prepare chat completion request with full context
-5. Call appropriate AI provider (OpenAI, Gemini, or Claude)
+5. Call appropriate AI provider (OpenAI, Gemini,)
 6. Save AI response to repository
 7. Return AI response message
 
@@ -426,7 +426,7 @@ let chat_service = ChatServiceImpl::new(
     message_repo,
     gemini_provider,
     openai_provider,
-    claude_provider
+    
 );
 
 let request = ChatServiceRequest {
@@ -498,7 +498,7 @@ SendMessageUseCase
   └── ChatService
       ├── UserApiKeyRepository
       ├── MessageRepository
-      └── AiProvider (OpenAI/Gemini/Claude)
+      └── AiProvider (OpenAI/Gemini)
 
 BackupChatUseCase
   ├── ChatRepository (SQLite)

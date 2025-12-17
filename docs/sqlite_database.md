@@ -56,7 +56,7 @@ Stores API keys for AI providers (primarily for local development/testing).
 CREATE TABLE user_api_keys (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
-    provider TEXT NOT NULL,       -- "openai", "gemini", "claude_code"
+    provider TEXT NOT NULL,       -- "openai", "gemini"
     api_key TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -67,7 +67,7 @@ CREATE TABLE user_api_keys (
 **Columns**:
 - `id` (TEXT): Primary key, UUID stored as text string
 - `user_id` (TEXT): Foreign key to `users.id`, cascade delete
-- `provider` (TEXT): AI provider name ('openai', 'gemini', 'claude_code')
+- `provider` (TEXT): AI provider name ('openai', 'gemini')
 - `api_key` (TEXT): Encrypted API key value
 - `created_at` (DATETIME): Creation timestamp
 

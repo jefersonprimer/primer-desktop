@@ -1,47 +1,88 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
+import StopIcon from "../ui/icons/StopIcon";
 import EllipsisVerticalIcon from "../ui/icons/EllipsisVerticalIcon";
 import { useStealthMode } from '../../contexts/StealthModeContext';
 import LiveInsightsModal from "./LiveInsightsModal";
 import SelectAssistantModal from "./SelectAssistantModal";
 import AssistantsManagerModal from "../AssistantsManagerModal";
+import SettingsModal from "../settings/SettingsModal";
 import { useAi } from "../../contexts/AiContext";
-import { getPromptPresets, type PromptPreset } from "../../lib/tauri";
+import { getPromptPresets } from "../../lib/tauri";
 import { invoke } from "@tauri-apps/api/core";
+import { useSpeechRecognition } from "../../hooks/useSpeechRecognition";
+import { generateActions, transcribeAudio } from "../../services/aiService";
 
 interface DockProps {
   onOpenModal: (modal: string) => void;
+  onActionSelected?: (action: string) => void;
   active?: boolean;
+  aiModalOpen?: boolean;
 }
 
-export default function Dock({ onOpenModal, active }: DockProps) {
+export default function Dock({ onOpenModal, onActionSelected, active, aiModalOpen }: DockProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showLiveInsights, setShowLiveInsights] = useState(false);
   const [showAssistantsManager, setShowAssistantsManager] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const dockRef = useRef<HTMLDivElement>(null); // Add this line
-  const [dockCenterX, setDockCenterX] = useState(window.innerWidth / 2); // Add this line
-  const { isStealth, toggleStealth } = useStealthMode();
+  const dockRef = useRef<HTMLDivElement>(null);
+  const [dockCenterX, setDockCenterX] = useState(window.innerWidth / 2);
+  const { isStealth } = useStealthMode();
   const { userEmail, logout } = useAuth();
 
   const [showAssistantSelector, setShowAssistantSelector] = useState(false);
-  const { activePromptPreset, setActivePromptPreset } = useAi();
+  const { activePromptPreset, setActivePromptPreset, activeProvider, activeModel, getApiKeyForProvider } = useAi();
   const [activePresetName, setActivePresetName] = useState("Default");
+
+  // Speech & AI state
+  const [actions, setActions] = useState<string[]>([]);
+  const { isListening, transcript, error: speechError, startListening, stopListening } = useSpeechRecognition({
+      onResult: (text) => {
+          // Immediately generate actions when we get a result
+          if (text && text.trim().length > 0) {
+              handleGenerateActions(text);
+          }
+      },
+      transcribe: async (audioBase64) => {
+          // Use OpenAI key for Whisper if available, or just the active one if we want to try.
+          // Note: Whisper is an OpenAI model. If activeProvider is Google, we might not have an OpenAI Key.
+          // For now, let's assume the user has an OpenAI key or we force them to use one for Speech?
+          // BETTER: Try to find an OpenAI key specifically.
+          let apiKey = getApiKeyForProvider("OpenAI");
+          if (!apiKey && activeProvider === "OpenAI") apiKey = getApiKeyForProvider(activeProvider);
+          
+          if (!apiKey) {
+               // Fallback: If no OpenAI key, we can't use Whisper easily (unless we use a Groq/OpenRouter endpoint).
+               // Let's warn.
+               console.warn("No OpenAI API Key found for Whisper transcription.");
+               throw new Error("API Key da OpenAI necessária para transcrição de áudio.");
+          }
+          return await transcribeAudio(audioBase64, apiKey);
+      }
+  });
+  
+  // Calculate LiveInsights position
+  // If AiModal is open (centered), move LiveInsights to the left
+  const liveInsightsAnchorX = aiModalOpen ? dockCenterX - 570 : dockCenterX;
 
   const onCloseApp = async () => {
     await invoke("close_app");
   };
 
-  // if (!open) return null; // This line seems to be an error, 'open' is not defined here. I'll comment it out for now.
-
+  useEffect(() => {
+    if (speechError) {
+      console.error("Speech Error:", speechError);
+      // Optional: Show error to user via toast or alert
+    }
+  }, [speechError]);
 
   useEffect(() => {
     loadActivePresetName();
   }, [activePromptPreset]);
 
-  // Add this useEffect hook to calculate dockCenterX
   useEffect(() => {
     const updateDockCenterX = () => {
       if (dockRef.current) {
@@ -54,6 +95,56 @@ export default function Dock({ onOpenModal, active }: DockProps) {
     window.addEventListener("resize", updateDockCenterX);
     return () => window.removeEventListener("resize", updateDockCenterX);
   }, []);
+
+  // Handle Speech End -> Generate Actions
+  // REMOVED useEffect relying on isListening to avoid race conditions
+  /*
+  useEffect(() => {
+    if (!isListening && transcript.trim().length > 0) {
+      handleGenerateActions();
+    }
+  }, [isListening]);
+  */
+
+  const handleGenerateActions = async (textOverride?: string) => {
+    const textToProcess = textOverride || transcript;
+    if (!textToProcess || textToProcess.trim().length === 0) return;
+
+    const apiKey = getApiKeyForProvider(activeProvider);
+    if (!apiKey) {
+      console.warn("No API key for active provider");
+      setActions(["Error: No API Key found for " + activeProvider]);
+      return;
+    }
+
+    try {
+      const generatedActions = await generateActions(textToProcess, activeProvider, apiKey, activeModel);
+      setActions(generatedActions);
+    } catch (e) {
+      console.error("Failed to generate actions", e);
+    }
+  };
+
+  const handleListenClick = () => {
+    console.log("Listen clicked. Current state isListening:", isListening);
+    invoke("log_frontend_message", { message: `Listen clicked. isListening: ${isListening}` }).catch(e => console.error(e));
+    if (isListening) {
+      stopListening();
+    } else {
+      setActions([]); // Clear previous actions
+      setShowLiveInsights(true);
+      startListening();
+    }
+  };
+
+  const handleActionClick = (action: string) => {
+    if (onActionSelected) {
+      onActionSelected(action);
+    }
+    // Don't necessarily close LiveInsights, maybe user wants to see transcript? 
+    // But usually clicking an action navigates away.
+    // setShowLiveInsights(false); 
+  };
 
   async function loadActivePresetName() {
     try {
@@ -91,11 +182,17 @@ export default function Dock({ onOpenModal, active }: DockProps) {
       <div ref={dockRef} className="absolute top-6 left-0 right-0 mx-auto w-fit flex flex-col items-center gap-3 z-[9999]">
         <div className="relative flex items-center gap-3 bg-[#4E4D4F] backdrop-blur-xl px-2 py-1 rounded-full border border-white/10 shadow-lg">
           <button
-            className="flex items-center gap-2 py-2 px-4 rounded-full bg-[#707071] hover:bg-white/10 transition text-white group"
-            onClick={() => setShowLiveInsights(!showLiveInsights)}
+            className={`flex items-center gap-2 py-2 px-4 rounded-full transition text-white group ${isListening ? 'bg-red-500/20 text-red-100' : 'bg-[#707071] hover:bg-white/10'}`}
+            onClick={handleListenClick}
           >
-            <span className="text-sm font-medium text-white/90 group-hover:text-white">Listen</span>
-            <AudioLinesIcon stroke="#fff" size={20} />
+            <span className="text-sm font-medium text-white/90 group-hover:text-white">
+              {isListening ? "Stop" : "Listen"}
+            </span>
+            {isListening ? (
+               <StopIcon fill="#ff8888" stroke="none" size={18} className="animate-pulse" />
+            ) : (
+               <AudioLinesIcon stroke="#fff" size={20} />
+            )}
           </button>
 
           <button
@@ -256,8 +353,14 @@ export default function Dock({ onOpenModal, active }: DockProps) {
                   </button>
                 </div>
 
-                <button className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition">
-                  Show Tutorial
+                <button 
+                  onClick={() => {
+                    setShowSettings(true);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
+                >
+                  Settings
                 </button>
 
                 {/* Stealth Mode */}
@@ -292,14 +395,22 @@ export default function Dock({ onOpenModal, active }: DockProps) {
       </div>
         <LiveInsightsModal
           open={showLiveInsights}
-          anchorX={dockCenterX} // Pass dockCenterX as anchorX
+          anchorX={liveInsightsAnchorX}
           onClose={() => setShowLiveInsights(false)}
+          isListening={isListening}
+          transcript={transcript}
+          actions={actions}
+          onActionClick={handleActionClick}
         />
         {showAssistantsManager && (
           <AssistantsManagerModal
             onClose={() => setShowAssistantsManager(false)}
           />
         )}
+        <SettingsModal 
+          open={showSettings} 
+          onClose={() => setShowSettings(false)} 
+        />
     </>
   );
 }

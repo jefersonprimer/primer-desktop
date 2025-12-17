@@ -339,7 +339,7 @@ The application automatically detects database type:
 
 **Solutions**:
 - User must add API keys via `add_api_key` command
-- Verify provider name is correct: 'openai', 'gemini', or 'claude_code'
+- Verify provider name is correct: 'openai', 'gemini',
 - Check API key is valid and has proper permissions
 
 ---

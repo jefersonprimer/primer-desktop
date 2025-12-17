@@ -36,6 +36,8 @@ lazy_static = "1.4"
 base64 = "0.22"
 image = "0.25"
 xcap = "0.7.1"
+tauri-plugin-shell = "2.3.3"
+tauri-plugin-os = "2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.24"
@@ -73,3 +75,9 @@ thiserror = "1.0"
 x11 = { version = "2.21", features = ["xlib", "xrandr", "xrecord", "xfixes", "xrender"] }
 xcb = "1.2"
 raw-window-handle = "0.6"
+
+[dependencies.cpal]
+version = "0.15"
+
+[dependencies.hound]
+version = "3.5"
