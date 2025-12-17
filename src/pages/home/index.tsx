@@ -41,6 +41,7 @@ export default function HomePage() {
   const [aiMessage, setAiMessage] = useState("");
   const [chatId, setChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
 
   // History state
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -48,7 +49,7 @@ export default function HomePage() {
   const [historyMessages, setHistoryMessages] = useState<ChatMessage[]>([]);
   
   const { userId } = useAuth();
-  const { activeProvider, activeModel, activePromptPreset } = useAi();
+  const { activeProvider, activeModel, activePromptPreset, setLastUserMessage } = useAi();
 
   const fetchSessions = async () => {
     if (!userId) return;
@@ -111,6 +112,8 @@ export default function HomePage() {
     // Open AiModal with loading state
     setActiveModal("chat");
     setIsLoading(true);
+    setPendingMessage(text);
+    setLastUserMessage(text);
 
     try {
       let currentChatId = chatId;
@@ -146,13 +149,14 @@ export default function HomePage() {
       });
 
       setAiMessage(response.message.content);
-      fetchMessages(currentChatId, response.follow_ups);
+      await fetchMessages(currentChatId, response.follow_ups);
 
     } catch (error) {
       console.error("Chat error:", error);
       setAiMessage("Erro ao processar sua solicitação: " + error);
     } finally {
       setIsLoading(false);
+      setPendingMessage(null);
     }
   };
 
@@ -177,6 +181,7 @@ export default function HomePage() {
     setAiMessage("");
     setHistoryMessages([]);
     setActiveModal(null);
+    setPendingMessage(null);
   };
 
   return (
@@ -190,6 +195,7 @@ export default function HomePage() {
         message={aiMessage}
         messages={historyMessages}
         isLoading={isLoading}
+        pendingMessage={pendingMessage}
         onEndSession={handleEndSession}
         onSendMessage={handleChatSubmit}
       />
@@ -239,6 +245,7 @@ export default function HomePage() {
       {/* Dock */}
       <Dock 
         onOpenModal={(modal) => setActiveModal(modal)} 
+        onClose={() => setActiveModal(null)}
         onActionSelected={(action) => handleChatSubmit(action)}
         aiModalOpen={activeModal === "chat" || activeModal === "ai-response"}
       />

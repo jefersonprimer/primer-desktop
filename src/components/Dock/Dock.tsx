@@ -16,12 +16,13 @@ import { generateActions, transcribeAudio } from "../../services/aiService";
 
 interface DockProps {
   onOpenModal: (modal: string) => void;
+  onClose?: () => void;
   onActionSelected?: (action: string) => void;
   active?: boolean;
   aiModalOpen?: boolean;
 }
 
-export default function Dock({ onOpenModal, onActionSelected, active, aiModalOpen }: DockProps) {
+export default function Dock({ onOpenModal, onClose, onActionSelected, active, aiModalOpen }: DockProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showLiveInsights, setShowLiveInsights] = useState(false);
   const [showAssistantsManager, setShowAssistantsManager] = useState(false);
@@ -34,7 +35,7 @@ export default function Dock({ onOpenModal, onActionSelected, active, aiModalOpe
   const { userEmail, logout } = useAuth();
 
   const [showAssistantSelector, setShowAssistantSelector] = useState(false);
-  const { activePromptPreset, setActivePromptPreset, activeProvider, activeModel, getApiKeyForProvider } = useAi();
+  const { activePromptPreset, setActivePromptPreset, activeProvider, activeModel, getApiKeyForProvider, setLastUserMessage } = useAi();
   const [activePresetName, setActivePresetName] = useState("Default");
 
   // Speech & AI state
@@ -96,6 +97,37 @@ export default function Dock({ onOpenModal, onActionSelected, active, aiModalOpe
     return () => window.removeEventListener("resize", updateDockCenterX);
   }, []);
 
+  // Global Shortcuts Listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ask: Ctrl + Enter
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation(); // Stop bubbling to prevent unwanted side effects
+        if (aiModalOpen) {
+          onClose?.();
+        } else {
+          onOpenModal("chat");
+        }
+      }
+
+      // Hide: Ctrl + \
+      if ((e.ctrlKey || e.metaKey) && e.key === "\\") {
+        e.preventDefault();
+        invoke("toggle_minimize_window");
+      }
+
+      // Voice: Ctrl + D
+      if ((e.ctrlKey || e.metaKey) && (e.key === "d" || e.key === "D")) {
+        e.preventDefault();
+        handleListenClick();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onOpenModal]);
+
   // Handle Speech End -> Generate Actions
   // REMOVED useEffect relying on isListening to avoid race conditions
   /*
@@ -109,6 +141,8 @@ export default function Dock({ onOpenModal, onActionSelected, active, aiModalOpe
   const handleGenerateActions = async (textOverride?: string) => {
     const textToProcess = textOverride || transcript;
     if (!textToProcess || textToProcess.trim().length === 0) return;
+
+    setLastUserMessage(textToProcess);
 
     const apiKey = getApiKeyForProvider(activeProvider);
     if (!apiKey) {
@@ -197,7 +231,14 @@ export default function Dock({ onOpenModal, onActionSelected, active, aiModalOpe
 
           <button
             className="flex items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 transition text-white group"
-            onClick={() => onOpenModal("chat")}
+            
+            onClick={() => {
+              if (aiModalOpen) {
+                onClose?.();
+              } else {
+                onOpenModal("chat");
+              }
+            }}
           >
             <span className="text-sm font-medium text-white/90 group-hover:text-white">Ask</span>
             <span className="text-xs font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
@@ -221,6 +262,7 @@ export default function Dock({ onOpenModal, onActionSelected, active, aiModalOpe
 
           <button
             className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10 transition text-white group"
+            onClick={() => invoke("toggle_minimize_window")}
           >
             <span className="text-sm font-medium text-white/90 group-hover:text-white">Hide</span>
             <span className="text-xs font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>

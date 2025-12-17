@@ -151,12 +151,7 @@ export default function PermissionsTab() {
         </div>
       </div>
 
-      {/* Aviso sobre modo furtivo */}
-      <div className="mt-6">
-        <p className="text-sm text-neutral-400 leading-relaxed">
-          O aplicativo é executado em modo furtivo (oculto da barra de tarefas). Use <span className="text-neutral-200 font-medium">Ctrl+B</span> para mostrar/ocultar.
-        </p>
-      </div>
+
     </div>
   );
 }

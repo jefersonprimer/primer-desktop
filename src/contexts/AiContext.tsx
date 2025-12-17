@@ -31,6 +31,9 @@ interface AiContextType {
   activePromptPreset: string;
   setActivePromptPreset: (id: string) => void;
 
+  lastUserMessage: string;
+  setLastUserMessage: (message: string) => void;
+
   refreshConfig: () => Promise<void>;
   getModelForProvider: (provider: ProviderType) => string | undefined;
   getApiKeyForProvider: (provider: ProviderType) => string | undefined;
@@ -69,6 +72,8 @@ export function AiProvider({ children }: { children: ReactNode }) {
   const [activePromptPreset, setActivePromptPresetState] = useState<string>(() => {
     return localStorage.getItem("ai_active_prompt_preset") || "general";
   });
+
+  const [lastUserMessage, setLastUserMessage] = useState<string>("");
 
   const [apiKeys, setApiKeys] = useState<ApiKeyDto[]>([]);
 
@@ -175,6 +180,8 @@ export function AiProvider({ children }: { children: ReactNode }) {
       setOutputDeviceId,
       activePromptPreset,
       setActivePromptPreset,
+      lastUserMessage,
+      setLastUserMessage,
       refreshConfig,
       getModelForProvider,
       getApiKeyForProvider

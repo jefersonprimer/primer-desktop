@@ -252,6 +252,18 @@ pub async fn disable_full_stealth(window: WebviewWindow) -> Result<(), String> {
          Ok(())
     }
 
+
     #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
     Err("Full stealth is only available on macOS, Windows, and Linux".to_string())
+}
+
+#[tauri::command]
+pub async fn toggle_minimize_window(window: WebviewWindow) -> Result<(), String> {
+    if window.is_minimized().unwrap_or(false) {
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+    } else {
+        let _ = window.minimize();
+    }
+    Ok(())
 }

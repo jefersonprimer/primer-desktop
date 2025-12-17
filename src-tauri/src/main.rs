@@ -137,8 +137,8 @@ async fn main() {
         .plugin(tauri_plugin_log::Builder::default().build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
-                .with_shortcut("CommandOrControl+Shift+S")
-                .expect("Failed to register global shortcut")
+                .with_shortcuts(["CommandOrControl+Shift+S", "CommandOrControl+Backslash"])
+                .expect("Failed to register global shortcuts")
                 .with_handler(|app, shortcut, event| {
                     if event.state() == ShortcutState::Pressed {
                         if shortcut.matches(Modifiers::SUPER | Modifiers::SHIFT, Code::KeyS) ||
@@ -148,6 +148,16 @@ async fn main() {
                                    toggle_global_stealth(app_handle).await;
                                });
                         }
+                        if shortcut.matches(Modifiers::SUPER, Code::Backslash) ||
+                           shortcut.matches(Modifiers::CONTROL, Code::Backslash) {
+                                                          if let Some(window) = app.get_webview_window("main") {
+                                                              if window.is_minimized().unwrap_or(false) {
+                                                                  let _ = window.unminimize();
+                                                                  let _ = window.set_focus();
+                                                              } else {
+                                                                  let _ = window.minimize();
+                                                              }
+                                                          }                        }
                     }
                 })
                 .build()
@@ -209,8 +219,9 @@ async fn main() {
             window_commands::set_window_opacity,
             window_commands::get_window_opacity,
             window_commands::enable_full_stealth,
-            window_commands::disable_full_stealth,
-            // Screen commands
+                            window_commands::disable_full_stealth,
+                            window_commands::toggle_minimize_window,
+                            // Screen commands
             screen_commands::capture_screen,
             // Audio commands
             audio_commands::start_recording,

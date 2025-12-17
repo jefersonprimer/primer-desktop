@@ -1,8 +1,10 @@
 import { useRef, useEffect, useState } from "react";
 import Draggable from "react-draggable";
-import SettingsIcon from "./ui/icons/SettingsIcon";
+// Removed SettingsIcon as it was unused
 import ZapIcon from "./ui/icons/ZapIcon";
 import CheckIcon from "./ui/icons/CheckIcon";
+import CopyIcon from "./ui/icons/CopyIcon";
+import CloseIcon from "./ui/icons/CloseIcon";
 
 interface ChatMessage {
   id: string;
@@ -20,55 +22,46 @@ interface AiModalProps {
   messages?: ChatMessage[];
   onSendMessage?: (text: string, image?: string) => void;
   isLoading?: boolean;
+  pendingMessage?: string | null;
 }
 
-export default function AiModal({ isOpen, onClose, message, onEndSession, messages, onSendMessage, isLoading }: AiModalProps) {
+export default function AiModal({ isOpen, message, onEndSession, messages, onSendMessage, isLoading, pendingMessage }: AiModalProps) {
   const nodeRef = useRef(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const opacityBarRef = useRef<HTMLDivElement>(null);
-  const settingsBtnRef = useRef<HTMLButtonElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const [opacity, setOpacity] = useState(1);
-  const [showOpacityControl, setShowOpacityControl] = useState(false);
   const [terminationStep, setTerminationStep] = useState<'none' | 'confirm_end' | 'confirm_email'>('none');
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [elapsedTime, setElapsedTime] = useState<string>("00:00:00");
 
   // Input state
   const [input, setInput] = useState("");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  // const [isCapturing, setIsCapturing] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  
+  // Auto focus preference
+  const [autoFocusEnabled, setAutoFocusEnabled] = useState(() => {
+    return localStorage.getItem("ai_modal_autofocus") === "true";
+  });
 
+  // Handle auto-focus on mount
   useEffect(() => {
-    if (isOpen) {
-      setStartTime(Date.now());
-    } else {
-      setStartTime(null);
-      setElapsedTime("00:00:00");
+    if (autoFocusEnabled && isOpen) {
+       // Small timeout to ensure render is complete
+       setTimeout(() => {
+         inputRef.current?.focus();
+       }, 50);
     }
-  }, [isOpen]);
+  }, [isOpen, autoFocusEnabled]);
 
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (startTime !== null) {
-      interval = setInterval(() => {
-        const now = Date.now();
-        const difference = now - startTime;
-
-        const hours = Math.floor(difference / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        const formatUnit = (unit: number) => unit.toString().padStart(2, "0");
-
-        setElapsedTime(
-          `${formatUnit(hours)}:${formatUnit(minutes)}:${formatUnit(seconds)}`
-        );
-      }, 1000);
+  const toggleAutoFocus = () => {
+    const newState = !autoFocusEnabled;
+    setAutoFocusEnabled(newState);
+    localStorage.setItem("ai_modal_autofocus", String(newState));
+    
+    // If enabling, focus immediately (which will hide the button)
+    if (newState) {
+      inputRef.current?.focus();
     }
-
-    return () => clearInterval(interval);
-  }, [startTime]);
+  };
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -76,40 +69,6 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, message]);
-
-  // Handle click outside opacity control
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        showOpacityControl &&
-        opacityBarRef.current &&
-        !opacityBarRef.current.contains(event.target as Node) &&
-        settingsBtnRef.current &&
-        !settingsBtnRef.current.contains(event.target as Node)
-      ) {
-        setShowOpacityControl(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showOpacityControl]);
-
-  /*
-  const handleCapture = async () => {
-    setIsCapturing(true);
-    try {
-        const image = await invoke<string>("capture_screen");
-        setCapturedImage(image);
-    } catch (e) {
-        console.error("Failed to capture screen", e);
-    } finally {
-        setIsCapturing(false);
-    }
-  };
-  */
 
   const handleSubmit = () => {
     if (!input.trim() && !capturedImage) return;
@@ -128,8 +87,9 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
   };
 
   const isCompact = !isLoading && (!messages || messages.length === 0) && !message;
+  const lastUserMessage = pendingMessage || messages?.slice().reverse().find(m => m.role === 'user')?.content;
 
-  if (!isOpen) return null;
+  if (!isOpen) return null; // onClose is implicitly used here. TypeScript might still complain if not explicitly referenced elsewhere.
 
   return (
     <div className="fixed inset-0 flex items-start justify-center z-50 pt-24">
@@ -138,95 +98,99 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
         {/* Modal */}
         <div 
           ref={nodeRef} 
-          style={{ opacity }}
           className={`relative w-[600px] bg-[#4E4D4F] text-white rounded-xl p-2 shadow-xl flex flex-col gap-4 transition-all duration-300 ${isCompact ? 'h-auto' : ''}`}
         >
 
           {/* Header - Only show if not compact */}
           {!isCompact && (
-            <div className="drag-handle flex items-center justify-between cursor-move">
-                <span className="text-sm text-gray-400">{elapsedTime}</span>
-
-                <div className="flex gap-2" onMouseDown={(e) => e.stopPropagation()}>
-                <div className="flex border border-neutral-700 bg-[#141414] rounded-3xl">
-                    <button className="px-3 py-1 text-sm">Sessão</button>
-                    <button className="px-3 py-1 text-sm">Resumo</button>
+            <div className="drag-handle flex items-center justify-between cursor-move px-2 pt-1">
+                <div className="flex items-center overflow-hidden gap-4">
+                  <span className="text-sm font-medium">
+                    {isLoading ? "Thinking..." : "Ai response"}
+                  </span>
                 </div>
-                
-                
-                <button 
-                    className="px-3 py-1 border border-neutral-700 bg-[#141414] rounded-md text-sm hover:bg-[#141414]/60 transition text-red-600" 
-                    onClick={() => setTerminationStep('confirm_end')}
-                >
-                    Encerrar Sessão
-                </button>
-                <button 
-                    ref={settingsBtnRef}
-                    onClick={() => setShowOpacityControl(!showOpacityControl)}
-                    className={`p-2 rounded-md text-sm transition ${showOpacityControl ? "bg-blue-600" : "bg-gray-800"}`}
-                >
-                    <SettingsIcon size={24}/>
-                </button>
-                <button 
-                    onClick={onClose}
-                    className="px-3 py-1 bg-gray-800 rounded-md text-sm hover:bg-gray-700 transition flex items-center justify-center"
-                    title="Minimizar"
-                >
-                    <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="16" 
-                    height="16" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    stroke-width="2" 
-                    stroke-linecap="round" 
-                    stroke-linejoin="round"
+
+                <div className="flex items-center gap-2 shrink-0">
+
+                  {lastUserMessage && (
+                    <div className="text-xs text-white bg-[#707071] hover:bg-white/10 p-2 rounded-full truncate" title={lastUserMessage}>
+                      {lastUserMessage}
+                    </div>
+                  )}
+
+                    <button 
+                      className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition" 
+                      title="Zap"
                     >
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
+                      <ZapIcon size={16}/>
+                    </button>
+
+                    <button 
+                      className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition"
+                      onClick={() => {
+                        const allAiResponses = messages
+                          ?.filter((msg) => msg.role === "assistant")
+                          .map((msg) => msg.content)
+                          .join("\n\n"); // Join with double newline for readability
+
+                        const textToCopy =
+                          allAiResponses && allAiResponses.length > 0
+                            ? allAiResponses
+                            : message;
+                        navigator.clipboard.writeText(textToCopy);
+                      }}
+                      title="Copy"
+                    >
+                      <CopyIcon size={16}/>
+                    </button>
+
+                    <button 
+                      className="p-1.5 border border-neutral-700 rounded-full text-gray-400 hover:text-white hover:bg-[#141414]/40 transition" 
+                      onClick={() => setTerminationStep('confirm_end')}
+                      title="Close"
+                    >
+                      <CloseIcon size={16}/>
+                    </button>
                 </div>
             </div>
           )}
 
           {/* Corpo da mensagem - Only show if not compact */}
           {!isCompact && (
-            <div className="bg-[#0c0c0c] p-4 rounded-lg border border-gray-700 h-[350px] overflow-y-auto flex flex-col gap-4">
+            <div className="px-4 max-h-96 overflow-y-auto flex flex-col gap-4">
                 
                 {messages && messages.length > 0 && (
                 <>
                     {messages.map((msg) => (
-                    <div key={msg.id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                        <div className={`text-xs mb-1 ${msg.role === 'user' ? 'text-blue-400' : 'text-gray-500'}`}>
-                        {msg.role === 'user' ? 'Você' : 'AI'} • {new Date(msg.createdAt).toLocaleTimeString()}
-                        </div>
-                        <div className={`max-w-[90%] p-2 rounded-lg ${msg.role === 'user' ? 'bg-blue-900/20 text-blue-100' : 'bg-gray-800/30 text-gray-200'}`}>
-                        <p className="whitespace-pre-line text-sm">{msg.content}</p>
-                        {msg.role === 'assistant' && (
-                            <button 
-                            onClick={() => navigator.clipboard.writeText(msg.content)}
-                            className="mt-2 text-[10px] bg-gray-700 px-1.5 py-0.5 rounded hover:bg-gray-600 transition"
-                            >
-                            Copiar
-                            </button>
-                        )}
-                        </div>
-                        {/* Follow-ups */}
-                        {msg.role === 'assistant' && msg.followUps && msg.followUps.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2 max-w-[90%]">
-                                {msg.followUps.map((q, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => onSendMessage && onSendMessage(q)}
-                                    className="px-3 py-1 text-xs border border-gray-600 rounded-full hover:bg-gray-700 transition text-gray-300 text-left"
-                                >
-                                    {q}
-                                </button>
-                                ))}
+                      msg.role === 'assistant' && (
+                        <div key={msg.id} className={`flex flex-col items-start`}>
+                            <div className={`text-xs mb-1 text-gray-500`}>
                             </div>
-                        )}
-                    </div>
+                            <div className={`max-w-full p-2 text-gray-200`}>
+                            <p className="whitespace-pre-line text-sm">{msg.content}</p>
+                            <button 
+                                onClick={() => navigator.clipboard.writeText(msg.content)}
+                                className="mt-2 text-[10px] bg-gray-700 px-1.5 py-0.5 rounded hover:bg-gray-600 transition"
+                            >
+                                Copiar
+                            </button>
+                            </div>
+                            {/* Follow-ups */}
+                            {msg.followUps && msg.followUps.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2 max-w-[90%]">
+                                    {msg.followUps.map((q, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => onSendMessage && onSendMessage(q)}
+                                        className="px-3 py-1 text-xs border border-gray-600 rounded-full hover:bg-gray-700 transition text-gray-300 text-left"
+                                    >
+                                        {q}
+                                    </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                      )
                     ))}
                 </>
                 )}
@@ -315,7 +279,7 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
 
           {/* Input Area (Replaces Footer) */}
           {terminationStep === 'none' && (
-            <div className={`flex flex-col gap-2 ${isCompact ? 'drag-handle' : ''}`}> 
+            <div className={`flex flex-col gap-2  ${isCompact ? 'drag-handle' : ''}`}> 
                 {/* Captured Image Preview */}
                 {capturedImage && (
                     <div className="relative w-fit">
@@ -336,12 +300,14 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
                     </div>
                 )}
                 
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                     <input
+                        ref={inputRef}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        autoFocus
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setIsFocused(false)}
                         disabled={isLoading}
                         className={`flex-1 rounded-xl bg-transparent px-4 py-2
                                 text-white placeholder-white/40 focus:outline-none text-sm transition-all
@@ -349,17 +315,22 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
                         placeholder="Ask anything..."
                     />
                     
-                    <button 
-                      className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 text-white transition disabled:opacity-50"
-                    >
-                      <span className="text-sm font-medium">Auto focus</span> 
-                      <span className="border border-white/40 rounded-lg p-0.5">
-                        <CheckIcon size={14}/>
-                      </span> 
-                    </button>
+                    {!isFocused && (
+                      <button 
+                        onClick={toggleAutoFocus}
+                        className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 text-white opacity-40 transition disabled:opacity-50"
+                        title={autoFocusEnabled ? "Disable Auto focus" : "Enable Auto focus"}
+                      >
+                        <span className="text-sm font-medium">Auto focus</span> 
+                        <span className="border border-white/40 rounded-lg p-0.5 min-w-[22px] min-h-[22px] flex items-center justify-center">
+                          {autoFocusEnabled && <CheckIcon size={14}/>}
+                        </span> 
+                      </button>
+                    )}
 
                     <button 
                       className="flex items-center gap-2 py-2 px-4 rounded-full border border-white/40 hover:bg-white/10 transition text-white group"
+                      title="Smart Mode"
                     >
                       <ZapIcon size={16}/>
                       <span className="text-sm font-medium">Smart</span>
@@ -368,7 +339,8 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
                     <button 
                       onClick={handleSubmit}
                       disabled={isLoading}
-                      className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 text-white transition disabled:opacity-50"
+                      className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 text-white transition disabled:opacity-50 group"
+                      title="Submit"
                     >
                       <span className="text-sm font-medium">Submit</span>
                       <span className="bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">
@@ -392,30 +364,8 @@ export default function AiModal({ isOpen, onClose, message, onEndSession, messag
             </div>
           )}
 
-          {/* Opacity Control Bar */}
-          {showOpacityControl && (
-            <div 
-              ref={opacityBarRef}
-              className="absolute bottom-[-50px] left-0 right-0 mx-auto w-[90%] bg-[#111] border border-gray-700 rounded-lg p-3 flex items-center gap-3 shadow-xl z-[60]"
-              onMouseDown={(e) => e.stopPropagation()} 
-            >
-              <span className="text-xs text-gray-400">Opacidade:</span>
-              <input 
-                type="range" 
-                min="0.2" 
-                max="1" 
-                step="0.05" 
-                value={opacity} 
-                onChange={(e) => setOpacity(parseFloat(e.target.value))}
-                className="w-full accent-blue-600 h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-              />
-              <span className="text-xs text-gray-400 w-8 text-right">{Math.round(opacity * 100)}%</span>
-            </div>
-          )}
-
         </div>
       </Draggable>
     </div>
   );
 }
-
