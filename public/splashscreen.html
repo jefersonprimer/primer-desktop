@@ -5,7 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Loading...</title>
     <style>
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: transparent;
+      }
+
       body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .container {
         margin: 0;
         padding: 0;
         display: flex;
@@ -19,6 +33,8 @@
         user-select: none;
         cursor: default;
         overflow: hidden;
+        border-radius: 16px;
+        border: 1px solid #262626; /* Neutral-800 equivalent */
       }
 
       .logo-container {
@@ -60,9 +76,11 @@
     </style>
   </head>
   <body>
-    <div class="logo-container">
-      <div class="logo">P</div>
-    </div>
-    <div class="loader">Loading...</div>
+    <div class="container">
+      <div class="logo-container">
+        <div class="logo">P</div>
+      </div>
+      <div class="loader">Loading...</div>
+    </div>  
   </body>
 </html>

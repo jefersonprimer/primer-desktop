@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
 import StopIcon from "../ui/icons/StopIcon";
+import EnterIcon from "../ui/icons/EnterIcon";
 import EllipsisVerticalIcon from "../ui/icons/EllipsisVerticalIcon";
 import { useStealthMode } from '../../contexts/StealthModeContext';
 import LiveInsightsModal from "./LiveInsightsModal";
@@ -215,7 +216,7 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
   return (
     <>
       <div ref={dockRef} className="absolute top-6 left-0 right-0 mx-auto w-fit flex flex-col items-center gap-3 z-[9999]">
-        <div className="relative flex items-center gap-3 bg-[#4E4D4F] backdrop-blur-xl px-2 py-1 rounded-full border border-white/10 shadow-lg">
+        <div className="relative flex items-center gap-8 bg-[#4E4D4F] backdrop-blur-xl px-2 py-1.5 rounded-full border border-white/10 shadow-lg">
           <button
             className={`flex items-center gap-2 py-2 px-4 rounded-full transition text-white group ${isListening ? 'bg-red-500/20 text-red-100' : 'bg-[#707071] hover:bg-white/10'}`}
             onClick={handleListenClick}
@@ -230,59 +231,51 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
             )}
           </button>
 
-          <button
-            className="flex items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 transition text-white group"
-            
-            onClick={() => {
-              if (aiModalOpen && isInputVisible) {
-                onClose?.();
-              } else {
-                onOpenModal("chat");
-              }
-            }}
-          >
-            <span className="text-sm font-medium text-white/90 group-hover:text-white">Ask</span>
-            <span className="text-xs font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
-            <span className="bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20 4v7a4 4 0 0 1-4 4H4" />
-                <path d="m9 10-5 5 5 5" />
-              </svg>
-            </span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              className="flex items-center gap-2 py-1 px-4 rounded-full hover:bg-white/10 transition text-white group"
+              
+              onClick={() => {
+                if (aiModalOpen && isInputVisible) {
+                  onClose?.();
+                } else {
+                  onOpenModal("chat");
+                }
+              }}
+            >
+              <span className="text-sm font-medium text-white/90 group-hover:text-white">Ask</span>
+              
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+                <span className="bg-white/10 p-1.5 rounded-lg text-white/70 group-hover:text-white transition"><EnterIcon size={16}/></span>
+              </div>
+            </button>
 
-          <button
-            className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10 transition text-white group"
-            onClick={() => invoke("toggle_minimize_window")}
-          >
-            <span className="text-sm font-medium text-white/90 group-hover:text-white">Hide</span>
-            <span className="text-xs font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
-            <span className="text-xs bg-white/10 px-2.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">\</span>
-          </button>
+            <button
+              className="flex items-center gap-2 px-4 py-1 rounded-full hover:bg-white/10 transition text-white group"
+              onClick={() => invoke("toggle_minimize_window")}
+            >
+              <span className="text-sm font-medium text-white/90 group-hover:text-white">Hide</span>
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+                <span className="text-sm bg-white/10 px-2.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">\</span>
+              </div>  
+            </button>
 
-          <button
-            ref={buttonRef}
-            onClick={() => setShowMenu(!showMenu)}
-            className={`
-            relative group
-            flex flex-col items-center justify-center
-            p-2 rounded-full
-            transition
-            ${active || showMenu ? "bg-white/20" : "hover:bg-white/10"}
-          `}
-          >
-            <EllipsisVerticalIcon stroke="#fff" />
-          </button>
+            <button
+              ref={buttonRef}
+              onClick={() => setShowMenu(!showMenu)}
+              className={`
+              relative group
+              flex flex-col items-center justify-center
+              p-2 rounded-full
+              transition
+              ${active || showMenu ? "bg-white/20" : "hover:bg-white/10"}
+            `}
+            >
+              <EllipsisVerticalIcon stroke="#fff" />
+            </button>
+          </div>
 
           {showMenu && (
             <div
