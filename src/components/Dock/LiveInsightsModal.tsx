@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import EyeOffIcon from "../ui/icons/EyeOffIcon";
 import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
@@ -22,9 +23,23 @@ export default function LiveInsightsModal({
   actions = [],
   onActionClick
 }: DockModalProps) {
+  const [view, setView] = useState<'summary' | 'transcript'>('summary');
   
   const hasTranscript = transcript.trim().length > 0;
   const showPlaceholder = isListening && !hasTranscript;
+
+  // Reset view to summary when opening or when a new transcription starts
+  useEffect(() => {
+    if (open && isListening) {
+      setView('summary');
+    }
+  }, [open, isListening]);
+
+  const handleCopyTranscript = () => {
+    if (transcript) {
+      navigator.clipboard.writeText(transcript);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -43,7 +58,7 @@ export default function LiveInsightsModal({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="absolute top-24 rounded-2xl bg-[#4E4D4F] backdrop-blur-md shadow-xl border border-white/10 w-[500px]"
+            className="absolute top-24 rounded-lg bg-[#4E4D4F] backdrop-blur-md shadow-xl border border-white/10 w-[500px]"
             style={{ left: anchorX - 250 }}
           >
             {/* Header */}
@@ -51,17 +66,27 @@ export default function LiveInsightsModal({
               <span className="text-sm font-medium text-white">Live Insights</span>
               
               <div className="flex gap-4">
-                <button className="flex items-center gap-2 hover:text-white">
+                <button 
+                  onClick={() => setView('summary')}
+                  className={`flex items-center gap-2 hover:text-white transition-colors ${view === 'summary' ? 'text-white' : ''}`}
+                >
                   <EyeOffIcon size={16} />
-                  <span className="text-sm font-medium text-white">Summary</span>
+                  <span className="text-sm font-medium">Summary</span>
                 </button>
 
-                <button className="flex items-center gap-2 hover:text-white">
+                <button 
+                  onClick={() => setView('transcript')}
+                  className={`flex items-center gap-2 hover:text-white transition-colors ${view === 'transcript' ? 'text-white' : ''}`}
+                >
                   <AudioLinesIcon size={16} />                  
-                  <span className="text-sm font-medium text-white">Show Transcript</span>
+                  <span className="text-sm font-medium">Show Transcript</span>
                 </button>
 
-                <button className="flex items-center gap-2 hover:text-white">
+                <button 
+                  onClick={handleCopyTranscript}
+                  className="flex items-center gap-2 hover:text-white transition-colors"
+                  disabled={!hasTranscript}
+                >
                   <CopyIcon size={16} />
                 </button>
               </div>
@@ -69,46 +94,60 @@ export default function LiveInsightsModal({
 
             {/* Content Area */}
             <div className="p-4 min-h-[100px] flex flex-col justify-center">
-               {showPlaceholder && (
-                 <div className="flex flex-col items-center justify-center gap-4">
-                   <div className="relative flex items-center justify-center">
-                     <span className="absolute inline-flex h-12 w-12 animate-ping rounded-full bg-red-400 opacity-20"></span>
-                     <span className="relative inline-flex h-6 w-6 rounded-full bg-red-500 shadow-lg shadow-red-500/50"></span>
-                   </div>
-                   <div className="text-center text-white/60 text-lg">
-                     Listening...
-                   </div>
-                 </div>
-               )}
-               
-               {hasTranscript && (
-                 <div className="text-white text-lg font-medium leading-relaxed">
-                   "{transcript}"
-                 </div>
-               )}
+               {view === 'summary' ? (
+                 <>
+                   {showPlaceholder && (
+                     <div className="flex flex-col items-center justify-center gap-4">
+                       <div className="relative flex items-center justify-center">
+                         <span className="absolute inline-flex h-12 w-12 animate-ping rounded-full bg-red-400 opacity-20"></span>
+                         <span className="relative inline-flex h-6 w-6 rounded-full bg-red-500 shadow-lg shadow-red-500/50"></span>
+                       </div>
+                       <div className="text-center text-white/60 text-lg">
+                         Listening...
+                       </div>
+                     </div>
+                   )}
+                   
+                   {!isListening && actions.length > 0 && (
+                     <div className="mt-0">
+                        <div className="text-xs font-semibold text-white/40 uppercase mb-2">Suggested Actions</div>
+                        <div className="space-y-2">
+                          {actions.map((action, i) => (
+                            <button
+                              key={i}
+                              onClick={() => onActionClick?.(action)}
+                              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition text-left group"
+                            >
+                              <span className="text-base">✨</span>
+                              <span className="text-sm text-white/90 group-hover:text-white">{action}</span>
+                            </button>
+                          ))}
+                        </div>
+                     </div>
+                   )}
 
-               {!isListening && actions.length > 0 && (
-                 <div className="mt-4">
-                    <div className="text-xs font-semibold text-white/40 uppercase mb-2">Suggested Actions</div>
-                    <div className="space-y-2">
-                      {actions.map((action, i) => (
-                        <button
-                          key={i}
-                          onClick={() => onActionClick?.(action)}
-                          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition text-left group"
-                        >
-                          <span className="text-base">✨</span>
-                          <span className="text-sm text-white/90 group-hover:text-white">{action}</span>
-                        </button>
-                      ))}
-                    </div>
+                   {!isListening && actions.length === 0 && !hasTranscript && (
+                      <div className="text-center text-white/40">
+                        Ready to listen.
+                      </div>
+                   )}
+
+                   {hasTranscript && actions.length === 0 && !isListening && (
+                      <div className="text-white text-lg font-medium leading-relaxed text-center">
+                        Processed transcript. Check "Show Transcript" for details.
+                      </div>
+                   )}
+                 </>
+               ) : (
+                 <div className="text-white text-lg font-medium leading-relaxed max-h-[300px] overflow-y-auto custom-scrollbar">
+                   {hasTranscript ? (
+                     `"${transcript}"`
+                   ) : (
+                     <div className="text-center text-white/40">
+                       {isListening ? "Transcript will appear here..." : "No transcript available."}
+                     </div>
+                   )}
                  </div>
-               )}
-               
-               {!isListening && !showPlaceholder && !hasTranscript && actions.length === 0 && (
-                  <div className="text-center text-white/40">
-                    Ready to listen.
-                  </div>
                )}
             </div>
 

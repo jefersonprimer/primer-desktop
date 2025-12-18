@@ -11,8 +11,10 @@ export interface UseSpeechRecognitionProps {
 export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionProps = {}) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [interimTranscript, setInterimTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
   
+  const fullTranscriptRef = useRef('');
   const serviceRef = useRef<UniversalSpeechService | null>(null);
 
   useEffect(() => {
@@ -38,21 +40,25 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
   const startListening = useCallback(async () => {
     if (isListening) return;
     setTranscript('');
+    fullTranscriptRef.current = '';
+    setInterimTranscript('');
     setError(null);
     setIsListening(true);
 
     try {
         await serviceRef.current?.startListening(
             (text) => {
-                setTranscript(text);
-                if (onResult) onResult(text);
+                fullTranscriptRef.current = (fullTranscriptRef.current + ' ' + text).trim();
+                setTranscript(fullTranscriptRef.current);
+                setInterimTranscript('');
+                if (onResult) onResult(fullTranscriptRef.current);
             },
-            () => { // onInterim
-                // This callback is currently not exposing interim results to the hook's state.
-                // If needed, an `interimTranscript` state could be added to the hook.
+            (interimText) => {
+                setInterimTranscript(interimText);
             },
             () => { // onEnd (from WebSpeech)
                 setIsListening(false);
+                setInterimTranscript('');
                 if (onEnd) onEnd();
             }
         );
@@ -76,9 +82,11 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
         const result = await serviceRef.current?.stopListening();
         
         setIsListening(false);
+        setInterimTranscript('');
         
         if (result) {
             // Whisper returned the full text
+            fullTranscriptRef.current = result;
             setTranscript(result);
             if (onResult) onResult(result);
             if (onEnd) onEnd();
@@ -92,7 +100,7 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
 
   return {
     isListening,
-    transcript,
+    transcript: (transcript + ' ' + interimTranscript).trim(),
     error,
     startListening,
     stopListening

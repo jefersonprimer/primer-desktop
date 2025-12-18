@@ -280,7 +280,7 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
           {showMenu && (
             <div
               ref={menuRef}
-              className="absolute top-full right-0 mt-3 p-4 w-64 bg-[#121213] backdrop-blur-xl rounded-xl shadow-2xl overflow-visible flex flex-col animate-in fade-in zoom-in-95 duration-200"
+              className="absolute top-full right-0 mt-6 p-4 w-64 bg-[#121213] backdrop-blur-xl rounded-lg shadow-2xl overflow-visible flex flex-col animate-in fade-in zoom-in-95 duration-200"
             >
               {/* Header */}
               <div className="pb-3">
