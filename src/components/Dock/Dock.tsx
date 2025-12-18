@@ -437,6 +437,14 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
           transcript={transcript}
           actions={actions}
           onActionClick={handleActionClick}
+          onAskClick={() => {
+            setShowLiveInsights(false);
+            if (aiModalOpen && isInputVisible) {
+              onClose?.();
+            } else {
+              onOpenModal("chat");
+            }
+          }}
         />
         {showAssistantsManager && (
           <AssistantsManagerModal

@@ -12,6 +12,7 @@ interface DockModalProps {
   transcript?: string;
   actions?: string[];
   onActionClick?: (action: string) => void;
+  onAskClick?: () => void;
 }
 
 export default function LiveInsightsModal({ 
@@ -21,7 +22,8 @@ export default function LiveInsightsModal({
   isListening = false,
   transcript = "",
   actions = [],
-  onActionClick
+  onActionClick,
+  onAskClick
 }: DockModalProps) {
   const [view, setView] = useState<'summary' | 'transcript'>('summary');
   
@@ -93,19 +95,13 @@ export default function LiveInsightsModal({
             </div>
 
             {/* Content Area */}
-            <div className="p-4 min-h-[100px] flex flex-col justify-center">
+            <div className="p-4 h-auto flex flex-col justify-center">
                {view === 'summary' ? (
                  <>
                    {showPlaceholder && (
-                     <div className="flex flex-col items-center justify-center gap-4">
-                       <div className="relative flex items-center justify-center">
-                         <span className="absolute inline-flex h-12 w-12 animate-ping rounded-full bg-red-400 opacity-20"></span>
-                         <span className="relative inline-flex h-6 w-6 rounded-full bg-red-500 shadow-lg shadow-red-500/50"></span>
-                       </div>
-                       <div className="text-center text-white/60 text-lg">
-                         Listening...
-                       </div>
-                     </div>
+                    <div className="text-white/60 text-lg">
+                      Start speaking to see realtimer insights...
+                    </div>
                    )}
                    
                    {!isListening && actions.length > 0 && (
@@ -126,15 +122,13 @@ export default function LiveInsightsModal({
                      </div>
                    )}
 
-                   {!isListening && actions.length === 0 && !hasTranscript && (
-                      <div className="text-center text-white/40">
-                        Ready to listen.
-                      </div>
-                   )}
-
-                   {hasTranscript && actions.length === 0 && !isListening && (
-                      <div className="text-white text-lg font-medium leading-relaxed text-center">
-                        Processed transcript. Check "Show Transcript" for details.
+                   {!isListening && actions.length === 0 && (
+                      <div className="flex justify-start">
+                        <div className="py-2 rounded-lg flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                        </div>
                       </div>
                    )}
                  </>
@@ -151,10 +145,9 @@ export default function LiveInsightsModal({
                )}
             </div>
 
-            {/* Footer */}
             <div className="text-center px-4 py-2 text-sm font-medium text-white/40 border-t border-white/5">
-              <button onClick={onClose}>
-                {isListening ? "Listening..." : "Click to ask Primer AI"}
+              <button onClick={onAskClick}>
+                Click to ask Primer AI
               </button>
             </div>
           </motion.div>
