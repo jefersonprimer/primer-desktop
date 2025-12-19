@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import Draggable from "react-draggable";
+import { invoke } from "@tauri-apps/api/core";
 // Removed SettingsIcon as it was unused
 import ZapIcon from "./ui/icons/ZapIcon";
 import CheckIcon from "./ui/icons/CheckIcon";
@@ -71,10 +72,53 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
     }
   }, [messages, message]);
 
-  const handleSubmit = () => {
+  const handleCaptureScreen = async () => {
+    try {
+      const base64Image = await invoke<string>("capture_screen");
+      setCapturedImage(base64Image);
+      return base64Image;
+    } catch (error) {
+      console.error("Failed to capture screen:", error);
+      return null;
+    }
+  };
+
+  // Shortcut for Screenshot (Ctrl + E)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+        if (isOpen && (e.ctrlKey || e.metaKey) && (e.key === "e" || e.key === "E")) {
+            e.preventDefault();
+            handleCaptureScreen();
+        }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [isOpen]);
+
+  const handleSubmit = async () => {
     if (!input.trim() && !capturedImage) return;
+
+    let imageToSend = capturedImage;
+
+    // Check for triggers to auto-capture screen
+    const lowerInput = input.trim().toLowerCase();
+    const triggers = [
+        "tela", "vendo", "mostrando", "vê", "ve", "resolva", "analise", "print", "screenshot",
+        "screen", "seeing", "showing", "see", "solve", "analyze", "look", "olha"
+    ];
+
+    if (triggers.some(t => lowerInput.includes(t)) && !imageToSend) {
+        // Hide window temporarily? Actually, standard capture captures everything. 
+        // We might capture the modal itself if we are not careful, but usually we want to capture what's BEHIND.
+        // However, 'capture_screen' likely captures the whole desktop.
+        // For better UX, we might want to hide the modal briefly, but that's complex async logic with state.
+        // For now, let's just capture.
+        imageToSend = await handleCaptureScreen() || null; // Force null if null/undefined
+    }
+
     if (onSendMessage) {
-        onSendMessage(input, capturedImage || undefined);
+        onSendMessage(input, imageToSend || undefined);
     }
     setInput("");
     setCapturedImage(null);
