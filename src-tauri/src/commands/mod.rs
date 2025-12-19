@@ -8,3 +8,4 @@ pub mod log_commands;
 pub mod prompt_preset_commands;
 pub mod audio_commands;
 pub mod whisper_commands;
+pub mod ollama_commands;

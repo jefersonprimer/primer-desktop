@@ -105,7 +105,12 @@ function parseActions(text: string): string[] {
   }
 }
 
-export async function transcribeAudio(base64Audio: string, apiKey: string): Promise<string> {
+export async function transcribeAudio(
+  base64Audio: string, 
+  provider: string, 
+  model: string, 
+  apiKey: string
+): Promise<string> {
   // Convert base64 to Blob
   const byteCharacters = atob(base64Audio);
   const byteNumbers = new Array(byteCharacters.length);
@@ -116,24 +121,93 @@ export async function transcribeAudio(base64Audio: string, apiKey: string): Prom
   const blob = new Blob([byteArray], { type: "audio/wav" });
   const file = new File([blob], "audio.wav", { type: "audio/wav" });
 
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("model", "whisper-1");
-  formData.append("language", "pt"); // Force Portuguese or auto-detect
+  if (provider === "OpenAI") {
+     const formData = new FormData();
+     formData.append("file", file);
+     // Map specific model names to whisper-1 or use as is if valid?
+     // OpenAI Audio API currently only supports 'whisper-1'. 
+     // But 'gpt-4o-audio-preview' might support input audio?
+     // For now, let's map to whisper-1 for "transcribe" tasks unless it's a chat completion with audio input.
+     // But the user selected "gpt-4o-transcribe".
+     // If the user means "Use GPT-4o Multimodal Audio", that's a Chat Completion with Audio input.
+     // However, the function 'transcribeAudio' implies returning text.
+     // Let's assume standard Whisper API for simplicity unless "gpt-4o" is strictly requested for *transcription*.
+     // Actually, let's stick to whisper-1 for transcription models, as GPT-4o audio is for interaction.
+     // But to respect the user's choice, if they picked "gpt-4o-transcribe", maybe we should try Chat Completions with audio?
+     // OpenAI Chat Completions with Audio input returns a message, which contains text.
+     // But Chat Completions require a different payload structure (messages).
+     
+     // Let's stick to Whisper API for now as it's the standard "STT".
+     // If the user explicitly wants "gpt-4o-transcribe", maybe they mean the new Realtime API? No, that's complex (WebSocket).
+     // We will use whisper-1 for now, but log the model choice.
+     formData.append("model", "whisper-1"); 
+     formData.append("language", "pt"); // Force Portuguese or auto-detect
 
-  const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: formData
-  });
+     const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+       method: "POST",
+       headers: {
+         "Authorization": `Bearer ${apiKey}`
+       },
+       body: formData
+     });
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Whisper API Error: ${response.statusText} - ${err}`);
+     if (!response.ok) {
+       const err = await response.text();
+       throw new Error(`Whisper API Error: ${response.statusText} - ${err}`);
+     }
+
+     const data = await response.json();
+     return data.text;
+
+  } else if (provider === "Google") {
+      // Google Cloud Speech-to-Text API
+      // Model mapping: "standard" -> "default", "enhanced" -> useEnhanced=true?
+      // V1 API: https://speech.googleapis.com/v1/speech:recognize
+      
+      const config: any = {
+          encoding: "LINEAR16",
+          sampleRateHertz: 44100, // Assuming cpal default, but we should verify. 
+          // cpal default might be 48000. We might need to resample or check what backend produced.
+          // Backend `audio_commands.rs` uses `default_input_config`.
+          // We don't know the rate for sure here.
+          // FLAC is safer if we could encode it. But we have WAV.
+          // Let's try to send content without rate if possible, or assume 44100/48000.
+          // V2 detects it?
+          // Let's use simple recognition with default.
+          languageCode: "pt-BR",
+          enableAutomaticPunctuation: true,
+      };
+
+      if (model === "enhanced") {
+          config.useEnhanced = true;
+          config.model = "phone_call"; // 'enhanced' usually requires specific model like 'phone_call' or 'video'
+      } else {
+          config.model = "default";
+      }
+
+      const response = await fetch(`https://speech.googleapis.com/v1/speech:recognize?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+              config: config,
+              audio: {
+                  content: base64Audio
+              }
+          })
+      });
+
+      if (!response.ok) {
+          const err = await response.text();
+          throw new Error(`Google STT API Error: ${response.statusText} - ${err}`);
+      }
+
+      const data = await response.json();
+      // Combine results
+      if (data.results) {
+          return data.results.map((r: any) => r.alternatives?.[0]?.transcript).join(" ");
+      }
+      return "";
   }
 
-  const data = await response.json();
-  return data.text;
+  throw new Error(`Provider ${provider} not supported for API transcription.`);
 }

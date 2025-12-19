@@ -37,6 +37,8 @@ interface AiContextType {
   refreshConfig: () => Promise<void>;
   getModelForProvider: (provider: ProviderType) => string | undefined;
   getApiKeyForProvider: (provider: ProviderType) => string | undefined;
+  getTranscriptionModelForProvider: (provider: ProviderType) => string;
+  setTranscriptionModelForProvider: (provider: ProviderType, model: string) => void;
 }
 
 const AiContext = createContext<AiContextType | undefined>(undefined);
@@ -53,8 +55,13 @@ export function AiProvider({ children }: { children: ReactNode }) {
     return localStorage.getItem("ai_active_model") || "gemini-1.5-flash";
   });
 
-  const [transcriptionModel, setTranscriptionModelState] = useState<string>(() => {
-    return localStorage.getItem("ai_transcription_model") || "whisper-1";
+  const [transcriptionModels, setTranscriptionModels] = useState<Record<string, string>>(() => {
+    return {
+      OpenAI: localStorage.getItem("ai_transcription_model_OpenAI") || "gpt-4o-mini-transcribe",
+      Google: localStorage.getItem("ai_transcription_model_Google") || "standard",
+      OpenRouter: localStorage.getItem("ai_transcription_model_OpenRouter") || "whisper.cpp",
+      Custom: localStorage.getItem("ai_transcription_model_Custom") || "whisper.cpp"
+    };
   });
 
   const [imageModel, setImageModelState] = useState<string>(() => {
@@ -130,8 +137,15 @@ export function AiProvider({ children }: { children: ReactNode }) {
   };
 
   const setTranscriptionModel = (model: string) => {
-    setTranscriptionModelState(model);
-    localStorage.setItem("ai_transcription_model", model);
+    // Legacy: update for active provider
+    setTranscriptionModelForProvider("active", model); 
+  };
+  
+  // Wrapper to handle internal vs external call if needed, but here we just implement the logic
+  const updateTranscriptionModelForProvider = (provider: string | ProviderType, model: string) => {
+    const targetProvider = provider === "active" ? activeProvider : provider;
+    setTranscriptionModels(prev => ({ ...prev, [targetProvider]: model }));
+    localStorage.setItem(`ai_transcription_model_${targetProvider}`, model);
   };
 
   const setImageModel = (model: string) => {
@@ -163,6 +177,13 @@ export function AiProvider({ children }: { children: ReactNode }) {
      const providerKey = provider === "Google" ? "gemini" : provider.toLowerCase();
      return apiKeys.find(k => k.provider === providerKey)?.api_key;
   }
+  
+  const getTranscriptionModelForProvider = (provider: ProviderType) => {
+    return transcriptionModels[provider] || "whisper.cpp";
+  }
+
+  // Derived transcription model for current provider
+  const transcriptionModel = transcriptionModels[activeProvider] || "whisper.cpp";
 
   return (
     <AiContext.Provider value={{ 
@@ -171,7 +192,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
       activeModel, 
       setActiveModel,
       transcriptionModel,
-      setTranscriptionModel,
+      setTranscriptionModel: (model) => updateTranscriptionModelForProvider(activeProvider, model),
       imageModel,
       setImageModel,
       inputDeviceId,
@@ -184,7 +205,9 @@ export function AiProvider({ children }: { children: ReactNode }) {
       setLastUserMessage,
       refreshConfig,
       getModelForProvider,
-      getApiKeyForProvider
+      getApiKeyForProvider,
+      getTranscriptionModelForProvider,
+      setTranscriptionModelForProvider: updateTranscriptionModelForProvider
     }}>
       {children}
     </AiContext.Provider>

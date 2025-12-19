@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import CheckIcon from "../ui/icons/CheckIcon";
-import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
 import { useAi } from "../../contexts/AiContext";
+import WhisperManager from "./WhisperManager";
 
 interface Props {
   apiKey: string;
@@ -24,10 +24,34 @@ interface OpenRouterModel {
 }
 
 export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, savedKey }: Props) {
-  const { activeProvider, setActiveProvider } = useAi();
+  const { activeProvider, setActiveProvider, getTranscriptionModelForProvider, setTranscriptionModelForProvider } = useAi();
+  
+  const transcriptionModel = getTranscriptionModelForProvider("OpenRouter");
+
   const [availableModels, setAvailableModels] = useState<OpenRouterModel[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
+  
+  // Track specific whisper model selection
+  const [activeWhisperModel, setActiveWhisperModel] = useState<string>(() => localStorage.getItem("whisper_model") || "tiny");
+  const [showWhisperConfig, setShowWhisperConfig] = useState(transcriptionModel === "whisper_cpp");
+
+  useEffect(() => {
+    if (transcriptionModel === "whisper_cpp") {
+      setShowWhisperConfig(true);
+    }
+  }, [transcriptionModel]);
+
+  const isMacOrWin = /Mac|Win/.test(navigator.platform);
+  const transcriptionModels = [
+    { id: "whisper_cpp", label: "Whisper Local (cpp)", description: "Offline, private transcription running on your device" },
+    ...(isMacOrWin ? [{ id: "web_speech_api", label: "Web Speech API", description: "Browser built-in speech recognition (Fast, Free)" }] : [])
+  ];
+
+  const handleSetWhisperModel = (name: string) => {
+    localStorage.setItem("whisper_model", name);
+    setActiveWhisperModel(name);
+  };
 
   // Modelos gratuitos padrão (fallback se a API falhar)
   const defaultFreeModels = [
@@ -176,15 +200,73 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         Chave de API para usar modelos via OpenRouter.ai
       </p>
 
-      {/* Nota sobre Whisper */}
-      <div className="bg-blue-950/30 border border-blue-900/50 rounded-lg p-3 mb-6 flex items-start gap-2">
-        <CircleAlertIcon size={24}/>
-        <p className="text-sm text-blue-300">
-          Nota: Whisper (entrada de voz) requer uma chave de API da OpenAI ou Google para transcrição de áudio. OpenRouter lida apenas com respostas de texto.
-        </p>
+      {/* Speech-to-Text Model Selection */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-2">Modelo de Transcrição</h3>
+        <p className="text-neutral-400 text-sm mb-3">Selecione o modelo usado para transcrição de voz</p>
+        
+        <select
+          value={transcriptionModel}
+          onChange={(e) => {
+            setTranscriptionModelForProvider("OpenRouter", e.target.value);
+            if (e.target.value === "whisper_cpp") {
+              setShowWhisperConfig(true);
+            }
+          }}
+          className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+        >
+          {transcriptionModels.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.label}
+            </option>
+          ))}
+        </select>
+        
+        {transcriptionModels.find(m => m.id === transcriptionModel) && (
+          <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
+            <p className="text-sm text-neutral-400">
+              {transcriptionModels.find(m => m.id === transcriptionModel)?.description}
+            </p>
+          </div>
+        )}
+
+        {/* Whisper Management Toggle Button */}
+        {transcriptionModel === "whisper_cpp" && (
+          <button 
+            onClick={() => setShowWhisperConfig(!showWhisperConfig)}
+            className="mt-3 flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors group"
+          >
+            <div className={`p-1.5 rounded-md bg-blue-500/10 group-hover:bg-blue-500/20 transition-transform ${showWhisperConfig ? 'rotate-180' : ''}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            {showWhisperConfig ? 'Ocultar configurações locais' : 'Gerenciar Modelos Whisper (Local)'}
+          </button>
+        )}
+
+        {/* Whisper Model Manager Section */}
+        {transcriptionModel === "whisper_cpp" && showWhisperConfig && (
+          <div className="mt-4 bg-[#0A0A0A] border border-neutral-800 rounded-xl p-5 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center justify-between mb-5 border-b border-neutral-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-400 border border-blue-500/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Central de Modelos Locais</h4>
+                  <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-semibold">Status: <span className="text-blue-400">{activeWhisperModel} Ativo</span></p>
+                </div>
+              </div>
+            </div>
+            
+            <WhisperManager 
+                activeModel={activeWhisperModel} 
+                onModelChange={handleSetWhisperModel} 
+            />
+          </div>
+        )}
       </div>
 
-      {/* Modelo */}
+      {/* Modelo LLM */}
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-lg font-semibold">Modelo</h3>
         <button

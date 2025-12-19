@@ -2,7 +2,7 @@
 
 use app_lib::{
     app_state::AppState,
-    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands, audio_commands, whisper_commands},
+    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands, audio_commands, whisper_commands, ollama_commands},
     config::Config,
     clickthrough,
     visibility,
@@ -227,8 +227,13 @@ async fn main() {
             audio_commands::start_recording,
             audio_commands::stop_recording,
             audio_commands::get_recording_status,
+            audio_commands::read_audio_file,
             // Whisper commands
             whisper_commands::transcribe_with_whisper,
+            whisper_commands::check_whisper_models,
+            whisper_commands::download_whisper_model,
+            // Ollama commands
+            ollama_commands::get_ollama_models,
         ])
         .setup(|app| {
             let win = app.get_webview_window("main").unwrap();

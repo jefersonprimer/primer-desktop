@@ -6,6 +6,7 @@ import ApiTabs from "./ApiTabs";
 import GoogleTab from "./GoogleTab";
 import OpenAiTab from "./OpenAiTab";
 import OpenRouterTab from "./OpenRouterTab";
+import CustomTab from "./CustomTab";
 import AudioScreenTab from "./AudioScreenTab";
 import PrivacyTab from "./PrivacyTab";
 import PermissionsTab from "./PermissionsTab";
@@ -85,6 +86,7 @@ export default function SettingsModal({ open, onClose }: Props) {
       case "Google": return "gemini";
       case "OpenAI": return "openai";
       case "OpenRouter": return "openrouter";
+      case "Custom": return "ollama";
       default: return "";
     }
   };
@@ -94,6 +96,7 @@ export default function SettingsModal({ open, onClose }: Props) {
       case "Google": return "flash";
       case "OpenAI": return "gpt-4o";
       case "OpenRouter": return "mistralai/mistral-7b-instruct";
+      case "Custom": return "llama3";
       default: return "";
     }
   };
@@ -167,7 +170,16 @@ export default function SettingsModal({ open, onClose }: Props) {
                 savedModel={apiKeys.find((k) => k.provider === "openrouter")?.selected_model}
               />
             )}
-            {activeApiTab === "Custom" && <div className="p-6 text-neutral-400">Custom API em breve...</div>}
+            {activeApiTab === "Custom" && (
+              <CustomTab
+                apiKey={activeApiKey}
+                setApiKey={setActiveApiKey}
+                model={activeModel}
+                setModel={setActiveModel}
+                savedKey={apiKeys.find((k) => k.provider === "ollama")?.api_key}
+                savedModel={apiKeys.find((k) => k.provider === "ollama")?.selected_model}
+              />
+            )}
           </>
         );
       case "Áudio e Tela":

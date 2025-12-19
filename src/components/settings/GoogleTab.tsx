@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import CheckIcon from "../ui/icons/CheckIcon";
 import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
 import { useAi } from "../../contexts/AiContext";
+import WhisperManager from "./WhisperManager";
 
 interface Props {
   apiKey: string;
@@ -24,12 +25,29 @@ export default function GoogleTab({
   const { 
     activeProvider, 
     setActiveProvider,
-    transcriptionModel,
-    setTranscriptionModel,
+    getTranscriptionModelForProvider,
+    setTranscriptionModelForProvider,
     imageModel,
     setImageModel
   } = useAi();
+
+  const transcriptionModel = getTranscriptionModelForProvider("Google");
   
+  // Track specific whisper model selection
+  const [activeWhisperModel, setActiveWhisperModel] = useState<string>(() => localStorage.getItem("whisper_model") || "tiny");
+  const [showWhisperConfig, setShowWhisperConfig] = useState(transcriptionModel === "whisper_cpp");
+
+  useEffect(() => {
+    if (transcriptionModel === "whisper_cpp") {
+      setShowWhisperConfig(true);
+    }
+  }, [transcriptionModel]);
+
+  const handleSetWhisperModel = (name: string) => {
+    localStorage.setItem("whisper_model", name);
+    setActiveWhisperModel(name);
+  };
+
   // Modelos principais do Gemini (Atualizado para a solicitação)
   const analysisModels = [
     { id: "gemini-3-pro-preview", label: "Gemini 3 Pro Preview", description: "O modelo de próxima geração do Gemini, com capacidades avançadas e multimodais." },
@@ -39,9 +57,13 @@ export default function GoogleTab({
     { id: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash-Lite", description: "Modelo leve focado em velocidade." }
   ];
 
-  // Modelos de transcrição Gemini Live (Apenas os solicitados)
+  // Modelos de transcrição (Atualizado)
+  const isMacOrWin = /Mac|Win/.test(navigator.platform);
   const transcriptionModels = [
-    { id: "gemini-live-2.5-flash-preview", label: "Gemini Live 2.5 Flash Preview", description: "O modelo mais recente para transcrição de voz em tempo real." }
+    { id: "standard", label: "Standard", description: "Standard Google Cloud Speech-to-Text model" },
+    { id: "enhanced", label: "Enhanced", description: "Enhanced model for better accuracy (Higher cost)" },
+    { id: "whisper_cpp", label: "Whisper Local (cpp)", description: "Offline, private transcription running on your device" },
+    ...(isMacOrWin ? [{ id: "web_speech_api", label: "Web Speech API", description: "Browser built-in speech recognition (Fast, Free)" }] : [])
   ];
 
   // Modelos de geração de imagem
@@ -129,6 +151,72 @@ export default function GoogleTab({
       <p className="text-neutral-400 text-sm mb-6">
         Sua chave de API do Gemini para suporte de análise de imagem.
       </p>
+
+      {/* Speech-to-Text Model Selection (Moved outside personalized) */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold mb-2">Modelo de Transcrição</h3>
+        <p className="text-neutral-400 text-sm mb-3">Selecione o modelo usado para transcrição de voz</p>
+        
+        <select
+          value={transcriptionModel}
+          onChange={(e) => {
+            setTranscriptionModelForProvider("Google", e.target.value);
+            if (e.target.value === "whisper_cpp") {
+              setShowWhisperConfig(true);
+            }
+          }}
+          className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+        >
+          {transcriptionModels.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.label}
+            </option>
+          ))}
+        </select>
+        
+        {transcriptionModels.find(m => m.id === transcriptionModel) && (
+          <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
+            <p className="text-sm text-neutral-400">
+              {transcriptionModels.find(m => m.id === transcriptionModel)?.description}
+            </p>
+          </div>
+        )}
+
+        {/* Whisper Management Toggle Button */}
+        {transcriptionModel === "whisper_cpp" && (
+          <button 
+            onClick={() => setShowWhisperConfig(!showWhisperConfig)}
+            className="mt-3 flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors group"
+          >
+            <div className={`p-1.5 rounded-md bg-blue-500/10 group-hover:bg-blue-500/20 transition-transform ${showWhisperConfig ? 'rotate-180' : ''}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            {showWhisperConfig ? 'Ocultar configurações locais' : 'Gerenciar Modelos Whisper (Local)'}
+          </button>
+        )}
+
+        {/* Whisper Model Manager Section */}
+        {transcriptionModel === "whisper_cpp" && showWhisperConfig && (
+          <div className="mt-4 bg-[#0A0A0A] border border-neutral-800 rounded-xl p-5 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center justify-between mb-5 border-b border-neutral-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-400 border border-blue-500/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Central de Modelos Locais</h4>
+                  <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-semibold">Status: <span className="text-blue-400">{activeWhisperModel} Ativo</span></p>
+                </div>
+              </div>
+            </div>
+            
+            <WhisperManager 
+                activeModel={activeWhisperModel} 
+                onModelChange={handleSetWhisperModel} 
+            />
+          </div>
+        )}
+      </div>
 
       {/* Desempenho */}
       <h3 className="text-lg font-semibold mb-3">Desempenho</h3>
@@ -235,32 +323,6 @@ export default function GoogleTab({
               <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
                 <p className="text-sm text-neutral-400">
                   {analysisModels.find(m => m.id === model)?.description}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Modelo de Transcrição Gemini Live */}
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Modelo de Transcrição Gemini Live</h3>
-            <p className="text-neutral-400 text-sm mb-3">Selecione o modelo usado para transcrição de voz Gemini Live</p>
-            
-            <select
-              value={transcriptionModel}
-              onChange={(e) => setTranscriptionModel(e.target.value)}
-              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
-            >
-              {transcriptionModels.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-            
-            {transcriptionModels.find(m => m.id === transcriptionModel) && (
-              <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
-                <p className="text-sm text-neutral-400">
-                  {transcriptionModels.find(m => m.id === transcriptionModel)?.description}
                 </p>
               </div>
             )}

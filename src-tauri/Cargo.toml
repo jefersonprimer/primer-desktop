@@ -27,7 +27,7 @@ tokio = { version = "1", features = ["full"] }
 anyhow = "1.0"
 async-trait = "0.1"
 dotenvy = "0.15"
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
 sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "macros", "chrono", "uuid", "sqlite", "postgres", "migrate"] }
 argon2 = "0.5"
 jsonwebtoken = "9"
@@ -38,6 +38,7 @@ image = "0.25"
 xcap = "0.7.1"
 tauri-plugin-shell = "2.3.3"
 tauri-plugin-os = "2"
+futures-util = "0.3"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.24"

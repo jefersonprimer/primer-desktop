@@ -13,7 +13,7 @@ import { useAi } from "../../contexts/AiContext";
 import { getPromptPresets } from "../../lib/tauri";
 import { invoke } from "@tauri-apps/api/core";
 import { useSpeechRecognition } from "../../hooks/useSpeechRecognition";
-import { generateActions, transcribeAudio } from "../../services/aiService";
+import { generateActions } from "../../services/aiService";
 
 interface DockProps {
   onOpenModal: (modal: string) => void;
@@ -44,26 +44,11 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
   const [actions, setActions] = useState<string[]>([]);
   const { isListening, transcript, error: speechError, startListening, stopListening } = useSpeechRecognition({
       onResult: (text) => {
+          console.log("[Dock] onResult received:", text);
           // Immediately generate actions when we get a result
           if (text && text.trim().length > 0) {
               handleGenerateActions(text);
           }
-      },
-      transcribe: async (audioBase64) => {
-          // Use OpenAI key for Whisper if available, or just the active one if we want to try.
-          // Note: Whisper is an OpenAI model. If activeProvider is Google, we might not have an OpenAI Key.
-          // For now, let's assume the user has an OpenAI key or we force them to use one for Speech?
-          // BETTER: Try to find an OpenAI key specifically.
-          let apiKey = getApiKeyForProvider("OpenAI");
-          if (!apiKey && activeProvider === "OpenAI") apiKey = getApiKeyForProvider(activeProvider);
-          
-          if (!apiKey) {
-               // Fallback: If no OpenAI key, we can't use Whisper easily (unless we use a Groq/OpenRouter endpoint).
-               // Let's warn.
-               console.warn("No OpenAI API Key found for Whisper transcription.");
-               throw new Error("API Key da OpenAI necessária para transcrição de áudio.");
-          }
-          return await transcribeAudio(audioBase64, apiKey);
       }
   });
   
@@ -141,8 +126,12 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
   */
 
   const handleGenerateActions = async (textOverride?: string) => {
+    console.log("[Dock] handleGenerateActions called with:", textOverride);
     const textToProcess = textOverride || transcript;
-    if (!textToProcess || textToProcess.trim().length === 0) return;
+    if (!textToProcess || textToProcess.trim().length === 0) {
+        console.log("[Dock] No text to process.");
+        return;
+    }
 
     setLastUserMessage(textToProcess);
 
@@ -154,7 +143,9 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
     }
 
     try {
+      console.log("[Dock] Generating actions via AI service...");
       const generatedActions = await generateActions(textToProcess, activeProvider, apiKey, activeModel);
+      console.log("[Dock] Actions generated:", generatedActions);
       setActions(generatedActions);
     } catch (e) {
       console.error("Failed to generate actions", e);
