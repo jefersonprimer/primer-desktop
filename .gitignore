@@ -43,3 +43,7 @@ src-tauri/resources/whisper.cpp/
 **/models/*.bin
 **/models/*.gguf
 
+# SQLite
+echo "primer.sqlite" >> .gitignore
+echo "*.sqlite" >> .gitignore
+echo "*.db" >> .gitignore
