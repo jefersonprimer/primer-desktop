@@ -24,7 +24,7 @@ interface DockProps {
   isInputVisible?: boolean;
 }
 
-export default function Dock({ onOpenModal, onClose, onActionSelected, active, aiModalOpen, isInputVisible = true }: DockProps) {
+export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected, active, aiModalOpen, isInputVisible: _isInputVisible = true }: DockProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showLiveInsights, setShowLiveInsights] = useState(false);
   const [showAssistantsManager, setShowAssistantsManager] = useState(false);
@@ -91,11 +91,7 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
         e.stopPropagation(); // Stop bubbling to prevent unwanted side effects
-        if (aiModalOpen) {
-          onClose?.();
-        } else {
-          onOpenModal("chat");
-        }
+        onOpenModal("chat");
       }
 
       // Hide: Ctrl + \
@@ -227,11 +223,7 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
               className="flex items-center gap-2 py-1 px-4 rounded-full hover:bg-white/10 transition text-white group"
               
               onClick={() => {
-                if (aiModalOpen && isInputVisible) {
-                  onClose?.();
-                } else {
-                  onOpenModal("chat");
-                }
+                onOpenModal("chat");
               }}
             >
               <span className="text-sm font-medium text-white/90 group-hover:text-white">Ask</span>
@@ -430,11 +422,7 @@ export default function Dock({ onOpenModal, onClose, onActionSelected, active, a
           onActionClick={handleActionClick}
           onAskClick={() => {
             setShowLiveInsights(false);
-            if (aiModalOpen && isInputVisible) {
-              onClose?.();
-            } else {
-              onOpenModal("chat");
-            }
+            onOpenModal("chat");
           }}
         />
         {showAssistantsManager && (

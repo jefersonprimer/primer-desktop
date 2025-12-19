@@ -30,6 +30,7 @@ interface AiModalProps {
 export default function AiModal({ isOpen, message, onEndSession, messages, onSendMessage, isLoading, pendingMessage, showInput = true }: AiModalProps) {
   const nodeRef = useRef(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [terminationStep, setTerminationStep] = useState<'none' | 'confirm_end' | 'confirm_email'>('none');
@@ -44,15 +45,15 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
     return localStorage.getItem("ai_modal_autofocus") === "true";
   });
 
-  // Handle auto-focus on mount
+  // Handle auto-focus on mount or when visibility changes
   useEffect(() => {
-    if (autoFocusEnabled && isOpen) {
+    if (autoFocusEnabled && isOpen && showInput) {
        // Small timeout to ensure render is complete
        setTimeout(() => {
          inputRef.current?.focus();
        }, 50);
     }
-  }, [isOpen, autoFocusEnabled]);
+  }, [isOpen, autoFocusEnabled, showInput]);
 
   const toggleAutoFocus = () => {
     const newState = !autoFocusEnabled;
@@ -96,6 +97,24 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, [isOpen]);
 
+  // Shortcut for Scrolling (Ctrl + ArrowUp/ArrowDown)
+  useEffect(() => {
+    const handleScrollShortcut = (e: KeyboardEvent) => {
+      if (isOpen && (e.ctrlKey || e.metaKey)) {
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          scrollContainerRef.current?.scrollBy({ top: -100, behavior: 'smooth' });
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          scrollContainerRef.current?.scrollBy({ top: 100, behavior: 'smooth' });
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleScrollShortcut);
+    return () => window.removeEventListener("keydown", handleScrollShortcut);
+  }, [isOpen]);
+
   const handleSubmit = async () => {
     if (!input.trim() && !capturedImage) return;
 
@@ -125,7 +144,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
       e.preventDefault();
       handleSubmit();
     }
@@ -135,6 +154,8 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
   const lastUserMessage = pendingMessage || messages?.slice().reverse().find(m => m.role === 'user')?.content;
 
   if (!isOpen) return null; // onClose is implicitly used here. TypeScript might still complain if not explicitly referenced elsewhere.
+
+  if (isCompact && !showInput) return null;
 
   return (
     <div className="fixed inset-0 flex items-start justify-center z-50 pt-24">
@@ -159,7 +180,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                 <div className="flex items-center gap-2 shrink-0">
 
                   {lastUserMessage && (
-                    <div className="text-xs text-white bg-[#707071] hover:bg-white/10 p-2 rounded-full truncate" title={lastUserMessage}>
+                    <div className="text-xs text-white bg-[#707071] hover:bg-white/10 p-2 rounded-full truncate max-w-[300px]" title={lastUserMessage}>
                       {lastUserMessage}
                     </div>
                   )}
@@ -203,7 +224,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
 
           {/* Corpo da mensagem - Only show if not compact */}
           {!isCompact && (
-            <div className="px-4 max-h-96 overflow-y-auto flex flex-col gap-4">
+            <div ref={scrollContainerRef} className="px-4 max-h-96 overflow-y-auto flex flex-col gap-4">
                 
                 {messages && messages.length > 0 && (
                 <>

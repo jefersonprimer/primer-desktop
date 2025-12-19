@@ -135,11 +135,6 @@ export function AiProvider({ children }: { children: ReactNode }) {
     setActiveModelState(model);
     localStorage.setItem("ai_active_model", model);
   };
-
-  const setTranscriptionModel = (model: string) => {
-    // Legacy: update for active provider
-    setTranscriptionModelForProvider("active", model); 
-  };
   
   // Wrapper to handle internal vs external call if needed, but here we just implement the logic
   const updateTranscriptionModelForProvider = (provider: string | ProviderType, model: string) => {

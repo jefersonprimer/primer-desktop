@@ -188,11 +188,18 @@ export default function HomePage() {
 
   const handleOpenModal = (modal: string) => {
     if (modal === "chat") {
-      if (activeModal === "chat" && showAiInput) {
-        // If already open and input is visible, close it
-        setActiveModal(null);
+      if (activeModal === "chat") {
+        const hasContent = isLoading || historyMessages.length > 0 || aiMessage;
+        
+        if (!hasContent) {
+            // If no content, simply close the modal
+            setActiveModal(null);
+        } else {
+            // Toggle input visibility only, keep modal open
+            setShowAiInput((prev) => !prev);
+        }
       } else {
-        // Otherwise, open/ensure visible and show input
+        // Open/ensure visible and show input
         setActiveModal("chat");
         setShowAiInput(true);
       }
