@@ -12,13 +12,13 @@ export default function ApiTabs({ active, onTabChange }: Props) {
   const { activeProvider } = useAi();
 
   return (
-    <div className="flex gap-2 bg-black px-6 pt-6 pb-2">
+    <div className="flex gap-2 bg-[#1D1D1F] px-6 pt-6 pb-2">
       {tabs.map((tab) => (
         <div 
           key={tab}
           className={`relative group flex items-center rounded-lg transition cursor-pointer border
-            ${activeProvider === tab ? "bg-[#07071B]" : "hover:bg-neutral-800"}
-            ${active === tab ? "border-[#2C3381]" : "border-neutral-700"}
+            ${activeProvider === tab ? "bg-neutral-800 text-white" : "hover:bg-neutral-800"}
+            ${active === tab ? "bg-neutral-800 text-white" : "border-neutral-700"}
           `}
         >
           {/* Tab Button */}

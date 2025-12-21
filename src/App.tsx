@@ -2,6 +2,8 @@ import { HashRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { StealthModeProvider } from "./contexts/StealthModeContext";
 import { AiProvider } from "./contexts/AiContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import NotificationContainer from "./components/ui/NotificationContainer";
 import AppRoutes from "./routes";
 import StealthMirror from "./components/StealthMirror";
 import { useEffect } from "react";
@@ -30,13 +32,15 @@ function App() {
     <AuthProvider>
       <StealthModeProvider>
         <AiProvider>
-          <HashRouter>
-            <StealthMirror />
-            <div className="w-full max-w-[1440px] mx-auto h-screen relative">
-              <AppRoutes />
-            </div>
-
-          </HashRouter>
+          <NotificationProvider>
+            <HashRouter>
+              <StealthMirror />
+              <div className="w-full max-w-[1440px] mx-auto h-screen relative">
+                <AppRoutes />
+              </div>
+              <NotificationContainer />
+            </HashRouter>
+          </NotificationProvider>
         </AiProvider>
       </StealthModeProvider>
     </AuthProvider>

@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import Draggable from "react-draggable";
 import { invoke } from "@tauri-apps/api/core";
+import { useNotification } from "@/contexts/NotificationContext";
 // Removed SettingsIcon as it was unused
 import ZapIcon from "./ui/icons/ZapIcon";
 import CheckIcon from "./ui/icons/CheckIcon";
@@ -33,6 +34,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { addNotification } = useNotification();
   const [terminationStep, setTerminationStep] = useState<'none' | 'confirm_end' | 'confirm_email'>('none');
 
   // Input state
@@ -75,11 +77,47 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
 
   const handleCaptureScreen = async () => {
     try {
+        // Permission hint logic
+        const hasUsedScreen = localStorage.getItem('has_used_screen_capture');
+        if (!hasUsedScreen) {
+             addNotification({
+                title: 'Permission Required',
+                message: 'PrimerAI needs access to record your screen for screenshots.',
+                type: 'info',
+                duration: 10000,
+                actions: [
+                    {
+                        label: 'Open Settings',
+                        onClick: () => invoke('open_system_settings', { settingType: 'screen' }),
+                        variant: 'primary'
+                    },
+                    { 
+                        label: 'Continue', 
+                        onClick: () => { /* Dismiss */ }, 
+                        variant: 'secondary' 
+                    }
+                ]
+            });
+            localStorage.setItem('has_used_screen_capture', 'true');
+        }
+
       const base64Image = await invoke<string>("capture_screen");
       setCapturedImage(base64Image);
       return base64Image;
     } catch (error) {
       console.error("Failed to capture screen:", error);
+      addNotification({
+            title: 'Screenshot Failed',
+            message: 'Could not capture screen. Please check your screen recording permissions.',
+            type: 'error',
+            actions: [
+                {
+                    label: 'Open Settings',
+                    onClick: () => invoke('open_system_settings', { settingType: 'screen' }),
+                    variant: 'primary'
+                }
+            ]
+      });
       return null;
     }
   };

@@ -9,7 +9,7 @@ interface Props {
   model: string;
   setModel: (model: string) => void;
   savedKey?: string;
-  savedModel?: string;
+  onSave: () => void;
 }
 
 interface OpenRouterModel {
@@ -23,7 +23,7 @@ interface OpenRouterModel {
   description?: string;
 }
 
-export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, savedKey }: Props) {
+export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, savedKey, onSave }: Props) {
   const { activeProvider, setActiveProvider, getTranscriptionModelForProvider, setTranscriptionModelForProvider } = useAi();
   
   const transcriptionModel = getTranscriptionModelForProvider("OpenRouter");
@@ -38,7 +38,7 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
 
   useEffect(() => {
     if (transcriptionModel === "whisper_cpp") {
-      setShowWhisperConfig(true);
+      setShowWhisperConfig(false);
     }
   }, [transcriptionModel]);
 
@@ -151,7 +151,7 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
     parseFloat(selectedModelInfo.pricing.completion) === 0;
 
   return (
-    <div className="px-6 py-4 pb-8 bg-black text-neutral-300">
+    <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300">
       <div className="flex justify-between items-center border-t border-b border-neutral-700">
         <div>
           <h2 className="text-xl font-semibold my-2">OpenRouter</h2>
@@ -371,7 +371,7 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         </div>
       )}
 
-      <div className="mt-4">
+      <div className="mt-4 mb-8">
         <a 
           href="https://openrouter.ai/models" 
           target="_blank" 
@@ -380,6 +380,15 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         >
           Ver detalhes do modelo
         </a>
+      </div>
+
+      <div className="flex justify-end pt-4 border-t border-neutral-800">
+        <button
+          onClick={onSave}
+          className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
+        >
+          Salvar Alterações
+        </button>
       </div>
     </div>
   );

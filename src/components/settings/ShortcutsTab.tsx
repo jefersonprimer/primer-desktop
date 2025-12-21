@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import ShortcutInputButton from "./ShortcutInputButton";
 import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
@@ -15,11 +15,7 @@ interface GetShortcutsResponse {
   shortcuts: ShortcutDto[];
 }
 
-export interface ShortcutsTabHandle {
-  save: () => Promise<void>;
-}
-
-const ShortcutsTab = forwardRef<ShortcutsTabHandle>((_, ref) => {
+export default function ShortcutsTab() {
   const { userId } = useAuth();
     const [shortcuts, setShortcuts] = useState({
       ask: "Ctrl + Enter",
@@ -28,10 +24,6 @@ const ShortcutsTab = forwardRef<ShortcutsTabHandle>((_, ref) => {
       hide: "Ctrl + \\",
     });
     const [loading, setLoading] = useState(false);
-  
-    useImperativeHandle(ref, () => ({
-      save: handleSave
-    }));
   
     useEffect(() => {
       if (userId) {
@@ -103,10 +95,10 @@ const ShortcutsTab = forwardRef<ShortcutsTabHandle>((_, ref) => {
     if (loading) return <div className="px-6 py-4 text-neutral-400">Carregando atalhos...</div>;
   
     return (
-      <div className="px-6 py-4 pb-8 bg-black text-neutral-300 h-full overflow-y-auto">
+      <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300 h-full overflow-y-auto">
         {/* Cabeçalho */}
         <div className="mb-6">
-          <h2 className="text-lg font-medium text-white mb-2">Atalhos de Teclado</h2>
+          <h2 className="text-lg font-medium text-white mb-2">Keyboard shortcuts</h2>
           <p className="text-sm text-neutral-400">
             Personalize os atalhos de teclado para corresponder ao seu fluxo de trabalho. Clique em "Alterar" para gravar um novo atalho.
           </p>
@@ -189,7 +181,7 @@ const ShortcutsTab = forwardRef<ShortcutsTabHandle>((_, ref) => {
       </div>
 
       {/* Dicas */}
-      <div className="mt-6 bg-blue-950/30 border border-blue-900/50 rounded-lg p-4">
+      <div className="mt-6 mb-8 bg-blue-950/30 border border-blue-900/50 rounded-lg p-4">
         <div className="flex flex-col items-start gap-3">
           <div className="flex items-center mb-2 gap-1">
             <CircleAlertIcon size={18}/> 
@@ -205,8 +197,15 @@ const ShortcutsTab = forwardRef<ShortcutsTabHandle>((_, ref) => {
           </div>
         </div>
       </div>
+
+      <div className="flex justify-end pt-4 border-t border-neutral-800">
+        <button
+          onClick={handleSave}
+          className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
+        >
+          Salvar Alterações
+        </button>
+      </div>
     </div>
   );
-});
-
-export default ShortcutsTab;
+}

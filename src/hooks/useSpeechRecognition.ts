@@ -3,6 +3,7 @@ import { UniversalSpeechService } from '../services/speech/universalSpeechServic
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { useAi } from '../contexts/AiContext';
+import { useNotification } from '../contexts/NotificationContext';
 import { transcribeAudio } from '../services/aiService';
 
 export interface UseSpeechRecognitionProps {
@@ -20,6 +21,7 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
   const serviceRef = useRef<UniversalSpeechService | null>(null);
 
   const { activeProvider, transcriptionModel, getApiKeyForProvider } = useAi();
+  const { addNotification } = useNotification();
 
   useEffect(() => {
     serviceRef.current = new UniversalSpeechService();
@@ -43,14 +45,6 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
     // Listen for silence detection from backend
     const unlistenSilence = listen("recording_silence_detected", () => {
         console.log("[useSpeechRecognition] Silence detected by backend. Stopping.");
-        // We need to trigger the stop flow.
-        // Since the backend already stopped the recording loop (IS_RECORDING = false),
-        // calling stop_recording cmd will just return the file path.
-        // However, we need to update React state.
-        
-        // We can't directly call 'stopListening' from here easily because it's a callback created in render.
-        // But we can use a ref or just trigger it via a state effect?
-        // Better: trigger a function that does the same logic as stopListening.
         handleBackendStop();
     });
 
@@ -60,33 +54,13 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
   }, []);
 
   const handleBackendStop = async () => {
-      // Logic duplicated from stopListening, but knowing backend is already stopped.
       try {
-          // 'stop_recording' returns the path if it was recording, or error.
-          // Since the backend set IS_RECORDING to false *before* emitting,
-          // calling 'stop_recording' might fail with "Not recording" IF we implemented it strictly.
-          // BUT: audio_commands.rs 'stop_recording' checks IS_RECORDING.
-          // Wait, if backend sets IS_RECORDING=false, then 'stop_recording' command will return error "Not recording".
-          // We need to fix audio_commands.rs or change how we get the file path.
-          // Actually, let's assume 'stop_recording' just returns the path of the *last* recording if not recording?
-          // No, currently it returns Err("Not recording").
-          
-          // FIX: We need 'stop_recording' to be callable even if it just finished?
-          // OR: the event should send the path?
-          // Let's modify audio_commands.rs to return path even if stopped? 
-          // OR: Just assume the file is at the temp path.
-          
-          // Let's try to call stopListening.
-          // But wait, stopListening calls serviceRef.current.stopListening().
-          // Service calls invoke('stop_recording').
-          
-          // I need to update audio_commands.rs first to ensure 'stop_recording' returns the file path even if IS_RECORDING became false automatically.
+          // Logic to handle backend stop if needed
       } catch(e) {
           console.error(e);
       }
   };
 
-  // Re-define stopListening to handle the flow
   const log = async (msg: string) => {
       try { await invoke('log_frontend_message', { message: msg }); } catch (e) { console.log(msg); }
   };
@@ -122,6 +96,11 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
                  const apiKey = getApiKeyForProvider(activeProvider);
                  if (!apiKey) {
                      log("No API Key found for transcription");
+                     addNotification({
+                         message: "No API Key found for transcription",
+                         type: 'error',
+                         duration: 4000
+                     });
                  } else {
                      log("[useSpeechRecognition] Reading audio file...");
                      const audioBase64 = await invoke<string>('read_audio_file', { path: audioPath });
@@ -147,8 +126,12 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
         log(`[useSpeechRecognition] ERROR: ${e.message || e}`);
         setError(e.message || "Failed to stop listening");
         setIsListening(false);
+        addNotification({
+            message: `Error stopping listener: ${e.message}`,
+            type: 'error'
+        });
     }
-  }, [isListening, onResult, onEnd, activeProvider, transcriptionModel, getApiKeyForProvider]);
+  }, [isListening, onResult, onEnd, activeProvider, transcriptionModel, getApiKeyForProvider, addNotification]);
 
   // Use an effect to trigger stopListening when the event fires
   useEffect(() => {
@@ -168,6 +151,64 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
     fullTranscriptRef.current = '';
     setInterimTranscript('');
     setError(null);
+
+    // Permission Check Logic
+    if (transcriptionModel === 'web_speech_api') {
+        try {
+            // @ts-ignore - navigator.permissions might vary in TS definitions
+            const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+            if (permissionStatus.state === 'prompt') {
+                addNotification({
+                    title: 'Microphone Access',
+                    message: 'Please allow microphone access when prompted by the browser.',
+                    type: 'info',
+                    duration: 5000,
+                });
+            } else if (permissionStatus.state === 'denied') {
+                addNotification({
+                    title: 'Microphone Blocked',
+                    message: 'Microphone access is denied by the browser.',
+                    type: 'error',
+                    duration: 10000,
+                    actions: [
+                        {
+                            label: 'Open Settings',
+                            onClick: () => invoke('open_system_settings', { settingType: 'microphone' }),
+                            variant: 'primary'
+                        }
+                    ]
+                });
+                return; // Don't even try if we know it's denied
+            }
+        } catch (e) {
+            // Permission API not supported or failed, proceed anyway
+        }
+    } else {
+        // Backend/Native recording
+        const hasUsedMic = localStorage.getItem('has_used_mic_backend');
+        if (!hasUsedMic) {
+             addNotification({
+                title: 'Permission Required',
+                message: 'PrimerAI needs access to your microphone.',
+                type: 'info',
+                duration: 10000,
+                actions: [
+                    {
+                        label: 'Open Settings',
+                        onClick: () => invoke('open_system_settings', { settingType: 'microphone' }),
+                        variant: 'primary'
+                    },
+                    {
+                         label: 'Continue',
+                         onClick: () => { /* Just dismiss */ },
+                         variant: 'secondary'
+                    }
+                ]
+            });
+            localStorage.setItem('has_used_mic_backend', 'true');
+        }
+    }
+
     setIsListening(true);
 
     try {
@@ -199,9 +240,21 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
         } else {
             setError(e.message || "Failed to start listening");
             setIsListening(false);
+             addNotification({
+                title: 'Recording Error',
+                message: e.message || "Failed to start listening",
+                type: 'error',
+                actions: [
+                    {
+                        label: 'Open Settings',
+                        onClick: () => invoke('open_system_settings', { settingType: 'microphone' }),
+                        variant: 'primary'
+                    }
+                ]
+            });
         }
     }
-  }, [isListening, onResult, onEnd, transcriptionModel]);
+  }, [isListening, onResult, onEnd, transcriptionModel, addNotification]);
 
   return {
     isListening,

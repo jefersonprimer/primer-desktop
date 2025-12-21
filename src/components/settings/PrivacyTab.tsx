@@ -6,7 +6,7 @@ export default function PrivacyTab() {
   const isLinux = navigator.platform.toLowerCase().includes('linux');
 
   return (
-    <div className="w-full bg-black p-6 text-white flex flex-col gap-6 pb-8">
+    <div className="w-full bg-[#1D1D1F] p-6 text-white flex flex-col gap-6 pb-8">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold flex items-center gap-2">Modo furtivo</h2>
         <p className="text-sm uppercase bg-[#141414] border border-neutral-700 py-1 px-4 rounded-2xl">privacidade</p>

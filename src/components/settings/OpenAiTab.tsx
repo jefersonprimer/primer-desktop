@@ -10,7 +10,7 @@ interface Props {
   model: string;
   setModel: (model: string) => void;
   savedKey?: string;
-  savedModel?: string;
+  onSave: () => void;
 }
 
 type PerformanceMode = "rapido" | "padrao" | "qualidade" | "personalizado";
@@ -21,6 +21,7 @@ export default function OpenAiTab({
   model,
   setModel,
   savedKey,
+  onSave,
 }: Props) {
   const {
     activeProvider,
@@ -39,7 +40,7 @@ export default function OpenAiTab({
 
   useEffect(() => {
     if (transcriptionModel === "whisper_cpp") {
-      setShowWhisperConfig(true);
+      setShowWhisperConfig(false);
     }
   }, [transcriptionModel]);
 
@@ -111,7 +112,7 @@ export default function OpenAiTab({
   };
 
   return (
-    <div className="px-6 py-4 pb-8 bg-black text-neutral-300">
+    <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300">
       <div className="flex justify-between items-center border-t border-b border-neutral-700">
         <div>
           <h2 className="text-xl font-semibold my-2">OpenAI</h2>
@@ -402,7 +403,7 @@ export default function OpenAiTab({
         </div>
       )}
       
-      <div className="mt-4">
+      <div className="mt-4 mb-8">
         <a 
           href="https://platform.openai.com/docs/models" 
           target="_blank" 
@@ -413,6 +414,14 @@ export default function OpenAiTab({
         </a>
       </div>
 
+      <div className="flex justify-end pt-4 border-t border-neutral-800">
+        <button
+          onClick={onSave}
+          className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
+        >
+          Salvar Alterações
+        </button>
+      </div>
     </div>
   );
 }

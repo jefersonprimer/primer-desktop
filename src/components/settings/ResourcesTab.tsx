@@ -5,7 +5,7 @@ export default function ResourcesTab() {
   const [selectToPrompt, setSelectToPrompt] = useState(false);
 
   return (
-    <div className="px-6 py-4 pb-8 bg-black text-neutral-300 h-full overflow-y-auto">
+    <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300 h-full overflow-y-auto">
       {/* Rolagem Automática */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">

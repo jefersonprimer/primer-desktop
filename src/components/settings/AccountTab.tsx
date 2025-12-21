@@ -19,7 +19,7 @@ export default function AccountTab() {
   const currentLang = (i18n.language === 'pt' || i18n.language === 'pt-BR') ? 'pt-BR' : 'en-US';
 
   return (
-    <div className="w-full bg-black p-6 pb-8 text-white">
+    <div className="w-full bg-[#1D1D1F] p-6 pb-8 text-white">
       {/* CONTA */}
       <h2 className="text-xl font-semibold mb-4">{t("account.title")}</h2>
       <p className="text-sm text-gray-300 mb-4">

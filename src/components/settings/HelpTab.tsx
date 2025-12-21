@@ -36,7 +36,7 @@ export default function HelpTab() {
   };
 
   return (
-    <div className="w-full bg-black p-6 text-white flex flex-col gap-6 pb-8">
+    <div className="w-full bg-[#1D1D1F] p-6 text-white flex flex-col gap-6 pb-8">
       <div>
         <p className="text-xl font-semibold text-[#616161]">Sobre</p>
         <p className="text-sm font-medium">Versão: 0.1.0</p>

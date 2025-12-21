@@ -3,7 +3,7 @@ import LockKeyHoleIcon from "../ui/icons/LockKeyHoleIcon";
 
 export default function PremiumTab() {
   return (
-    <div className="w-full bg-black h-full p-6 pb-8 text-white">
+    <div className="w-full bg-[#1D1D1F] h-full p-6 pb-8 text-white">
       <div className="flex items-center mb-6 gap-2">
         <CircleStarIcon size={24} color="#FAC936"/>
         <h2 className="text-2xl font-semibold">Assinatura</h2>

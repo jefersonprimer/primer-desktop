@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import Modal from "./Modal";
+
 import Sidebar from "./SideBar";
+import GeneralTab from "./GeneralTab";
+import CalendarTab from "./CalendarTab";
 import ApiTabs from "./ApiTabs";
 import GoogleTab from "./GoogleTab";
 import OpenAiTab from "./OpenAiTab";
 import OpenRouterTab from "./OpenRouterTab";
 import CustomTab from "./CustomTab";
-import AudioScreenTab from "./AudioScreenTab";
 import PrivacyTab from "./PrivacyTab";
-import PermissionsTab from "./PermissionsTab";
 import ResourcesTab from "./ResourcesTab";
-import ShortcutsTab, { type ShortcutsTabHandle } from "./ShortcutsTab";
+import ShortcutsTab from "./ShortcutsTab";
 import AccountTab from "./AccountTab";
 import PremiumTab from "./PremiumTab";
 import HelpTab from "./HelpTab";
@@ -42,7 +42,6 @@ export default function SettingsModal({ open, onClose }: Props) {
   const [activeItem, setActiveItem] = useState("API e Modelos");
   const [activeApiTab, setActiveApiTab] = useState("Google");
   const [apiKeys, setApiKeys] = useState<ApiKeyDto[]>([]);
-  const shortcutsRef = useRef<ShortcutsTabHandle>(null);
 
   // Form State
   const [activeApiKey, setActiveApiKey] = useState("");
@@ -101,33 +100,26 @@ export default function SettingsModal({ open, onClose }: Props) {
     }
   };
 
-  const handleSave = async () => {
+  const handleSaveCurrentApiTab = async () => {
     if (!userId) return;
     
-    // Only handle save for API tabs for now
-    if (activeItem === "API e Modelos") {
-      const provider = getProviderFromTab(activeApiTab);
-      if (!provider) return;
+    const provider = getProviderFromTab(activeApiTab);
+    if (!provider) return;
 
-      try {
-        await invoke("add_api_key", {
-          dto: {
-            user_id: userId,
-            provider,
-            api_key: activeApiKey,
-            selected_model: activeModel,
-          },
-        });
-        // Refresh keys to ensure UI is in sync with backend
-        await fetchApiKeys();
-        console.log("Saved successfully");
-      } catch (error) {
-        console.error("Failed to save:", error);
-      }
-    } else if (activeItem === "Atalhos" && shortcutsRef.current) {
-      await shortcutsRef.current.save();
-    } else {
-      console.log("Save not implemented for this tab yet");
+    try {
+      await invoke("add_api_key", {
+        dto: {
+          user_id: userId,
+          provider,
+          api_key: activeApiKey,
+          selected_model: activeModel,
+        },
+      });
+      // Refresh keys to ensure UI is in sync with backend
+      await fetchApiKeys();
+      // alert("Salvo com sucesso!"); // Optional feedback
+    } catch (error) {
+      console.error("Failed to save:", error);
     }
   };
 
@@ -147,7 +139,7 @@ export default function SettingsModal({ open, onClose }: Props) {
                 model={activeModel}
                 setModel={setActiveModel}
                 savedKey={apiKeys.find((k) => k.provider === "gemini")?.api_key}
-                savedModel={apiKeys.find((k) => k.provider === "gemini")?.selected_model}
+                onSave={handleSaveCurrentApiTab}
               />
             )}
             {activeApiTab === "OpenAI" && (
@@ -157,7 +149,7 @@ export default function SettingsModal({ open, onClose }: Props) {
                 model={activeModel}
                 setModel={setActiveModel}
                 savedKey={apiKeys.find((k) => k.provider === "openai")?.api_key}
-                savedModel={apiKeys.find((k) => k.provider === "openai")?.selected_model}
+                onSave={handleSaveCurrentApiTab}
               />
             )}
             {activeApiTab === "OpenRouter" && (
@@ -167,7 +159,7 @@ export default function SettingsModal({ open, onClose }: Props) {
                 model={activeModel}
                 setModel={setActiveModel}
                 savedKey={apiKeys.find((k) => k.provider === "openrouter")?.api_key}
-                savedModel={apiKeys.find((k) => k.provider === "openrouter")?.selected_model}
+                onSave={handleSaveCurrentApiTab}
               />
             )}
             {activeApiTab === "Custom" && (
@@ -178,25 +170,26 @@ export default function SettingsModal({ open, onClose }: Props) {
                 setModel={setActiveModel}
                 savedKey={apiKeys.find((k) => k.provider === "ollama")?.api_key}
                 savedModel={apiKeys.find((k) => k.provider === "ollama")?.selected_model}
+                onSave={handleSaveCurrentApiTab}
               />
             )}
           </>
         );
-      case "Áudio e Tela":
-        return <AudioScreenTab />;
-      case "Permissões":
-        return <PermissionsTab />;
+      case "General":
+        return <GeneralTab/>;
+      case "Calendar":
+        return <CalendarTab/>;
       case "Recursos":
         return <ResourcesTab />;
-      case "Atalhos":
-        return <ShortcutsTab ref={shortcutsRef} />;
+      case "Keybinds":
+        return <ShortcutsTab />;
       case "Privacidade":
         return <PrivacyTab />;
-      case "Conta":
+      case "Profile":
         return <AccountTab/>;
-      case "Premium":
+      case "Billing":
         return <PremiumTab/>;
-      case "Ajuda":
+      case "Help Center":
         return <HelpTab/>;
       default:
         return (
@@ -207,20 +200,26 @@ export default function SettingsModal({ open, onClose }: Props) {
     }
   };
 
+  if (!open) return null;
+
   return (
-    <Modal open={open} onClose={onClose} onSave={handleSave}>
-      <div className="flex h-full">
+    <div className="fixed inset-0 flex items-center justify-center bg-transparent backdrop-blur-sm z-[99999]">
+      <div className="relative bg-neutral-900 text-white rounded-xl shadow-xl w-[900px] h-[600px] overflow-hidden border border-neutral-700 flex flex-col">
+        <div className="flex-1 min-h-0 relative w-full">
+          <div className="flex h-full">
 
-        {/* sidebar */}
-        <Sidebar activeItem={activeItem} onSelectItem={setActiveItem} />
+            {/* sidebar */}
+            <Sidebar activeItem={activeItem} onSelectItem={setActiveItem} onClose={onClose} />
 
-        {/* conteúdo */}
-        <div className="flex-1 flex flex-col bg-neutral-900 overflow-y-auto">
-          {renderContent()}
+            {/* conteúdo */}
+            <div className="flex-1 flex flex-col bg-neutral-900 overflow-y-auto">
+              {renderContent()}
+            </div>
+
+          </div>
         </div>
-
       </div>
-    </Modal>
+    </div>
   );
 }
 

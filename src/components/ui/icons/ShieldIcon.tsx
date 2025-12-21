@@ -1,16 +1,17 @@
 interface Props {
   color?: string;
+  fill?: string;
   size: number;
 }
 
-export default function ShieldIcon({ color="currentColor", size }: Props) {
+export default function ShieldIcon({ color="currentColor", fill="currentColor", size }: Props) {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
+      fill={fill}
       stroke={color}
       stroke-width="2"
       stroke-linecap="round"

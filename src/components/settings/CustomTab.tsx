@@ -11,6 +11,7 @@ interface Props {
   setModel: (model: string) => void;
   savedKey?: string;
   savedModel?: string;
+  onSave: () => void;
 }
 
 interface OllamaModel {
@@ -23,13 +24,12 @@ interface OllamaModel {
 }
 
 export default function CustomTab({ 
-  apiKey, 
-  setApiKey, 
-  model, 
-  setModel,
-  savedKey, 
-  savedModel
-}: Props) {
+    apiKey,
+    setApiKey,
+    model,
+    setModel,
+    savedKey,
+    onSave,}: Props) {
   const { activeProvider, setActiveProvider, getTranscriptionModelForProvider, setTranscriptionModelForProvider } = useAi();
   
   const transcriptionModel = getTranscriptionModelForProvider("Custom");
@@ -42,7 +42,7 @@ export default function CustomTab({
 
   useEffect(() => {
     if (transcriptionModel === "whisper_cpp") {
-      setShowWhisperConfig(true);
+      setShowWhisperConfig(false);
     }
   }, [transcriptionModel]);
 
@@ -52,7 +52,7 @@ export default function CustomTab({
     ...(isMacOrWin ? [{ id: "web_speech_api", label: "Web Speech API", description: "Browser built-in speech recognition (Fast, Free)" }] : [])
   ];
 
-  const currentStatus = savedKey && savedKey === apiKey && savedModel === model ? "success" : "idle";
+  const currentStatus = savedKey && savedKey === apiKey ? "success" : "idle";
 
   const handleSetWhisperModel = (name: string) => {
     localStorage.setItem("whisper_model", name);
@@ -89,7 +89,7 @@ export default function CustomTab({
   };
 
   return (
-    <div className="px-6 py-4 pb-8 bg-black text-neutral-300">
+    <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300">
       <div className="flex justify-between items-center border-t border-b border-neutral-700">
         <div>
           <h2 className="text-xl font-semibold my-2">Offline & Custom</h2>
@@ -247,6 +247,15 @@ export default function CustomTab({
             />
           </div>
         )}
+      </div>
+
+      <div className="flex justify-end pt-4 border-t border-neutral-800">
+        <button
+          onClick={onSave}
+          className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
+        >
+          Salvar Alterações
+        </button>
       </div>
 
     </div>
