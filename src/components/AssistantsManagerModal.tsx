@@ -148,7 +148,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
 
               <button
                 onClick={onClose}
-                className="absolute top-3 right-3 text-neutral-400 hover:text-black hover:bg-[#F34325] rounded-xl z-10"
+                className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
               >
                 <svg 
                   xmlns="http://www.w3.org/2000/svg"

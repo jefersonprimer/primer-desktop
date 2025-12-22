@@ -1,4 +1,5 @@
 import React from "react";
+import CalendarIcon from "../ui/icons/CalendarIcon";
 
 export default function CalendarTab() {
   const handleConnectGoogle = () => {
@@ -10,17 +11,18 @@ export default function CalendarTab() {
     <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300 h-full">
       {/* Header */}
       <div className="mb-4">
-        <h2 className="text-lg font-semibold">Visible Calendars</h2>
+        <h2 className="text-base font-semibold">Visible Calendars</h2>
         <p className="text-sm text-zinc-400">
           Upcoming meetings are synchronized from these calendars
         </p>
       </div>
 
       {/* Empty state card */}
-      <div className="rounded-xl border border-zinc-800 bg-[#272628] p-6 max-w-xl">
+      <div className="rounded-lg border border-zinc-800 bg-[#272628] p-6 max-w-xl">
         <div className="flex flex-col gap-4">
           <div>
-            <p className="text-sm font-medium">No calendars</p>
+            <CalendarIcon size={18}/>
+            <p className="text-sm text-white font-medium mt-2">No calendars</p>
             <p className="text-sm text-zinc-400">
               Get started by connecting a Google account.
             </p>
@@ -28,8 +30,8 @@ export default function CalendarTab() {
 
           <button
             onClick={handleConnectGoogle}
-            className="inline-flex w-fit items-center gap-2 rounded-md border border-zinc-700 bg-[#423F44] px-4 py-2 text-sm font-medium hover:bg-zinc-700 transition"
-          >
+            className="inline-flex w-fit items-center gap-2 rounded-md border border-zinc-700 bg-[#423F44] hover:bg-[#423F44]/80 px-4 py-2 text-sm font-medium hover:bg-zinc-700 transition"
+          > 
             {/* Google icon */}
             <svg
               width="16"

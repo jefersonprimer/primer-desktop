@@ -19,6 +19,18 @@
       "messages": "MENSAGENS",
       "active": "ATIVO",
       "clearAll": "Limpar Todos os Dados"
+    },
+    "deleteAccount": {
+      "title": "Excluir Conta",
+      "description": "Essa ação é irreversível. Todos os seus dados serão apagados permanentemente.",
+      "button": "Excluir Conta",
+      "modalTitle": "Tem certeza que deseja excluir sua conta?",
+      "modalWarning": "Ao excluir sua conta, você perderá acesso a todos os seus dados, histórico e configurações. Esta ação não pode ser desfeita.",
+      "passwordLabel": "Digite sua senha para confirmar",
+      "confirmButton": "Sim, excluir minha conta",
+      "cancelButton": "Cancelar",
+      "success": "Conta excluída com sucesso.",
+      "error": "Erro ao excluir conta. Verifique sua senha."
     }
   }
 }

@@ -357,20 +357,31 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
 
                 {/* Navigation */}
                 <div className="flex gap-2 mb-2">
-                  <button className="flex-1 px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/10 rounded-lg transition flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="15 18 9 12 15 6"></polyline>
-                    </svg>
-                    Move
+                  <button 
+                    onClick={() => {
+                      setShowSettings(true);
+                      setShowMenu(false);
+                    }}
+                    className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
+                  >
+                    Settings
                   </button>
-
-                  <button className="flex-1 px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/10 rounded-lg transition flex items-center justify-center gap-2">
-                    Move
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
-                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      onOpenModal("history");
+                      setShowMenu(false);
+                    }}
+                    className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
+                  >
+                    History
+                  </button>     
                 </div>
+
+                {/* Stealth Mode */}
+                <button className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition">
+                  <span className="text-sm">{isStealth ? 'Disable Invisibility' : 'Enable Invisibility'}</span>
+                </button>
 
                 <button 
                   onClick={() => {
@@ -379,16 +390,17 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                   }}
                   className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
                 >
-                  Settings
-                </button>
-
-                {/* Stealth Mode */}
-                <button className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition">
-                  <span className="text-sm">{isStealth ? 'Disable Invisibility' : 'Enable Invisibility'}</span>
-                </button>
-
-                <button className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition">
                   Disable Auto Launch
+                </button>
+                
+                <button 
+                  onClick={() => {
+                    onOpenModal("history");
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
+                >
+                  Tutorial
                 </button>
 
                 {/* Bottom Actions */}

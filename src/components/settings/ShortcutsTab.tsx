@@ -1,210 +1,253 @@
-import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import ShortcutInputButton from "./ShortcutInputButton";
-import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
-import { useAuth } from "../../contexts/AuthContext";
-
-interface ShortcutDto {
-  id: string;
-  user_id: string;
-  action: string;
-  keys: string;
-}
-
-interface GetShortcutsResponse {
-  shortcuts: ShortcutDto[];
-}
+import EnterIcon from "../ui/icons/EnterIcon";
+import MonitorIcon from "../ui/icons/MonitorIcon";
+import MicIcon from "../ui/icons/MicIcon";
 
 export default function ShortcutsTab() {
-  const { userId } = useAuth();
-    const [shortcuts, setShortcuts] = useState({
-      ask: "Ctrl + Enter",
-      screenshot: "Ctrl + E",
-      voice: "Ctrl + D",
-      hide: "Ctrl + \\",
-    });
-    const [loading, setLoading] = useState(false);
-  
-    useEffect(() => {
-      if (userId) {
-        loadShortcuts();
-      }
-    }, [userId]);
-  
-    async function loadShortcuts() {
-      try {
-        setLoading(true);
-        const res = await invoke<GetShortcutsResponse>("get_shortcuts", {
-          dto: { user_id: userId },
-        });
-        
-        const newShortcuts = { ...shortcuts };
-        res.shortcuts.forEach(s => {
-          if (s.action === "ask") newShortcuts.ask = s.keys;
-          if (s.action === "screenshot") newShortcuts.screenshot = s.keys;
-          if (s.action === "voice") newShortcuts.voice = s.keys;
-          if (s.action === "hide") newShortcuts.hide = s.keys;
-        });
-        setShortcuts(newShortcuts);
-      } catch (error) {
-        console.error("Failed to load shortcuts:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-  
-    async function handleSave() {
-      if (!userId) return;
-      try {
-        const actions = [
-          { action: "ask", keys: shortcuts.ask },
-          { action: "screenshot", keys: shortcuts.screenshot },
-          { action: "voice", keys: shortcuts.voice },
-          { action: "hide", keys: shortcuts.hide },
-        ];
-  
-        for (const item of actions) {
-          await invoke("save_shortcut", {
-            dto: {
-              user_id: userId,
-              action: item.action,
-              keys: item.keys,
-            },
-          });
-        }
-        alert("Atalhos salvos com sucesso!");
-      } catch (error) {
-        console.error("Failed to save shortcuts:", error);
-        alert("Erro ao salvar atalhos.");
-      }
-    }
-  
-    function updateShortcut(key: keyof typeof shortcuts, value: string) {
-      setShortcuts(prev => ({ ...prev, [key]: value }));
-    }
-  
-    function resetToDefaults() {
-      setShortcuts({
-        ask: "Ctrl + Enter",
-        screenshot: "Ctrl + E",
-        voice: "Ctrl + D",
-        hide: "Ctrl + \\",
-      });
-    }
-  
-    if (loading) return <div className="px-6 py-4 text-neutral-400">Carregando atalhos...</div>;
-  
-    return (
-      <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300 h-full overflow-y-auto">
-        {/* Cabeçalho */}
-        <div className="mb-6">
-          <h2 className="text-lg font-medium text-white mb-2">Keyboard shortcuts</h2>
-          <p className="text-sm text-neutral-400">
-            Personalize os atalhos de teclado para corresponder ao seu fluxo de trabalho. Clique em "Alterar" para gravar um novo atalho.
-          </p>
-        </div>
-  
-        {/* Atalhos */}
-        <div className="space-y-4">
-          {/* Perguntar Qualquer Coisa / Enviar */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
-            <h3 className="text-base font-medium text-white mb-1">
-              Perguntar Qualquer Coisa / Enviar
-            </h3>
-            <p className="text-sm text-neutral-400 mb-3">
-              Envie seu prompt ou abra a entrada de texto para fazer uma pergunta
-            </p>
-            <ShortcutInputButton
-              label={shortcuts.ask}
-              onChange={(v) => updateShortcut("ask", v)}
-            />
-          </div>
-  
-          {/* Capturar Captura de Tela */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
-            <h3 className="text-base font-medium text-white mb-1">
-              Capturar Captura de Tela
-            </h3>
-            <p className="text-sm text-neutral-400 mb-3">
-              Capture uma captura de tela da sua tela para análise
-            </p>
-            <ShortcutInputButton
-              label={shortcuts.screenshot}
-              onChange={(v) => updateShortcut("screenshot", v)}
-            />
-          </div>
-  
-          {/* Gravação de Voz */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
-            <h3 className="text-base font-medium text-white mb-1">
-              Gravação de Voz
-            </h3>
-            <p className="text-sm text-neutral-400 mb-3">
-              Inicie ou pare a gravação de voz para transcrição
-            </p>
-            <ShortcutInputButton
-              label={shortcuts.voice}
-              onChange={(v) => updateShortcut("voice", v)}
-            />
-          </div>
-  
-          {/* Ocultar / Mostrar Janela */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
-            <h3 className="text-base font-medium text-white mb-1">
-              Alternar Visibilidade (Stealth)
-            </h3>
-            <p className="text-sm text-neutral-400 mb-3">
-              Oculte ou mostre a janela rapidamente (Modo Stealth)
-            </p>
-            <ShortcutInputButton
-              label={shortcuts.hide}
-              onChange={(v) => updateShortcut("hide", v)}
-            />
-          </div>
-  
-        </div>
-
-      {/* Botão de Reset */}
-      <div className="flex justify-end mt-6">
-        <button
-          onClick={resetToDefaults}
-          className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg border border-neutral-700 transition"
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-            <path d="M21 3v5h-5" />
-            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-            <path d="M3 21v-5h5" />
-          </svg>
-          Redefinir Todos para Padrões
-        </button>
+  return (
+    <div className="p-4 pb-8 bg-[#1D1D1F] text-neutral-300 h-full overflow-y-auto">
+      {/* Cabeçalho */}
+      <div className="mb-6 px-4">
+        <h2 className="text-base font-medium text-white">Keyboard shortcuts</h2>
+        <p className="text-sm text-neutral-400">
+          Visualize os atalhos de teclado configurados para o seu fluxo de trabalho.
+        </p>
       </div>
 
-      {/* Dicas */}
-      <div className="mt-6 mb-8 bg-blue-950/30 border border-blue-900/50 rounded-lg p-4">
-        <div className="flex flex-col items-start gap-3">
-          <div className="flex items-center mb-2 gap-1">
-            <CircleAlertIcon size={18}/> 
-            <p className="font-medium">Dicas:</p>
+      {/* Atalhos */}
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold text-white px-4">General</h3>
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-[#232326] rounded-lg">
+          <div className="gap-2 flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg" 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m14 10 7-7"/>
+              <path d="M20 10h-6V4"/>
+              <path d="m3 21 7-7"/>
+              <path d="M4 14h6v6"/>
+            </svg>
+            <h3 className="text-sm font-medium text-white">Toggle visibility of Primer</h3>
           </div>
-          <div className="text-sm text-neutral-300 space-y-1">
-            <ul className="space-y-1 list-disc list-inside">
-              <li>Os atalhos devem incluir uma tecla modificadora (Command/Ctrl ou Alt), exceto quando usar uma tecla única permitida como Caps Lock</li>
-              <li>As alterações têm efeito imediato</li>
-              <li>Os atalhos não podem ser duplicados</li>
-              <li>Pressione ESC durante a gravação para cancelar</li>
-            </ul>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+            <span className="text-sm bg-white/10 px-2.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">\</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-[#232326] rounded-lg">
+          <div className="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/>
+            </svg>
+            <h3 className="text-sm font-medium text-white">Ask Primer about your screen or anything</h3>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+            <span className="bg-white/10 p-1.5 rounded-lg text-white/70 group-hover:text-white transition"><EnterIcon size={16}/></span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-[#232326] rounded-lg">
+          <div className="flex items-center gap-2">
+            <MonitorIcon size={16}/>
+            <h3 className="text-sm font-medium text-white">
+              Take a screenshot and submit 
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+              <span className="bg-white/10 p-1.5 rounded-lg text-white/70 group-hover:text-white transition"><EnterIcon size={16}/></span>
+            </div>
+            +
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+              <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">E</span>
+            </div>
+          </div>
+        </div>
+
+
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-[#232326] rounded-lg">
+          <div className="flex items-center gap-2">
+            <MicIcon size={16}/>
+            <h3 className="text-sm font-medium text-white">
+              Ask Primer with audio
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">D</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-[#232326] rounded-lg">
+          <div className="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 21H8a2 2 0 0 1-1.42-.587l-3.994-3.999a2 2 0 0 1 0-2.828l10-10a2 2 0 0 1 2.829 0l5.999 6a2 2 0 0 1 0 2.828L12.834 21"/>
+              <path d="m5.082 11.09 8.828 8.828"/>
+            </svg>
+            <h3 className="text-sm font-medium text-white">
+              Clear the current conversation with Primer
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">R</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-[#232326] rounded-lg">
+          <div className="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M14 18a2 2 0 0 0-4 0"/>
+              <path d="m19 11-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11"/>
+              <path d="M2 11h20"/>
+              <circle cx="17" cy="18" r="3"/>
+              <circle cx="7" cy="18" r="3"/>
+            </svg>
+            <h3 className="text-sm font-medium text-white">
+              Start or stop a Stealth mode session
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Shift</span>
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">S</span>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end pt-4 border-t border-neutral-800">
-        <button
-          onClick={handleSave}
-          className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
-        >
-          Salvar Alterações
-        </button>
+      <div>
+        <h3 className="text-sm font-semibold text-white px-4">Scroll</h3>
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-[#232326] rounded-lg">
+          <div className="flex items-center gap-2">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="16"
+              height="16"
+              viewBox="0 0 24 24" 
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2" 
+              stroke-linecap="round"
+              stroke-linejoin="round" 
+            >
+              <rect x="5" y="2" width="14" height="20" rx="7"/>
+              <path d="M12 6v4"/>
+            </svg>
+            <h3 className="text-sm font-medium text-white">
+              Scroll the response window up
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m5 12 7-7 7 7"/>
+                <path d="M12 19V5"/>
+              </svg> 
+            </span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-[#232326] rounded-lg">
+          <div className="flex items-center gap-2">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="16"
+              height="16"
+              viewBox="0 0 24 24" 
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2" 
+              stroke-linecap="round"
+              stroke-linejoin="round" 
+            >
+              <rect x="5" y="2" width="14" height="20" rx="7"/>
+              <path d="M12 6v4"/>
+            </svg>
+            <h3 className="text-sm font-medium text-white">
+              Scroll the response window down
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+            <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="18" 
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 5v14"/>
+                <path d="m19 12-7 7-7-7"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+
       </div>
     </div>
   );

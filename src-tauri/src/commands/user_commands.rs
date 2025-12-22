@@ -8,9 +8,6 @@ use crate::domain::user::{
         get_api_keys::GetApiKeysUseCase,
         delete_api_key::DeleteApiKeyUseCase,
         delete_account::DeleteAccountUseCase,
-        save_shortcut::SaveShortcutUseCase,
-        get_shortcuts::GetShortcutsUseCase,
-        backup_shortcuts::BackupShortcutsUseCase,
     },
     dto::{
         LoginDto, LoginResponse,
@@ -21,9 +18,7 @@ use crate::domain::user::{
         DeleteApiKeyDto, DeleteApiKeyResponse,
         DeleteAccountDto, DeleteAccountResponse,
         SessionResponse, ClearSessionResponse,
-        SaveShortcutDto, SaveShortcutResponse,
-        GetShortcutsDto, GetShortcutsResponse,
-        BackupShortcutsDto, BackupShortcutsResponse,
+        GetShortcutsDto, GetShortcutsResponse, ShortcutDto,
     },
 };
 use crate::app_state::AppState;
@@ -180,58 +175,42 @@ pub async fn clear_session(state: State<'_, AppState>) -> Result<ClearSessionRes
 }
 
 #[tauri::command]
-pub async fn save_shortcut(dto: SaveShortcutDto, state: State<'_, AppState>) -> Result<SaveShortcutResponse, String> {
-    let save_shortcut_usecase = SaveShortcutUseCase::new(state.shortcut_repo.clone());
+pub async fn get_shortcuts(dto: GetShortcutsDto, _state: State<'_, AppState>) -> Result<GetShortcutsResponse, String> {
+    // Return fixed hardcoded shortcuts
+    let shortcuts = vec![
+        ShortcutDto {
+            id: "fixed-ask".to_string(),
+            user_id: dto.user_id.clone(),
+            action: "ask".to_string(),
+            keys: "Ctrl + Enter".to_string(),
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+            updated_at: "2024-01-01T00:00:00Z".to_string(),
+        },
+        ShortcutDto {
+            id: "fixed-screenshot".to_string(),
+            user_id: dto.user_id.clone(),
+            action: "screenshot".to_string(),
+            keys: "Ctrl + E".to_string(),
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+            updated_at: "2024-01-01T00:00:00Z".to_string(),
+        },
+        ShortcutDto {
+            id: "fixed-voice".to_string(),
+            user_id: dto.user_id.clone(),
+            action: "voice".to_string(),
+            keys: "Ctrl + D".to_string(),
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+            updated_at: "2024-01-01T00:00:00Z".to_string(),
+        },
+        ShortcutDto {
+            id: "fixed-hide".to_string(),
+            user_id: dto.user_id.clone(),
+            action: "hide".to_string(),
+            keys: "Ctrl + \\".to_string(),
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+            updated_at: "2024-01-01T00:00:00Z".to_string(),
+        },
+    ];
 
-    save_shortcut_usecase.execute(dto)
-        .await
-        .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-
-pub async fn get_shortcuts(dto: GetShortcutsDto, state: State<'_, AppState>) -> Result<GetShortcutsResponse, String> {
-
-    let get_shortcuts_usecase = GetShortcutsUseCase::new(state.shortcut_repo.clone());
-
-
-
-    get_shortcuts_usecase.execute(dto)
-
-        .await
-
-        .map_err(|e| e.to_string())
-
-}
-
-
-
-#[tauri::command]
-
-pub async fn backup_shortcuts(dto: BackupShortcutsDto, state: State<'_, AppState>) -> Result<BackupShortcutsResponse, String> {
-
-    // Only proceed if we have a connection to Postgres
-
-    let postgres_repo = state.postgres_shortcut_repo.clone()
-
-        .ok_or_else(|| "No connection to cloud database".to_string())?;
-
-
-
-    let backup_shortcuts_usecase = BackupShortcutsUseCase::new(
-
-        state.sqlite_shortcut_repo.clone(),
-
-        postgres_repo,
-
-    );
-
-
-
-    backup_shortcuts_usecase.execute(dto)
-
-        .await
-
-        .map_err(|e| e.to_string())
-
+    Ok(GetShortcutsResponse { shortcuts })
 }

@@ -112,18 +112,6 @@ pub struct ShortcutDto {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct SaveShortcutDto {
-    pub user_id: String,
-    pub action: String,
-    pub keys: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct SaveShortcutResponse {
-    pub shortcut: ShortcutDto,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
 pub struct GetShortcutsDto {
     pub user_id: String,
 }
@@ -131,14 +119,4 @@ pub struct GetShortcutsDto {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct GetShortcutsResponse {
     pub shortcuts: Vec<ShortcutDto>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct BackupShortcutsDto {
-    pub user_id: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct BackupShortcutsResponse {
-    pub message: String,
 }

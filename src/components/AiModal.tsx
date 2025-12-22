@@ -218,14 +218,13 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                 <div className="flex items-center gap-2 shrink-0">
 
                   {lastUserMessage && (
-                    <div className="text-xs text-white bg-[#707071] hover:bg-white/10 p-2 rounded-full truncate max-w-[300px]" title={lastUserMessage}>
+                    <div className="text-xs text-white bg-[#707071] hover:bg-white/10 p-2 rounded-full truncate max-w-[300px]">
                       {lastUserMessage}
                     </div>
                   )}
 
                     <button 
                       className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition" 
-                      title="Zap"
                     >
                       <ZapIcon size={16}/>
                     </button>
@@ -244,17 +243,15 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                             : message;
                         navigator.clipboard.writeText(textToCopy);
                       }}
-                      title="Copy"
                     >
                       <CopyIcon size={16}/>
                     </button>
 
                     <button 
-                      className="p-0.5 border border-gray-400 rounded-full text-gray-400 hover:text-white hover:bg-[#141414]/40 transition" 
+                      className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition" 
                       onClick={() => setTerminationStep('confirm_end')}
-                      title="Close"
                     >
-                      <CloseIcon size={14}/>
+                      <CloseIcon size={16}/>
                     </button>
                 </div>
             </div>

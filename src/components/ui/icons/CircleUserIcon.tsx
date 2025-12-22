@@ -1,14 +1,14 @@
 interface Props {
+  size: number;
   stroke?: string;
   fill?: string;
-  size: number;
 }
 
-export default function CircleQuestionMarkIcon({ stroke="currentColor", fill="none", size }: Props) {
+export default function CircleUserIcon({ stroke="currentColor", fill="none", size }: Props) {
   return (
-    <svg 
+    <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={size}
+      width={size} 
       height={size}
       viewBox="0 0 24 24"
       fill={fill}
@@ -18,8 +18,8 @@ export default function CircleQuestionMarkIcon({ stroke="currentColor", fill="no
       stroke-linejoin="round"
     >
       <circle cx="12" cy="12" r="10"/>
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-      <path d="M12 17h.01"/>
+      <circle cx="12" cy="10" r="3"/>
+      <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>
     </svg>
   );
 }

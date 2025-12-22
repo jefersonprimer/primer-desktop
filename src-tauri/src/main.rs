@@ -173,9 +173,7 @@ async fn main() {
             user_commands::delete_account,
             user_commands::get_session,
             user_commands::clear_session,
-            user_commands::save_shortcut,
             user_commands::get_shortcuts,
-            user_commands::backup_shortcuts,
             // chat commands
             chat_commands::create_chat,
             chat_commands::send_message,

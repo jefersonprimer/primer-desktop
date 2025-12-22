@@ -10,9 +10,9 @@ export default function ResourcesTab() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-medium text-white">Rolagem Automática</h3>
-          <span className="px-2.5 py-1 text-xs font-medium bg-neutral-800 text-neutral-400 rounded-md border border-neutral-700">
-            COMPORTAMENTO
-          </span>
+          <p className="text-sm uppercase bg-zinc-800 text-neutral-400 border border-neutral-700 py-1 px-4 rounded-2xl">
+            comportamento
+          </p>
         </div>
 
         <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4 mb-3">
@@ -23,7 +23,7 @@ export default function ResourcesTab() {
             <button
               onClick={() => setAutoScroll(!autoScroll)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                autoScroll ? 'bg-green-500' : 'bg-neutral-700'
+                autoScroll ? 'bg-gray-400' : 'bg-zinc-700'
               }`}
             >
               <span
@@ -43,9 +43,6 @@ export default function ResourcesTab() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-medium text-white">Selecionar para Prompt</h3>
-          <span className="px-2.5 py-1 text-xs font-medium bg-amber-950 text-amber-400 rounded-md border border-amber-900">
-            PREMIUM
-          </span>
         </div>
 
         <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4 mb-3">
@@ -59,7 +56,7 @@ export default function ResourcesTab() {
             <button
               onClick={() => setSelectToPrompt(!selectToPrompt)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                selectToPrompt ? 'bg-green-500' : 'bg-neutral-700'
+                selectToPrompt ? 'bg-gray-400' : 'bg-zinc-700'
               }`}
             >
               <span

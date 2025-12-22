@@ -6,21 +6,21 @@ export default function PrivacyTab() {
   const isLinux = navigator.platform.toLowerCase().includes('linux');
 
   return (
-    <div className="w-full bg-[#1D1D1F] p-6 text-white flex flex-col gap-6 pb-8">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">Modo furtivo</h2>
-        <p className="text-sm uppercase bg-[#141414] border border-neutral-700 py-1 px-4 rounded-2xl">privacidade</p>
+    <div className="w-full bg-[#1D1D1F] p-4 text-white flex flex-col gap-6 pb-8">
+      <div className="flex justify-between items-center px-3">
+        <h2 className="text-base font-semibold flex items-center gap-2">Modo furtivo</h2>
+        <p className="text-sm uppercase bg-zinc-800 text-neutral-400 border border-neutral-700 py-1 px-4 rounded-2xl">privacidade</p>
       </div>
 
       <div >
         <div className="flex flex-col gap-6">
-         <div className="p-4 border border-neutral-800 rounded-2xl shadow-xl">
+         <div className="px-4 py-2 border border-neutral-800 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Modo Furtivo</h3>
+            <h3 className="text-base font-medium">Modo Furtivo</h3>
             <button
               onClick={toggleStealth}
               className={`w-12 h-6 rounded-full transition-all relative ${
-                isStealth ? "bg-blue-600" : "bg-neutral-700"
+                isStealth ? 'bg-gray-400' : 'bg-zinc-700'
               }`}
             >
               <span
@@ -30,20 +30,15 @@ export default function PrivacyTab() {
               />
             </button>
           </div>
-
-          <div className="flex items-center bg-[#1A1501] border border-yellow-600/40 text-yellow-400 p-2 gap-2 my-2 rounded-xl text-sm">
-            <CircleStarIcon size={18} color="#F8E23A"/>
-            Stealth Mode é premium. Faça upgrade para ocultar o app da dock e taskbar.
-          </div>
           </div>
 
-          <div className="p-4 border border-neutral-800 rounded-2xl shadow-xl">
+          <div className="px-4 py-2 border border-neutral-800 rounded-2xl shadow-xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">Click-Through (Interagir Através)</h3>
+              <h3 className="text-base font-medium">Click-Through (Interagir Através)</h3>
               <button
                 onClick={toggleClickThrough}
                 className={`w-12 h-6 rounded-full transition-all relative ${
-                  isClickThrough ? "bg-blue-600" : "bg-neutral-700"
+                  isClickThrough ? 'bg-gray-400' : 'bg-zinc-700'
                 }`}
               >
                 <span
@@ -61,13 +56,13 @@ export default function PrivacyTab() {
             </p>
           </div>
 
-          <div className="p-4 border border-neutral-800 rounded-2xl shadow-xl">
+          <div className="px-4 py-2 border border-neutral-800 rounded-2xl shadow-xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">Sempre no Topo (Always On Top)</h3>
+              <h3 className="text-base font-medium">Sempre no Topo (Always On Top)</h3>
               <button
                 onClick={toggleAlwaysOnTop}
                 className={`w-12 h-6 rounded-full transition-all relative ${
-                  isAlwaysOnTop ? "bg-blue-600" : "bg-neutral-700"
+                  isAlwaysOnTop ? 'bg-gray-400' : 'bg-zinc-700'
                 }`}
               >
                 <span
@@ -82,7 +77,7 @@ export default function PrivacyTab() {
             </p>
           </div>
 
-          <p className="text-neutral-400 text-sm leading-relaxed">
+          <p className="text-neutral-400 px-4 text-sm leading-relaxed">
             O modo furtivo é ativado sempre na inicialização para máxima privacidade. Essa configuração controla se o conteúdo está visível para outros aplicativos.
           </p>
 
@@ -106,7 +101,7 @@ export default function PrivacyTab() {
             </div>
           )}
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 px-4">
             <h4 className="font-semibold text-base">Como usar no Zoom</h4>
             <ol className="list-decimal list-inside text-neutral-300 text-sm flex flex-col gap-1">
               <li>Abra Zoom → Configurações → Compartilhamento → Avançado</li>

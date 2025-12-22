@@ -19,9 +19,9 @@ export default function GeneralTab() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8 bg-[#242425] py-2 px-4 rounded-lg">
           <div className="flex flex-col">
-            <div className="flex items-center gap-2 mb-2">
-              <EyeIcon size={20} />
-              <h1 className="text-xl font-semibold text-white">Detectable</h1>
+            <div className="flex items-center gap-2">
+              <EyeIcon size={18} />
+              <h1 className="text-base font-semibold text-white">Detectable</h1>
             </div>
             <p className="text-sm text-gray-400">
               Primer is a personally detectable AI window covering.{' '}
@@ -34,7 +34,7 @@ export default function GeneralTab() {
           <button
               onClick={() => setOpenCladyOnLogin(!openCladyOnLogin)}
               className={`relative w-11 h-6 rounded-full transition-colors ${
-                openCladyOnLogin ? 'bg-orange-500' : 'bg-zinc-700'
+                openCladyOnLogin ? 'bg-gray-400' : 'bg-zinc-700'
               }`}
             >
               <span
@@ -47,8 +47,8 @@ export default function GeneralTab() {
         </div>
 
         {/* General Settings Section */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-white">General settings</h2>
+        <div className="mb-8 px-4">
+          <h2 className="text-base font-semibold text-white">General settings</h2>
           <p className="text-sm text-gray-400 mb-2">
             Customize how Primer works for you.
           </p>
@@ -69,7 +69,7 @@ export default function GeneralTab() {
             <button
               onClick={() => setOpenCladyOnLogin(!openCladyOnLogin)}
               className={`relative w-11 h-6 rounded-full transition-colors ${
-                openCladyOnLogin ? 'bg-orange-500' : 'bg-zinc-700'
+                openCladyOnLogin ? 'bg-gray-400' : 'bg-zinc-700'
               }`}
             >
               <span
@@ -94,10 +94,10 @@ export default function GeneralTab() {
 
               </div>
             </div>
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded text-sm text-gray-300 transition-colors">
-              <MonitorIcon size={18}/>
+            <button className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded text-sm text-gray-300 hover:text-white transition-colors">
+              <MonitorIcon size={16}/>
               System Preference
-              <ChevronDownIcon size={18}/>
+              <ChevronDownIcon size={16}/>
             </button>
           </div>
 
@@ -114,16 +114,16 @@ export default function GeneralTab() {
                 </p>
               </div>
             </div>
-            <button className="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded text-sm text-gray-300 transition-colors border border-zinc-700">
+            <button className="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded text-sm text-gray-300 hover:text-white transition-colors border border-zinc-700">
               Check for updates
             </button>
           </div>
         </div>
 
         {/* Advanced Section */}
-        <div>
+        <div className="px-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Advanced</h2>
+            <h2 className="text-base font-semibold text-white">Advanced</h2>
             <ChevronDownIcon size={18}/> 
           </div>
           
@@ -133,7 +133,7 @@ export default function GeneralTab() {
         </div>
 
       </div>
-      <div className="absolute bottom-6 right-6 text-xs text-zinc-500">
+      <div className="absolute bottom-3 right-4 text-xs text-zinc-500">
         About {version}
       </div>
     </div>

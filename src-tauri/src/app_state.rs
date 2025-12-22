@@ -25,7 +25,6 @@ use crate::{
                 user_repository::UserRepository,
                 user_api_key_repository::UserApiKeyRepository,
                 session_repository::SessionRepository,
-                shortcut_repository::ShortcutRepository,
             },
             service::{
                 password_hasher::PasswordHasher,
@@ -58,11 +57,9 @@ use crate::{
         user::{
             sql_user_repository::SqlUserRepository,
             sql_user_api_key_repository::SqlUserApiKeyRepository,
-            sql_shortcut_repository::SqlShortcutRepository,
             sqlite_session_repository::SqliteSessionRepository,
             sqlite_user_repository::SqliteUserRepository,
             sqlite_user_api_key_repository::SqliteUserApiKeyRepository,
-            sqlite_shortcut_repository::SqliteShortcutRepository,
         },
         config::sqlite::SqliteConfigRepository,
         prompt_preset::sqlite_repository::SqlitePromptPresetRepository,
@@ -73,9 +70,6 @@ pub struct AppState {
     pub user_repo: Arc<dyn UserRepository>,
     pub user_api_key_repo: Arc<dyn UserApiKeyRepository>,
     pub session_repo: Arc<dyn SessionRepository>,
-    pub shortcut_repo: Arc<dyn ShortcutRepository>,
-    pub sqlite_shortcut_repo: Arc<dyn ShortcutRepository>,
-    pub postgres_shortcut_repo: Option<Arc<dyn ShortcutRepository>>,
 
     pub sqlite_chat_repo: Arc<dyn ChatRepository>,
     pub postgres_chat_repo: Arc<dyn ChatRepository>,
@@ -108,9 +102,6 @@ impl AppState {
             Arc::new(SqliteMessageRepository::new(sqlite_pool.clone()));
         let session_repo: Arc<dyn SessionRepository> =
             Arc::new(SqliteSessionRepository::new(sqlite_pool.clone()));
-
-        let sqlite_shortcut_repo: Arc<dyn ShortcutRepository> =
-            Arc::new(SqliteShortcutRepository::new(sqlite_pool.clone()));
         
         let config_repo: Arc<dyn ConfigRepository> =
             Arc::new(SqliteConfigRepository::new(sqlite_pool.clone()));
@@ -121,13 +112,12 @@ impl AppState {
         let pg_url = &config.database.database_url;
         let pg_pool_result = connect_pg(pg_url).await;
 
-        let (user_repo, user_api_key_repo, postgres_shortcut_repo, postgres_chat_repo, postgres_message_repo) = match pg_pool_result {
+        let (user_repo, user_api_key_repo, postgres_chat_repo, postgres_message_repo) = match pg_pool_result {
             Ok(pg_pool) => {
                 migrate_pg(&pg_pool).await?;
                 (
                     Arc::new(SqlUserRepository::new(pg_pool.clone())) as Arc<dyn UserRepository>,
                     Arc::new(SqlUserApiKeyRepository::new(pg_pool.clone())) as Arc<dyn UserApiKeyRepository>,
-                    Some(Arc::new(SqlShortcutRepository::new(pg_pool.clone())) as Arc<dyn ShortcutRepository>),
                     Arc::new(PostgresChatRepository::new(pg_pool.clone())) as Arc<dyn ChatRepository>,
                     Arc::new(PostgresMessageRepository::new(pg_pool.clone())) as Arc<dyn MessageRepository>,
                 )
@@ -137,7 +127,6 @@ impl AppState {
                 (
                     Arc::new(SqliteUserRepository::new(sqlite_pool.clone())) as Arc<dyn UserRepository>,
                     Arc::new(SqliteUserApiKeyRepository::new(sqlite_pool.clone())) as Arc<dyn UserApiKeyRepository>,
-                    None,
                     Arc::new(SqliteChatRepository::new(sqlite_pool.clone())) as Arc<dyn ChatRepository>,
                     Arc::new(SqliteMessageRepository::new(sqlite_pool.clone())) as Arc<dyn MessageRepository>,
                 )
@@ -190,20 +179,17 @@ impl AppState {
             user_repo,
             user_api_key_repo,
             session_repo,
-            shortcut_repo: sqlite_shortcut_repo.clone(),
-            sqlite_shortcut_repo,
-            postgres_shortcut_repo,
             sqlite_chat_repo,
             postgres_chat_repo,
-                        sqlite_message_repo,
-                        postgres_message_repo,
-                        config_repo,
-                        prompt_preset_repo,
-                        chat_service,
-                        password_hasher,
-                        token_generator,
-                        email_service,
-                    })
-                }
-            }
+            sqlite_message_repo,
+            postgres_message_repo,
+            config_repo,
+            prompt_preset_repo,
+            chat_service,
+            password_hasher,
+            token_generator,
+            email_service,
+        })
+    }
+}
             

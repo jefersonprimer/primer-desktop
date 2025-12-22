@@ -19,6 +19,18 @@
       "messages": "MESSAGES",
       "active": "ACTIVE",
       "clearAll": "Clear All Data"
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "description": "This action is irreversible. All your data will be permanently deleted.",
+      "button": "Delete Account",
+      "modalTitle": "Are you sure you want to delete your account?",
+      "modalWarning": "By deleting your account, you will lose access to all your data, history, and settings. This action cannot be undone.",
+      "passwordLabel": "Enter your password to confirm",
+      "confirmButton": "Yes, delete my account",
+      "cancelButton": "Cancel",
+      "success": "Account deleted successfully.",
+      "error": "Error deleting account. Check your password."
     }
   }
 }

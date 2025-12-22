@@ -38,40 +38,40 @@ export default function HelpTab() {
   return (
     <div className="w-full bg-[#1D1D1F] p-6 text-white flex flex-col gap-6 pb-8">
       <div>
-        <p className="text-xl font-semibold text-[#616161]">Sobre</p>
-        <p className="text-sm font-medium">Versão: 0.1.0</p>
+        <p className="text-base font-semibold text-white">Sobre</p>
+        <p className="text-sm font-medium text-gray-400">Versão: 0.1.0</p>
       </div>
 
       <div className="w-full gap-6">
-        <h3 className="text-xl font-semibold mb-4">Comunidade</h3>
+        <h3 className="text-base font-semibold mb-2">Comunidade</h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-[#141414] border border-neutral-700 text-white rounded-xl">
             <div className="p-4 space-y-4">
-              <p className="text-lg font-medium flex items-center gap-2">
-                <MessagesSquareIcon size={24} color="#141414" fill="#B9B9B9"/>
+              <p className="text-base font-medium flex items-center gap-2">
+                <MessagesSquareIcon size={20} color="#141414" fill="#B9B9B9"/>
                 Discord
               </p>
-              <p className="text-sm text-gray-300">Junte-se à nossa comunidade no Discord para obter ajuda, compartilhar feedback e conectar-se.</p>
-              <button className="bg-[#262626] hover:bg-[#262626]/40 border border-neutral-700 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors">Entrar no Discord</button>
+              <p className="text-sm text-gray-400">Junte-se à nossa comunidade no Discord para obter ajuda, compartilhar feedback e conectar-se.</p>
+              <button className="text-base bg-[#262626] hover:bg-[#262626]/40 border border-neutral-700 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors">Entrar no Discord</button>
             </div>
           </div>
 
           <div className="bg-[#141414] border border-neutral-700 text-white rounded-xl">
             <div className="p-4 space-y-4">
-              <p className="text-lg font-medium flex items-center gap-2">
-                <CircleQuestionMarkIcon size={24} color="#141414" fill="#B9B9B9" />
+              <p className="text-base font-medium flex items-center gap-2">
+                <CircleQuestionMarkIcon size={20} color="#141414" fill="#B9B9B9" />
                 Suporte
               </p>
-              <p className="text-sm text-gray-300">Precisa de ajuda com algo específico? Confira nossa documentação.</p>
-              <button className="bg-[#262626] border border-neutral-700 hover:bg-[#262626]/40 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors">Obter Ajuda</button>
+              <p className="text-sm text-gray-400">Precisa de ajuda com algo específico? Confira nossa documentação.</p>
+              <button className="text-base bg-[#262626] border border-neutral-700 hover:bg-[#262626]/40 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors">Obter Ajuda</button>
             </div>
           </div>
         </div>
 
         {/* Primeiros Passos */}
         <div className="my-4">
-          <h3 className="text-xl font-semibold mb-3">Primeiros Passos</h3>
-          <p>Precisa de uma atualização? Reinicie o guia de integração para revisar permissões, configurações de áudio e configurações de API.</p>
+          <h3 className="text-base font-semibold">Primeiros Passos</h3>
+          <p className="text-gray-400 text-sm font-medium">Precisa de uma atualização? Reinicie o guia de integração para revisar permissões, configurações de áudio e configurações de API.</p>
           <button className="flex w-full px-4 items-center mt-4 gap-2 bg-[#141414] hover:bg-[#141414]/40 border border-neutral-700 text-white font-medium py-2 rounded-lg transition-colors">
             <RotateCcwIcon size={20} />
             Reiniciar Integração
@@ -80,7 +80,7 @@ export default function HelpTab() {
 
         {/* Logs de Depuração */}
         <div>
-          <h3 className="text-xl font-semibold mb-3">Logs de Depuração</h3>
+          <h3 className="text-base font-semibold mb-3">Logs de Depuração</h3>
           <p className="text-sm text-gray-300 mb-2 font-mono bg-black/50 p-2 rounded border border-white/5 overflow-x-auto">
             {logPath}
           </p>

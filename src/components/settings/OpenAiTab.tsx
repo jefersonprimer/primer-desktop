@@ -235,12 +235,17 @@ export default function OpenAiTab({
       <div className="grid grid-cols-4 gap-3 mb-6">
         <button
           onClick={() => handlePerformanceChange("rapido")}
-          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition ${
+          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition relative ${
             performanceMode === "rapido"
-              ? "bg-neutral-800 border-neutral-600"
-              : "bg-black border-neutral-800 hover:border-neutral-700"
+              ? "bg-indigo-950 border-indigo-700"
+              : "bg-neutral-800 border-neutral-600 hover:bg-neutral-700 hover:border-neutral-800"
           }`}
         >
+          {performanceMode === "rapido" && (
+            <div className="absolute top-2 right-2">
+              <CheckIcon size={16} color="#818cf8" />
+            </div>
+          )}
           <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
           </svg>
@@ -250,12 +255,17 @@ export default function OpenAiTab({
 
         <button
           onClick={() => handlePerformanceChange("padrao")}
-          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition ${
+          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition relative ${
             performanceMode === "padrao"
-              ? "bg-neutral-800 border-neutral-600"
-              : "bg-black border-neutral-800 hover:border-neutral-700"
+              ? "bg-indigo-950 border-indigo-700" 
+              : "bg-neutral-800 border-neutral-600 hover:bg-neutral-700 hover:border-neutral-800"
           }`}
         >
+          {performanceMode === "padrao" && (
+            <div className="absolute top-2 right-2">
+              <CheckIcon size={16} color="#818cf8" />
+            </div>
+          )}
           <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="3" fill="currentColor" />
@@ -266,12 +276,17 @@ export default function OpenAiTab({
 
         <button
           onClick={() => handlePerformanceChange("qualidade")}
-          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition ${
+          className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition relative ${
             performanceMode === "qualidade"
-              ? "bg-neutral-800 border-neutral-600"
-              : "bg-black border-neutral-800 hover:border-neutral-700"
+              ? "bg-indigo-950 border-indigo-700"
+              : "bg-neutral-800 border-neutral-600 hover:bg-neutral-700 hover:border-neutral-800"
           }`}
         >
+          {performanceMode === "qualidade" && (
+            <div className="absolute top-2 right-2">
+              <CheckIcon size={16} color="#818cf8" />
+            </div>
+          )}
           <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
@@ -284,7 +299,7 @@ export default function OpenAiTab({
           className={`flex flex-col items-center justify-center p-4 bg-[#0D0D0D] rounded-lg border transition relative ${
             performanceMode === "personalizado"
               ? "bg-indigo-950 border-indigo-700"
-              : "bg-black border-neutral-800 hover:border-neutral-700"
+              : "bg-neutral-800 border-neutral-600 hover:bg-neutral-700 hover:border-neutral-800"
           }`}
         >
           {performanceMode === "personalizado" && (
@@ -331,32 +346,6 @@ export default function OpenAiTab({
               <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
                 <p className="text-sm text-neutral-400">
                   {allModels.find(m => m.id === model)?.description}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Modelo de Transcrição Whisper */}
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Modelo de Transcrição Whisper</h3>
-            <p className="text-neutral-400 text-sm mb-3">Selecione o modelo usado para transcrição de voz em tempo real</p>
-            
-            <select
-              value={transcriptionModel}
-              onChange={(e) => setTranscriptionModelForProvider("OpenAI", e.target.value)}
-              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
-            >
-              {transcriptionModels.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-            
-            {transcriptionModels.find(m => m.id === transcriptionModel) && (
-              <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
-                <p className="text-sm text-neutral-400">
-                  {transcriptionModels.find(m => m.id === transcriptionModel)?.description}
                 </p>
               </div>
             )}
