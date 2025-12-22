@@ -203,8 +203,8 @@ export default function SettingsModal({ open, onClose }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-transparent backdrop-blur-sm z-[99999]">
-      <div className="relative bg-neutral-900 text-white rounded-xl shadow-xl w-[900px] h-[600px] overflow-hidden border border-neutral-700 flex flex-col">
+    <div className="fixed inset-0 flex items-center justify-center bg-transparent z-[99999]">
+      <div className="relative bg-neutral-900 text-white rounded-xl shadow-xl w-[900px] h-[700px] overflow-hidden border border-neutral-700 flex flex-col">
         <div className="flex-1 min-h-0 relative w-full">
           <div className="flex h-full">
 

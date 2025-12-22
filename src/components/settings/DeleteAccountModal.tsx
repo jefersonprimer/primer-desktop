@@ -25,7 +25,7 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirm, isLoadi
   return createPortal(
     <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
       <div className="w-full max-w-md bg-[#1D1D1F] border border-white/10 rounded-2xl p-6 shadow-2xl">
-        <h2 className="text-xl font-semibold text-white mb-2">
+        <h2 className="text-base font-semibold text-white mb-2">
           {t("account.deleteAccount.modalTitle")}
         </h2>
         <p className="text-sm text-gray-300 mb-6">
@@ -51,14 +51,14 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirm, isLoadi
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition font-medium cursor-pointer"
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition font-medium cursor-pointer"
               disabled={isLoading}
             >
               {t("account.deleteAccount.cancelButton")}
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500/20 transition font-medium flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500/20 transition font-medium flex items-center justify-center gap-2 cursor-pointer"
               disabled={isLoading}
             >
               {isLoading && (

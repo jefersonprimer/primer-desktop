@@ -267,7 +267,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
             >
               {/* Header */}
               <div className="pb-3">
-                <h3 className="text-white font-semibold text-sm">Primer AI</h3>
+                <h3 className="text-white font-semibold text-sm">Primer</h3>
               </div>
 
               {/* Menu Items */}
@@ -278,9 +278,10 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                   <div className=" text-white text-sm font-medium">
                     Prompt
                   </div>
+                  
                   <button
                     onClick={() => setShowAssistantSelector(!showAssistantSelector)}
-                    className="w-full px-3 py-2 my-2 text-left text-white text-sm border border-white hover:bg-white/5 rounded-lg transition flex items-center justify-between"
+                    className={`w-full px-3 py-2 my-2 text-left text-white text-sm border  ${showAssistantSelector ? 'bg-white/10 border-white' : 'hover:bg-white/5 border-neutral-400'} rounded-lg transition flex items-center justify-between`}
                   >
                     <span>{activePresetName}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -296,7 +297,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                         setShowAssistantSelector(false);
                       }}
                       onClose={() => setShowAssistantSelector(false)}
-                      positionClass="absolute top-18"
+                      positionClass="absolute top-11 right-[-240px]"
                     />
                   )}
 
@@ -313,9 +314,9 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
 
                 <div className="space-y-0">
                   {/* Account Section */}
-                  <div className="flex px-3 py-2 text-white text-sm font-medium items-center">
-                    <span>Account: </span>
-                    <span className="ml-1 flex-1 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">{userEmail}</span>
+                  <div className="flex px-3 py-2 gap-1 text-white font-medium items-center">
+                    <span className="text-sm">Account: </span>
+                    <span className="flex-1 text-xs overflow-hidden text-ellipsis whitespace-nowrap min-w-0">{userEmail}</span>
                   </div>
 
                   {/* Actions */}
@@ -355,29 +356,6 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                 {/* Divider */}
                 <div className="my-3 border-t border-white/10"></div>
 
-                {/* Navigation */}
-                <div className="flex gap-2 mb-2">
-                  <button 
-                    onClick={() => {
-                      setShowSettings(true);
-                      setShowMenu(false);
-                    }}
-                    className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
-                  >
-                    Settings
-                  </button>
-                  
-                  <button 
-                    onClick={() => {
-                      onOpenModal("history");
-                      setShowMenu(false);
-                    }}
-                    className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
-                  >
-                    History
-                  </button>     
-                </div>
-
                 {/* Stealth Mode */}
                 <button className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition">
                   <span className="text-sm">{isStealth ? 'Disable Invisibility' : 'Enable Invisibility'}</span>
@@ -395,13 +373,23 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                 
                 <button 
                   onClick={() => {
+                    setShowSettings(true);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
+                >
+                  Settings
+                </button>
+
+                <button 
+                  onClick={() => {
                     onOpenModal("history");
                     setShowMenu(false);
                   }}
                   className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
                 >
-                  Tutorial
-                </button>
+                  History
+                </button> 
 
                 {/* Bottom Actions */}
                 <div className="flex gap-2">

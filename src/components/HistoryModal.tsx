@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ChatHistory from "./ChatHistory";
+import CloseIcon from "./ui/icons/CloseIcon";
 
 interface ChatSession {
   id: string;
@@ -56,8 +57,8 @@ export default function HistoryModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-[9999]">
-      <div className="relative w-full max-w-[900px] bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl flex h-[80vh] overflow-hidden">
+    <div className="fixed inset-0 bg-transparent flex items-center justify-center z-[9999]">
+      <div className="relative w-full max-w-[900px] bg-[#1D1D1F] text-neutral-300 rounded-xl shadow-xl flex h-[80vh] overflow-hidden">
         
         {/* Custom Confirmation Modal Overlay */}
         {confirmState && (
@@ -67,7 +68,7 @@ export default function HistoryModal({
                 <h3 className="text-white font-semibold text-lg mb-2">
                   {confirmState.type === 'all' ? 'Limpar Histórico?' : 'Apagar Conversa?'}
                 </h3>
-                <p className="text-neutral-400 text-[13px] leading-relaxed">
+                <p className="text-neutral-400 text-sm leading-relaxed">
                   {confirmState.type === 'all' 
                     ? 'Esta ação apagará todas as conversas permanentemente. Não é possível desfazer.' 
                     : 'Esta conversa será apagada permanentemente. Não é possível desfazer.'}
@@ -83,13 +84,13 @@ export default function HistoryModal({
                     }
                     setConfirmState(null);
                   }}
-                  className="w-full py-3 px-4 bg-red-500/90 hover:bg-red-500 text-white text-[15px] font-medium rounded-xl transition-all active:scale-[0.98]"
+                  className="w-full py-3 px-4 bg-red-500/90 hover:bg-red-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
                 >
                   Apagar
                 </button>
                 <button
                   onClick={() => setConfirmState(null)}
-                  className="w-full py-3 px-4 bg-[#2c2c2e] hover:bg-[#3a3a3c] text-white text-[15px] font-medium rounded-xl transition-all active:scale-[0.98]"
+                  className="w-full py-3 px-4 bg-[#2c2c2e] hover:bg-[#3a3a3c] text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
                 >
                   Cancelar
                 </button>
@@ -98,37 +99,22 @@ export default function HistoryModal({
           </div>
         )}
 
-        {/* Botão fechar */}
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-neutral-400 hover:text-black hover:bg-[#F34325] rounded-xl z-10"
-        >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M18 6 6 18"/>
-            <path d="m6 6 12 12"/>
-          </svg>
-        </button>
 
-        {/* Sidebar esquerda */}
-        <aside className="w-80 bg-neutral-950 border-r border-neutral-700 flex flex-col">
-          <div className="p-4 border-b border-neutral-800 flex justify-between items-center">
-             <h2 className="text-xl text-white font-semibold">
-              Histórico
-            </h2>
+        <aside className="w-80 bg-[#181719] border-r border-neutral-700 flex flex-col">
+          <div className="flex items-center justify-between p-3 shrink-0">
+            <button
+              onClick={onClose}
+              className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
+            >
+              <CloseIcon size={20}/>
+            </button>
+          </div>
+
+          <div className="px-4 py-2 flex justify-between items-center">
             {sessions.length > 0 && (
               <button 
                 onClick={() => setConfirmState({ type: 'all' })}
-                className="text-xs text-red-400 hover:text-red-300 hover:underline"
+                className="text-xs text-red-400 hover:text-red-300 "
               >
                 Limpar tudo
               </button>
@@ -143,7 +129,7 @@ export default function HistoryModal({
             {sessions.map((s) => (
               <div 
                  key={s.id}
-                 className={`group relative w-full rounded-lg border transition flex items-center
+                 className={`group relative w-full rounded-lg transition flex items-center
                   ${
                     selected?.id === s.id
                       ? "bg-neutral-800 border-neutral-600"
@@ -199,7 +185,7 @@ export default function HistoryModal({
           {!selected && (
             <div className="flex-1 flex items-center justify-center text-neutral-500 text-center">
               <div>
-                <div className="text-4xl mb-4">👉</div>
+                <div className="text-base mb-4">👉</div>
                 <p>Selecione uma sessão para ver os detalhes.</p>
               </div>
             </div>
@@ -207,12 +193,12 @@ export default function HistoryModal({
 
           {selected && (
             <div className="flex-1 flex flex-col">
-              <h3 className="text-2xl font-semibold text-white mb-4 flex justify-between items-center">
+              <h3 className="text-base font-semibold text-white mb-4 flex justify-between items-center">
                 <span>{selected.title}</span>
               </h3>
 
               {/* Container do chat */}
-              <div className="flex-1 border border-neutral-700 rounded-xl p-4 bg-neutral-950 overflow-y-auto">
+              <div className="flex-1  overflow-y-auto">
                 <ChatHistory messages={messages} />
               </div>
             </div>

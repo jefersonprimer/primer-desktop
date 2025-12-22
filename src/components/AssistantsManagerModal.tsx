@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { 
   getPromptPresets, 
@@ -8,6 +8,8 @@ import {
   type PromptPreset 
 } from "../lib/tauri";
 
+import CloseIcon from "./ui/icons/CloseIcon";
+
 export default function AssistantsManagerModal({ onClose }: { onClose: () => void; open?: boolean }) {
   const [assistants, setAssistants] = useState<PromptPreset[]>([]);
   const [selected, setSelected] = useState<PromptPreset | null>(null);
@@ -16,6 +18,9 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
   const [editName, setEditName] = useState("");
   const [editPrompt, setEditPrompt] = useState("");
   const [editDesc, setEditDesc] = useState("");
+
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const promptInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     loadPresets();
@@ -103,23 +108,38 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
       setEditName('');
       setEditPrompt('');
       setEditDesc('');
+      
+      // Focus title after a small delay to allow render
+      setTimeout(() => {
+          titleInputRef.current?.focus();
+      }, 50);
   }
 
   return createPortal(
-    <div className="fixed inset-0 flex items-center justify-center bg-transparent backdrop-blur-sm z-[9999]">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+    <div className="fixed inset-0 flex items-center justify-center bg-transparent z-[9999]">
+      <div className="absolute inset-0" onClick={onClose} />
       
       <div className="relative bg-neutral-900 text-white rounded-xl shadow-xl w-[900px] h-[600px] overflow-hidden border border-neutral-700">
         <div className="flex h-[600px]">
+
           {/* Sidebar */}
-          <div className="w-72 border-r border-white/10 bg-neutral-950 p-2 overflow-y-auto">
+          <aside className="w-72 bg-[#181719] border-r border-neutral-700 p-2 overflow-y-auto">
+             <div className="flex items-center justify-between px-1 py-3 shrink-0">
+              <button
+                onClick={onClose}
+                className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
+              >
+                <CloseIcon size={20}/>
+              </button>
+            </div>
+
             {assistants.map(a => (
               <div
                 key={a.id}
                 onClick={() => setSelected(a)}
                 className={`p-3 rounded-lg cursor-pointer transition mb-1 ${selected?.id === a.id ? "bg-white/10" : "hover:bg-white/5"}`}
               >
-                <p className="text-white text-sm font-medium">{a.name}</p>
+                <p className="text-white text-sm font-medium">{a.name || "Untitled"}</p>
                 <p className="text-xs text-white/40">{a.is_built_in ? "Built-in" : "Custom"}</p>
               </div>
             ))}
@@ -130,66 +150,56 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
             >
               + Create New Assistant
             </button>
-          </div>
+          </aside>
 
           {/* Content */}
-          <div className="flex-1 p-6 overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-               {selected?.id === 'new' || (selected && !selected.is_built_in) ? (
-                   <input 
-                      value={editName}
-                      onChange={e => setEditName(e.target.value)}
-                      placeholder="Assistant Name"
-                      className="bg-transparent text-lg text-white font-semibold border-b border-white/10 focus:border-white focus:outline-none w-full mr-4"
-                   />
-               ) : (
-                  <h2 className="text-lg text-white font-semibold">{selected?.name}</h2>
-               )}
-
-              <button
-                onClick={onClose}
-                className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
-              >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M18 6 6 18"/>
-                  <path d="m6 6 12 12"/>
-                </svg>
-              </button>
-            </div>
-
-            {/* TABS */}
-            <div className="flex gap-3 mb-4 border-b border-white/10 pb-2">
-              <button className="px-4 py-1 bg-white/10 rounded-lg text-white text-sm">System Prompt</button>
-            </div>
-
-            {/* PROMPT EDITOR */}
-            <textarea
-              className="w-full h-80 bg-neutral-950 border border-white/10 rounded-lg p-4 text-white text-sm focus:outline-none resize-none font-mono"
-              placeholder="# System Prompt\nDescribe the assistant behavior here..."
-              value={editPrompt}
-              onChange={(e) => setEditPrompt(e.target.value)}
-              disabled={selected?.is_built_in}
-            />
+          <div className="flex-1 bg-[#1D1D1F] p-8 overflow-y-auto flex flex-col">
             
+            {/* Editor Area */}
+            <div className="flex-1 flex flex-col gap-2">
+                {/* Title Input */}
+                <input 
+                    ref={titleInputRef}
+                    value={editName}
+                    onChange={e => setEditName(e.target.value)}
+                    placeholder={selected?.is_built_in ? "" : "Novo prompt preset"}
+                    disabled={selected?.is_built_in}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            promptInputRef.current?.focus();
+                        }
+                    }}
+                    className="text-base font-bold text-white bg-transparent border-none focus:outline-none placeholder:text-neutral-600 w-full"
+                />
+
+                {/* Content Textarea */}
+                <textarea
+                    ref={promptInputRef}
+                    className="flex-1 w-full bg-transparent text-white text-sm focus:outline-none resize-none font-mono leading-relaxed placeholder:text-neutral-600 mt-2"
+                    placeholder={selected?.is_built_in ? "" : "Start writing instructions..."}
+                    value={editPrompt}
+                    onChange={(e) => setEditPrompt(e.target.value)}
+                    disabled={selected?.is_built_in}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Backspace' && editPrompt === '') {
+                            e.preventDefault();
+                            titleInputRef.current?.focus();
+                        }
+                    }}
+                />
+            </div>
+            
+            {/* Footer / Info */}
             {selected?.is_built_in && (
-                <p className="text-xs text-white/40 mt-2">Built-in assistants cannot be modified.</p>
+                <p className="text-xs text-white/40 mt-4 border-t border-white/5 pt-4">Built-in assistants cannot be modified.</p>
             )}
 
             {!selected?.is_built_in && (
-                <div className="flex gap-2 mt-4">
+                <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/5">
                     <button 
                         onClick={handleSave}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
                     >
                     Save Changes
                     </button>
@@ -205,7 +215,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                                     }
                                 }
                             }}
-                            className="px-4 py-2 bg-red-600/20 hover:bg-red-600/40 text-red-500 rounded-lg text-sm"
+                            className="px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-500 rounded-lg text-sm transition-colors"
                         >
                         Delete
                         </button>

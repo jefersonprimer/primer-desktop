@@ -50,15 +50,11 @@ export default function SelectAssistantModal({ value, onChange, onClose, positio
       
       <div
         className={`
-          w-[224px]
-          bg-black/70 backdrop-blur-xl border border-white/10
-          rounded-xl shadow-xl py-2 z-[70]
+          w-[224px] p-2 bg-black/70 backdrop-blur-xl border border-white/10
+          rounded-lg z-[70]
           ${positionClass || "absolute left-1/2 -translate-x-1/2 bottom-full mb-2"}
         `}
       >
-        <h3 className="text-white font-semibold text-sm px-4 py-2 bg-black/60">
-          Select Assistant
-        </h3>
 
         <div className="max-h-[240px] overflow-y-auto">
           {assistants.map(a => (
@@ -70,15 +66,12 @@ export default function SelectAssistantModal({ value, onChange, onClose, positio
               }}
               className={`
                 w-full flex items-center justify-between 
-                px-4 py-2 text-white text-sm
-                hover:bg-white/10 transition border-b border-gray-400
+                px-4 py-2 text-white text-sm rounded-lg
+                hover:bg-white/10 transition 
               `}
             >
               <div className="flex flex-col text-left">
                 <span>{a.name}</span>
-                {a.is_built_in && (
-                  <span className="text-xs text-white/50">Built-in</span>
-                )}
               </div>
 
               {value === a.id && (
