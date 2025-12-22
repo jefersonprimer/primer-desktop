@@ -105,10 +105,10 @@ export default function GoogleTab({
 
   return (
     <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300">
-      <div className="flex justify-between items-center border-t border-b border-neutral-700">
+      <div className="flex justify-between items-center bg-[#242425] py-2 px-4 rounded-lg">
         <div>
-          <h2 className="text-xl font-semibold my-2">Google</h2>
-          <p className="text-neutral-400 mb-4">Gemini 3 Pro, Gemini 2.5 e outros modelos</p>
+          <h2 className="text-white text-base font-semibold">Google</h2>
+          <p className="text-gray-400 text-sm">Gemini 3 Pro, Gemini 2.5 e outros modelos</p>
         </div>
         <div className="flex items-center">
           {activeProvider === "Google" ? (
@@ -127,35 +127,36 @@ export default function GoogleTab({
         </div>
       </div>
 
-      <button className="flex items-center gap-2 my-6 rounded-lg border border-[#5BBF4B] bg-[#071C0B] py-2 px-4">
-        <span className="rounded-full bg-[#5BBF4B] text-[#071C0B]">
-          <CheckIcon size={18} color="#071C0B"/>
-        </span>
-        <span className={`${currentStatus === "success" ? "text-green-500" : "text-neutral-500"}`}>
-          {currentStatus === "success" ? "Pronto" : "Aguardando configuração"}
-        </span>
-      </button>
-
-      <label className="flex flex-col gap-1 mb-6 relative">
+      <label className="flex flex-col gap-1 my-6 relative bg-[#242425] py-2 px-4 rounded-lg">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-neutral-400">Chave de API</span>
+          <span className="text-sm text-white">Chave de API</span>
+
+          <button className="flex items-center gap-2 rounded-lg text-sm border border-[#5BBF4B] bg-[#071C0B] py-1 px-2">
+            <span className="rounded-full bg-[#5BBF4B] text-[#071C0B]">
+              <CheckIcon size={16} color="#071C0B"/>
+            </span>
+            <span className={`${currentStatus === "success" ? "text-green-500" : "text-neutral-500"}`}>
+              {currentStatus === "success" ? "Pronto" : "Chave necessária"}
+            </span>
+          </button>
+
         </div>
         <input
           type="password"
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-neutral-300 focus:outline-none focus:border-blue-500"
-          placeholder="Cole sua chave API aqui..."
+          placeholder="sk-..."
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
         />
-      </label>
 
-      <p className="text-neutral-400 text-sm mb-6">
-        Sua chave de API do Gemini para suporte de análise de imagem.
-      </p>
+        <p className="text-neutral-400 text-sm">
+          Sua chave de API e armazenada localmente, e nunca e enviada aos nossos servidores. 
+        </p>
+      </label>
 
       {/* Speech-to-Text Model Selection (Moved outside personalized) */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-2">Modelo de Transcrição</h3>
+        <h3 className="text-base font-semibold text-white">Modelo de Transcrição</h3>
         <p className="text-neutral-400 text-sm mb-3">Selecione o modelo usado para transcrição de voz</p>
         
         <select
@@ -175,14 +176,6 @@ export default function GoogleTab({
           ))}
         </select>
         
-        {transcriptionModels.find(m => m.id === transcriptionModel) && (
-          <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
-            <p className="text-sm text-neutral-400">
-              {transcriptionModels.find(m => m.id === transcriptionModel)?.description}
-            </p>
-          </div>
-        )}
-
         {/* Whisper Management Toggle Button */}
         {transcriptionModel === "whisper_cpp" && (
           <button 
@@ -220,7 +213,7 @@ export default function GoogleTab({
       </div>
 
       {/* Desempenho */}
-      <h3 className="text-lg font-semibold mb-3">Desempenho</h3>
+      <h3 className="text-base font-semibold text-white">Desempenho</h3>
       <p className="text-neutral-400 text-sm mb-4">
         Escolha o equilíbrio preferido entre velocidade e qualidade. Selecionaremos automaticamente os melhores modelos para você.
       </p>
@@ -320,7 +313,7 @@ export default function GoogleTab({
         <div className="space-y-6 mb-6">
           {/* Modelo de Análise */}
           <div>
-            <h3 className="text-lg font-semibold mb-2">Modelo de Análise</h3>
+            <h3 className="text-base font-semibold text-white">Modelo de Análise</h3>
             <p className="text-neutral-400 text-sm mb-3">Modelo usado para analisar imagens e conversas</p>
             
             <select
@@ -334,19 +327,11 @@ export default function GoogleTab({
                 </option>
               ))}
             </select>
-            
-            {analysisModels.find(m => m.id === model) && (
-              <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
-                <p className="text-sm text-neutral-400">
-                  {analysisModels.find(m => m.id === model)?.description}
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Modelo de Geração de Imagem */}
           <div>
-            <h3 className="text-lg font-semibold mb-2">Modelo de Geração de Imagem</h3>
+            <h3 className="text-base font-semibold text-white">Modelo de Geração de Imagem</h3>
             <p className="text-neutral-400 text-sm mb-3">Modelo usado para gerar imagens com Imagen</p>
             
             <select
@@ -360,32 +345,11 @@ export default function GoogleTab({
                 </option>
               ))}
             </select>
-            
-            {imageModels.find(m => m.id === imageModel) && (
-              <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
-                <p className="text-sm text-neutral-400">
-                  {imageModels.find(m => m.id === imageModel)?.description}
-                </p>
-              </div>
-            )}
           </div>
         </div>
       )}
 
-      {/* Modelo atual quando não for personalizado */}
-      {performanceMode !== "personalizado" && (
-        <div className="mb-6 p-4 bg-neutral-900 border border-neutral-800 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-neutral-400">Modelo Selecionado</span>
-            <span className="text-sm font-medium text-neutral-200">{model}</span>
-          </div>
-          <p className="text-xs text-neutral-500">
-            {analysisModels.find(m => m.id === model)?.description || "Modelo otimizado para este modo de desempenho"}
-          </p>
-        </div>
-      )}
-
-      <div className="mt-4 mb-8">
+      <div className="flex items-center justify-between mt-4 mb-8">
         <a 
           href="https://ai.google.dev/gemini-api/docs/models" 
           target="_blank" 
@@ -394,15 +358,14 @@ export default function GoogleTab({
         >
           Ver detalhes do modelo
         </a>
-      </div>
 
-      <div className="flex justify-end pt-4 border-t border-neutral-800">
         <button
           onClick={onSave}
           className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
         >
           Salvar Alterações
         </button>
+
       </div>
     </div>
   );

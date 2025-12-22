@@ -70,9 +70,9 @@ export default function WhisperManager({ activeModel, onModelChange }: WhisperMa
   };
 
   return (
-    <div className="mt-4 border-t border-neutral-800 pt-4">
-      <h4 className="text-sm font-semibold mb-2 text-neutral-300">Local Model Management</h4>
-      <p className="text-xs text-neutral-500 mb-3">
+    <div className="mt-4">
+      <h4 className="text-base font-semibold text-white">Local Model Management</h4>
+      <p className="text-sm text-neutral-400 mb-3">
         Download and select the model that fits your hardware. larger models are more accurate but slower.
       </p>
 

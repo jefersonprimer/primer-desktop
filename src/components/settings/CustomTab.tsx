@@ -90,104 +90,96 @@ export default function CustomTab({
 
   return (
     <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300">
-      <div className="flex justify-between items-center border-t border-b border-neutral-700">
+      <div className="flex justify-between items-center bg-[#242425] py-2 px-4 rounded-lg">
         <div>
-          <h2 className="text-xl font-semibold my-2">Offline & Custom</h2>
-          <p className="text-neutral-400 mb-4">Run models locally with Ollama and Whisper.cpp</p>
+          <h2 className="text-white text-base font-semibold">Custom</h2>
+          <p className="text-gray-400 text-sm">Run models locally with Ollama and Whisper.cpp</p>
         </div>
         <div className="flex items-center">
           {activeProvider === "Custom" ? (
             <span className="flex items-center gap-2 text-green-500 bg-green-500/10 px-3 py-1.5 rounded-full text-sm font-medium border border-green-500/20">
               <CheckIcon size={16} color="#22c55e"/>
-              Active
+              Ativo
             </span>
           ) : (
             <button 
               onClick={() => setActiveProvider("Custom")}
               className="text-sm bg-neutral-800 hover:bg-neutral-700 text-white px-3 py-1.5 rounded-lg border border-neutral-700 transition"
             >
-              Use this provider
+              Usar este modelo
             </button>
           )}
         </div>
       </div>
 
-       <button className="flex items-center gap-2 my-6 rounded-lg border border-[#5BBF4B] bg-[#071C0B] py-2 px-4">
-        <span className="rounded-full bg-[#5BBF4B] text-[#071C0B]">
-          <CheckIcon size={18} color="#071C0B"/>
-        </span>
-        <span className={`${currentStatus === "success" ? "text-green-500" : "text-neutral-500"}`}>
-          {currentStatus === "success" ? "Ready" : "Waiting for Save"}
-        </span>
-      </button>
-
-      {/* Ollama Section */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            Chat (Ollama)
-            <a href="https://ollama.com" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:underline bg-blue-500/10 px-2 py-0.5 rounded">
-                Download Ollama
-            </a>
-        </h3>
-        
-        <label className="flex flex-col gap-1 mb-4">
+      <label className="flex flex-col gap-1 my-6 bg-[#242425] py-2 px-4 rounded-lg">
+        <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-400">Ollama URL</span>
-          <div className="flex gap-2">
-            <input
-                type="text"
-                className="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-neutral-300 focus:outline-none focus:border-blue-500"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="http://localhost:11434"
-            />
-            <button 
-                onClick={fetchOllamaModels}
-                className="px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-lg hover:bg-neutral-700 transition"
-            >
-                Refresh
-            </button>
-          </div>
-        </label>
+          <button className="flex items-center gap-2 text-sm rounded-lg border border-[#5BBF4B] bg-[#071C0B] py-1 px-2">
+            <span className="rounded-full bg-[#5BBF4B] text-[#071C0B]">
+              <CheckIcon size={16} color="#071C0B"/>
+            </span>
+            <span className={`${currentStatus === "success" ? "text-green-500" : "text-neutral-500"}`}>
+              {currentStatus === "success" ? "Ready" : "Waiting for Save"}
+            </span>
+          </button>
+        </div>
+        
+        <div className="flex gap-2">
+          <input
+              type="text"
+              className="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-neutral-300 focus:outline-none focus:border-blue-500"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="http://localhost:11434"
+          />
+          <button 
+              onClick={fetchOllamaModels}
+              className="px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-lg hover:bg-neutral-700 transition"
+          >
+              Refresh
+          </button>
+        </div>
 
         {errorOllama && (
-            <div className="mb-4 p-3 bg-red-900/20 border border-red-900/50 text-red-400 text-sm rounded-lg">
+            <div className="p-3 bg-red-900/20 border border-red-900/50 text-red-400 text-sm rounded-lg">
                 Could not connect to Ollama. Make sure it is running. ({errorOllama})
             </div>
         )}
+      </label>
 
-        <label className="flex flex-col gap-1 mb-4">
-            <span className="text-sm text-neutral-400">Selected Model</span>
-            <select
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
-                disabled={loadingOllama || ollamaModels.length === 0}
-            >
-                {ollamaModels.length === 0 ? (
-                    <option value="">{loadingOllama ? "Loading..." : "No models found"}</option>
-                ) : (
-                    ollamaModels.map((m) => (
-                        <option key={m.name} value={m.name}>
-                            {m.name} ({m.details.parameter_size}, {formatSize(m.size)})
-                        </option>
-                    ))
-                )}
-            </select>
-        </label>
-        
-        <p className="text-neutral-500 text-xs">
-            Downloaded models found in your local Ollama instance.
+      <label className="flex flex-col gap-1 my-6 bg-[#242425] py-2 px-4 rounded-lg">
+          <span className="text-sm text-white">Selected Model</span>
+          <select
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+              disabled={loadingOllama || ollamaModels.length === 0}
+          >
+              {ollamaModels.length === 0 ? (
+                  <option value="">{loadingOllama ? "Loading..." : "No models found"}</option>
+              ) : (
+                  ollamaModels.map((m) => (
+                      <option key={m.name} value={m.name}>
+                          {m.name} ({m.details.parameter_size}, {formatSize(m.size)})
+                      </option>
+                  ))
+              )}
+          </select>
+
+        <p className="text-neutral-400 text-sm">
+          Downloaded models found in your local Ollama instance.
         </p>
-      </div>
+      </label>
 
       {/* Whisper Section */}
-      <div>
-        <h3 className="text-lg font-semibold mb-3">Speech Recognition</h3>
-        <p className="text-sm text-neutral-400 mb-4">
+      <div className="bg-[#242425] py-2 px-4 rounded-lg">
+        <h3 className="text-base text-white font-semibold">Speech Recognition</h3>
+        <p className="text-sm text-neutral-400 mb-3">
             Choose your speech-to-text provider.
         </p>
 
-        <div className="mb-6">
+        <div>
             <select
                 value={transcriptionModel}
                 onChange={(e) => {
@@ -204,13 +196,6 @@ export default function CustomTab({
                     </option>
                 ))}
             </select>
-             {sttStrategies.find(m => m.id === transcriptionModel) && (
-              <div className="mt-2 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
-                <p className="text-sm text-neutral-400">
-                  {sttStrategies.find(m => m.id === transcriptionModel)?.description}
-                </p>
-              </div>
-            )}
 
             {/* Whisper Management Toggle Button */}
             {transcriptionModel === "whisper_cpp" && (

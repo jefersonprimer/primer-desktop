@@ -152,17 +152,17 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
 
   return (
     <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300">
-      <div className="flex justify-between items-center border-t border-b border-neutral-700">
+      <div className="flex justify-between items-center bg-[#242425] py-2 px-4 rounded-lg">
         <div>
-          <h2 className="text-xl font-semibold my-2">OpenRouter</h2>
-          <p className="text-neutral-400 mb-4">Acesse múltiplos modelos via OpenRouter.ai</p>
+          <h2 className="text-white text-base font-semibold">OpenRouter</h2>
+          <p className="text-gray-400 text-sm">Acesse múltiplos modelos via openrouter.ai</p>
         </div>
         <div className="flex items-center">
           {activeProvider === "OpenRouter" ? (
-             <span className="flex items-center gap-2 text-green-500 bg-green-500/10 px-3 py-1.5 rounded-full text-sm font-medium border border-green-500/20">
-               <CheckIcon size={16} color="#22c55e"/>
-               Ativo
-             </span>
+            <span className="flex items-center gap-2 text-green-500 bg-green-500/10 px-3 py-1.5 rounded-full text-sm font-medium border border-green-500/20">
+              <CheckIcon size={16} color="#22c55e"/>
+              Ativo
+            </span>
           ) : (
             <button 
               onClick={() => setActiveProvider("OpenRouter")}
@@ -174,35 +174,36 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         </div>
       </div>
 
-      <button className="flex items-center gap-2 my-6 rounded-lg border border-[#5BBF4B] bg-[#071C0B] py-2 px-4">
-        <span className="rounded-full bg-[#5BBF4B] text-[#071C0B]">
-          <CheckIcon size={18} color="#071C0B"/>
-        </span>
-        <span className={`${currentStatus === "success" ? "text-green-500" : "text-neutral-500"}`}>
-          {currentStatus === "success" ? "Pronto" : "Aguardando configuração"}
-        </span>
-      </button>
-
-    <label className="flex flex-col gap-1 mb-6 relative">
+      <label className="flex flex-col gap-1 my-6 relative bg-[#242425] py-2 px-4 rounded-lg">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-neutral-400">Chave de API</span>
+          <span className="text-sm text-white">Chave de API</span>
+
+          <button className="flex items-center gap-2 rounded-lg text-sm border border-[#5BBF4B] bg-[#071C0B] py-1 px-2">
+            <span className="rounded-full bg-[#5BBF4B] text-[#071C0B]">
+              <CheckIcon size={16} color="#071C0B"/>
+            </span>
+            <span className={`${currentStatus === "success" ? "text-green-500" : "text-neutral-500"}`}>
+              {currentStatus === "success" ? "Pronto" : "Chave necessária"}
+            </span>
+          </button>
+
         </div>
         <input
           type="password"
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-neutral-300 focus:outline-none focus:border-blue-500"
-          placeholder="Cole sua chave API aqui..."
+          placeholder="sk-..."
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
         />
-      </label>
 
-      <p className="text-neutral-400 text-sm mb-6">
-        Chave de API para usar modelos via OpenRouter.ai
-      </p>
+        <p className="text-neutral-400 text-sm">
+          Sua chave de API e armazenada localmente, e nunca e enviada aos nossos servidores. 
+        </p>
+      </label>
 
       {/* Speech-to-Text Model Selection */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Modelo de Transcrição</h3>
+        <h3 className="text-lg font-semibold text-white">Modelo de Transcrição</h3>
         <p className="text-neutral-400 text-sm mb-3">Selecione o modelo usado para transcrição de voz</p>
         
         <select
@@ -222,14 +223,6 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
           ))}
         </select>
         
-        {transcriptionModels.find(m => m.id === transcriptionModel) && (
-          <div className="mt-3 p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
-            <p className="text-sm text-neutral-400">
-              {transcriptionModels.find(m => m.id === transcriptionModel)?.description}
-            </p>
-          </div>
-        )}
-
         {/* Whisper Management Toggle Button */}
         {transcriptionModel === "whisper_cpp" && (
           <button 
@@ -371,7 +364,7 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         </div>
       )}
 
-      <div className="mt-4 mb-8">
+      <div className="flex items-center justify-between mt-4 mb-8">
         <a 
           href="https://openrouter.ai/models" 
           target="_blank" 
@@ -380,15 +373,14 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         >
           Ver detalhes do modelo
         </a>
-      </div>
 
-      <div className="flex justify-end pt-4 border-t border-neutral-800">
         <button
           onClick={onSave}
           className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
         >
           Salvar Alterações
         </button>
+
       </div>
     </div>
   );

@@ -1,14 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import Draggable from "react-draggable";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+
 import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
 import StopIcon from "../ui/icons/StopIcon";
 import EnterIcon from "../ui/icons/EnterIcon";
 import EllipsisVerticalIcon from "../ui/icons/EllipsisVerticalIcon";
+
 import { useStealthMode } from '../../contexts/StealthModeContext';
+
 import LiveInsightsModal from "./LiveInsightsModal";
 import SelectAssistantModal from "./SelectAssistantModal";
 import AssistantsManagerModal from "../AssistantsManagerModal";
 import SettingsModal from "../settings/SettingsModal";
+
 import { useAi } from "../../contexts/AiContext";
 import { getPromptPresets } from "../../lib/tauri";
 import { invoke } from "@tauri-apps/api/core";
@@ -71,18 +76,18 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
     loadActivePresetName();
   }, [activePromptPreset]);
 
-  useEffect(() => {
-    const updateDockCenterX = () => {
-      if (dockRef.current) {
-        const rect = dockRef.current.getBoundingClientRect();
-        setDockCenterX(rect.left + rect.width / 2);
-      }
-    };
+  const updateDockCenterX = useCallback(() => {
+    if (dockRef.current) {
+      const rect = dockRef.current.getBoundingClientRect();
+      setDockCenterX(rect.left + rect.width / 2);
+    }
+  }, []);
 
+  useEffect(() => {
     updateDockCenterX();
     window.addEventListener("resize", updateDockCenterX);
     return () => window.removeEventListener("resize", updateDockCenterX);
-  }, []);
+  }, [updateDockCenterX]);
 
   // Global Shortcuts Listener
   useEffect(() => {
@@ -202,69 +207,75 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
 
   return (
     <>
-      <div ref={dockRef} className="absolute top-6 left-0 right-0 mx-auto w-fit flex flex-col items-center gap-3 z-[9999]">
-        <div className="relative flex items-center gap-8 bg-[#4E4D4F] backdrop-blur-xl px-2 py-1.5 rounded-full border border-white/10 shadow-lg">
-          <button
-            className={`flex items-center gap-2 py-2 px-4 rounded-full transition text-white group ${isListening ? 'bg-red-500/20 text-red-100' : 'bg-[#707071] hover:bg-white/10'}`}
-            onClick={handleListenClick}
-          >
-            <span className="text-sm font-medium text-white/90 group-hover:text-white">
-              {isListening ? "Stop" : "Listen"}
-            </span>
-            {isListening ? (
-               <StopIcon fill="#ff8888" stroke="none" size={18} className="animate-pulse" />
-            ) : (
-               <AudioLinesIcon stroke="#fff" size={20} />
-            )}
-          </button>
-
-          <div className="flex items-center gap-2">
+      <Draggable nodeRef={dockRef} onDrag={updateDockCenterX} handle=".dock-handle">
+        <div ref={dockRef} className="absolute top-6 left-0 right-0 mx-auto w-fit flex flex-col items-center gap-3 z-[9999]">
+          <div className="dock-handle cursor-move relative flex items-center gap-8 bg-[#4E4D4F] backdrop-blur-xl px-2 py-1.5 rounded-full border border-white/10 shadow-lg">
             <button
-              className="flex items-center gap-2 py-1 px-4 rounded-full hover:bg-white/10 transition text-white group"
-              
-              onClick={() => {
-                onOpenModal("chat");
-              }}
+              className={`flex items-center gap-2 py-2 px-4 rounded-full transition text-white group cursor-pointer ${isListening ? 'bg-red-500/20 text-red-100' : 'bg-[#707071] hover:bg-white/10'}`}
+              onClick={handleListenClick}
+              onMouseDown={(e) => e.stopPropagation()}
             >
-              <span className="text-sm font-medium text-white/90 group-hover:text-white">Ask</span>
-              
-              <div className="flex items-center gap-1">
-                <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
-                <span className="bg-white/10 p-1.5 rounded-lg text-white/70 group-hover:text-white transition"><EnterIcon size={16}/></span>
-              </div>
+              <span className="text-sm font-medium text-white/90 group-hover:text-white">
+                {isListening ? "Stop" : "Listen"}
+              </span>
+              {isListening ? (
+                 <StopIcon fill="#ff8888" stroke="none" size={18} className="animate-pulse" />
+              ) : (
+                 <AudioLinesIcon stroke="#fff" size={20} />
+              )}
             </button>
 
-            <button
-              className="flex items-center gap-2 px-4 py-1 rounded-full hover:bg-white/10 transition text-white group"
-              onClick={() => invoke("toggle_minimize_window")}
-            >
-              <span className="text-sm font-medium text-white/90 group-hover:text-white">Hide</span>
-              <div className="flex items-center gap-1">
-                <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
-                <span className="text-sm bg-white/10 px-2.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">\</span>
-              </div>  
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                className="flex items-center gap-2 py-1 px-4 rounded-full hover:bg-white/10 transition text-white group cursor-pointer"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={() => {
+                  onOpenModal("chat");
+                }}
+              >
+                <span className="text-sm font-medium text-white/90 group-hover:text-white">Ask</span>
+                
+                <div className="flex items-center gap-1">
+                  <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+                  <span className="bg-white/10 p-1.5 rounded-lg text-white/70 group-hover:text-white transition"><EnterIcon size={16}/></span>
+                </div>
+              </button>
 
-            <button
-              ref={buttonRef}
-              onClick={() => setShowMenu(!showMenu)}
-              className={`
-              relative group
-              flex flex-col items-center justify-center
-              p-2 rounded-full
-              transition
-              ${active || showMenu ? "bg-white/20" : "hover:bg-white/10"}
-            `}
-            >
-              <EllipsisVerticalIcon stroke="#fff" />
-            </button>
-          </div>
+              <button
+                className="flex items-center gap-2 px-4 py-1 rounded-full hover:bg-white/10 transition text-white group cursor-pointer"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={() => invoke("toggle_minimize_window")}
+              >
+                <span className="text-sm font-medium text-white/90 group-hover:text-white">Hide</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm font-medium bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">Ctrl</span>
+                  <span className="text-sm bg-white/10 px-2.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">\</span>
+                </div>  
+              </button>
 
-          {showMenu && (
-            <div
-              ref={menuRef}
-              className="absolute top-full right-0 mt-6 p-4 w-64 bg-[#121213] backdrop-blur-xl rounded-lg shadow-2xl overflow-visible flex flex-col animate-in fade-in zoom-in-95 duration-200"
-            >
+              <button
+                ref={buttonRef}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={() => setShowMenu(!showMenu)}
+                className={`
+                relative group
+                flex flex-col items-center justify-center
+                p-2 rounded-full
+                transition
+                cursor-pointer
+                ${active || showMenu ? "bg-white/20" : "hover:bg-white/10"}
+              `}
+              >
+                <EllipsisVerticalIcon stroke="#fff" />
+              </button>
+            </div>
+
+            {showMenu && (
+              <div
+                ref={menuRef}
+                className="absolute top-full right-0 mt-6 p-4 w-64 bg-[#121213] backdrop-blur-xl rounded-lg shadow-2xl overflow-visible flex flex-col animate-in fade-in zoom-in-95 duration-200 cursor-default"
+                onMouseDown={(e) => e.stopPropagation()}
+              >
               {/* Header */}
               <div className="pb-3">
                 <h3 className="text-white font-semibold text-sm">Primer</h3>
@@ -412,6 +423,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
           )}
         </div>
       </div>
+    </Draggable>
         <LiveInsightsModal
           open={showLiveInsights}
           anchorX={liveInsightsAnchorX}

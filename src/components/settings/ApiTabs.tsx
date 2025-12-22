@@ -16,7 +16,7 @@ export default function ApiTabs({ active, onTabChange }: Props) {
       {tabs.map((tab) => (
         <div 
           key={tab}
-          className={`relative group flex items-center rounded-lg transition cursor-pointer border
+          className={`relative group flex items-center  rounded-lg transition cursor-pointer border
             ${activeProvider === tab ? "bg-neutral-800 text-white" : "hover:bg-neutral-800"}
             ${active === tab ? "bg-neutral-800 text-white" : "border-neutral-700"}
           `}
