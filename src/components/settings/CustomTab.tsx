@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import CheckIcon from "../ui/icons/CheckIcon";
+import CloseIcon from "../ui/icons/CloseIcon";
 import { useAi } from "../../contexts/AiContext";
 import WhisperManager from "./WhisperManager";
 
@@ -115,11 +116,23 @@ export default function CustomTab({
       <label className="flex flex-col gap-1 my-6 bg-[#242425] py-2 px-4 rounded-lg">
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-400">Ollama URL</span>
-          <button className="flex items-center gap-2 text-sm rounded-lg border border-[#5BBF4B] bg-[#071C0B] py-1 px-2">
-            <span className="rounded-full bg-[#5BBF4B] text-[#071C0B]">
-              <CheckIcon size={16} color="#071C0B"/>
+          <button className={`flex items-center gap-2 text-sm rounded-lg border py-1 px-2 ${
+            currentStatus === "success" 
+              ? "border-[#5BBF4B] bg-[#071C0B]" 
+              : "border-red-500/50 bg-red-500/10"
+          }`}>
+            <span className={`rounded-full p-0.5 ${
+              currentStatus === "success" 
+                ? "bg-[#5BBF4B] text-[#071C0B]" 
+                : "bg-red-500 text-white"
+            }`}>
+              {currentStatus === "success" ? (
+                <CheckIcon size={12} color="#071C0B"/>
+              ) : (
+                <CloseIcon size={12} color="#FFFFFF"/>
+              )}
             </span>
-            <span className={`${currentStatus === "success" ? "text-green-500" : "text-neutral-500"}`}>
+            <span className={`${currentStatus === "success" ? "text-green-500" : "text-red-500"}`}>
               {currentStatus === "success" ? "Ready" : "Waiting for Save"}
             </span>
           </button>

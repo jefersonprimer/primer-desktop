@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import CheckIcon from "../ui/icons/CheckIcon";
+import CloseIcon from "../ui/icons/CloseIcon";
 import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
 import { useAi } from "../../contexts/AiContext";
 import WhisperManager from "./WhisperManager";
@@ -131,11 +132,23 @@ export default function GoogleTab({
         <div className="flex justify-between items-center">
           <span className="text-sm text-white">Chave de API</span>
 
-          <button className="flex items-center gap-2 rounded-lg text-sm border border-[#5BBF4B] bg-[#071C0B] py-1 px-2">
-            <span className="rounded-full bg-[#5BBF4B] text-[#071C0B]">
-              <CheckIcon size={16} color="#071C0B"/>
+          <button className={`flex items-center gap-2 rounded-lg text-sm border py-1 px-2 ${
+            currentStatus === "success" 
+              ? "border-[#5BBF4B] bg-[#071C0B]" 
+              : "border-red-500/50 bg-red-500/10"
+          }`}>
+            <span className={`rounded-full p-0.5 ${
+              currentStatus === "success" 
+                ? "bg-[#5BBF4B] text-[#071C0B]" 
+                : "bg-red-500 text-white"
+            }`}>
+              {currentStatus === "success" ? (
+                <CheckIcon size={12} color="#071C0B"/>
+              ) : (
+                <CloseIcon size={12} color="#FFFFFF"/>
+              )}
             </span>
-            <span className={`${currentStatus === "success" ? "text-green-500" : "text-neutral-500"}`}>
+            <span className={`${currentStatus === "success" ? "text-green-500" : "text-red-500"}`}>
               {currentStatus === "success" ? "Pronto" : "Chave necessária"}
             </span>
           </button>
