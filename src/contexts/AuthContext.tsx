@@ -14,7 +14,9 @@ interface AuthContextType {
   token: string | null;
   userId: string | null;
   userEmail: string | null;
-  login: (token: string, userId: string, email: string) => void;
+  userName: string | null;
+  userPicture: string | null;
+  login: (token: string, userId: string, email: string, name?: string, picture?: string) => void;
   logout: () => void;
   checkAuth: () => Promise<boolean>;
 }
@@ -27,6 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userPicture, setUserPicture] = useState<string | null>(null);
 
   // Check authentication on mount - load from SQLite session
   useEffect(() => {
@@ -36,9 +40,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session) {
           setToken(session.access_token);
           setUserId(session.user_id);
-          // Get email from localStorage cache (stored during login)
+          // Get user details from localStorage cache (stored during login)
           const storedEmail = localStorage.getItem("user_email");
+          const storedName = localStorage.getItem("user_name");
+          const storedPicture = localStorage.getItem("user_picture");
+          
           setUserEmail(storedEmail);
+          setUserName(storedName);
+          setUserPicture(storedPicture);
           setIsAuthenticated(true);
         }
       } catch (error) {
@@ -50,13 +59,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadSession();
   }, []);
 
-  const login = async (newToken: string, newUserId: string, email: string) => {
+  const login = async (newToken: string, newUserId: string, email: string, name?: string, picture?: string) => {
     // Session is automatically saved to SQLite by the login use case
-    // Just cache email in localStorage for display purposes
+    // Just cache user details in localStorage for display purposes
     localStorage.setItem("user_email", email);
+    if (name) localStorage.setItem("user_name", name);
+    if (picture) localStorage.setItem("user_picture", picture);
+    
     setToken(newToken);
     setUserId(newUserId);
     setUserEmail(email);
+    setUserName(name || null);
+    setUserPicture(picture || null);
     setIsAuthenticated(true);
   };
 
@@ -67,9 +81,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Failed to clear session:", error);
     }
     localStorage.removeItem("user_email");
+    localStorage.removeItem("user_name");
+    localStorage.removeItem("user_picture");
+    
     setToken(null);
     setUserId(null);
     setUserEmail(null);
+    setUserName(null);
+    setUserPicture(null);
     setIsAuthenticated(false);
   };
 
@@ -81,8 +100,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Token was updated, sync state
           setToken(session.access_token);
           setUserId(session.user_id);
+          
           const storedEmail = localStorage.getItem("user_email");
+          const storedName = localStorage.getItem("user_name");
+          const storedPicture = localStorage.getItem("user_picture");
+
           setUserEmail(storedEmail);
+          setUserName(storedName);
+          setUserPicture(storedPicture);
           setIsAuthenticated(true);
           return true;
         }
@@ -92,6 +117,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(null);
         setUserId(null);
         setUserEmail(null);
+        setUserName(null);
+        setUserPicture(null);
         setIsAuthenticated(false);
         return false;
       }
@@ -109,6 +136,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         userId,
         userEmail,
+        userName,
+        userPicture,
         login,
         logout,
         checkAuth,

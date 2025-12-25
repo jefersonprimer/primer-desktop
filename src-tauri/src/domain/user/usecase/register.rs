@@ -32,6 +32,9 @@ impl RegisterUseCase {
             id: Uuid::new_v4(),
             email,
             password_hash,
+            google_id: None,
+            full_name: None,
+            profile_picture: None,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };

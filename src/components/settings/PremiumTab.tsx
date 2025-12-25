@@ -1,4 +1,3 @@
-import CircleStarIcon from "../ui/icons/CircleStarIcon";
 import LockKeyHoleIcon from "../ui/icons/LockKeyHoleIcon";
 
 export default function PremiumTab() {

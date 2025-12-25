@@ -8,34 +8,34 @@ export default function CalendarTab() {
   };
 
   return (
-    <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300 h-full">
+    <div className="p-8 pb-8 bg-[#1D1D1F] text-neutral-400 w-full h-full">
       {/* Header */}
       <div className="mb-4">
         <h2 className="text-base font-semibold">Visible Calendars</h2>
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-neutral-400">
           Upcoming meetings are synchronized from these calendars
         </p>
       </div>
 
       {/* Empty state card */}
-      <div className="rounded-lg border border-zinc-800 bg-[#272628] p-6 max-w-xl">
+      <div className="rounded-lg border border-zinc-800 bg-[#272628] p-6 w-full">
         <div className="flex flex-col gap-4">
           <div>
-            <CalendarIcon size={18}/>
+            <CalendarIcon size={20}/>
             <p className="text-sm text-white font-medium mt-2">No calendars</p>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-neutral-400">
               Get started by connecting a Google account.
             </p>
           </div>
 
           <button
             onClick={handleConnectGoogle}
-            className="inline-flex w-fit items-center gap-2 rounded-md border border-zinc-700 bg-[#423F44] hover:bg-[#423F44]/80 px-4 py-2 text-sm font-medium hover:bg-zinc-700 transition"
+            className="inline-flex w-fit items-center gap-2 rounded-md border border-zinc-700 bg-[#423F44] hover:bg-[#423F44]/80 px-4 py-2 text-sm text-white font-semibold hover:bg-zinc-700 transition"
           > 
             {/* Google icon */}
             <svg
-              width="16"
-              height="16"
+              width="20"
+              height="20"
               viewBox="0 0 48 48"
               className="shrink-0"
             >

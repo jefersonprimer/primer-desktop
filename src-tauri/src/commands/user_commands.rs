@@ -2,6 +2,7 @@ use tauri::State;
 use crate::domain::user::{
     usecase::{
         login::LoginUseCase,
+        google_login::GoogleLoginUseCase,
         register::RegisterUseCase,
         reset_password::ResetPasswordUseCase,
         add_api_key::AddApiKeyUseCase,
@@ -11,6 +12,7 @@ use crate::domain::user::{
     },
     dto::{
         LoginDto, LoginResponse,
+        GoogleLoginDto, GoogleLoginResponse,
         RegisterDto, RegisterResponse,
         ResetPasswordDto, ResetPasswordResponse,
         AddApiKeyDto, AddApiKeyResponse,
@@ -23,6 +25,47 @@ use crate::domain::user::{
 };
 use crate::app_state::AppState;
 use uuid::Uuid;
+
+#[derive(serde::Serialize)]
+pub struct GoogleAuthUrlResponse {
+    pub url: String,
+}
+
+#[tauri::command]
+pub async fn get_google_auth_url() -> Result<GoogleAuthUrlResponse, String> {
+    use std::env;
+    
+    // Ensure .env is loaded (usually done in main, but good to ensure)
+    // dotenvy::dotenv().ok(); // Assuming it's loaded in main
+
+    let client_id = env::var("GOOGLE_CLIENT_ID")
+        .map_err(|_| "GOOGLE_CLIENT_ID not set in .env".to_string())?;
+    
+    let redirect_uri = "http://localhost:5173/auth/callback";
+    let scope = "email profile openid";
+    let response_type = "token"; // using implicit flow to get access token directly
+
+    let url = format!(
+        "https://accounts.google.com/o/oauth2/v2/auth?client_id={}&redirect_uri={}&response_type={}&scope={}&prompt=select_account",
+        client_id, redirect_uri, response_type, scope
+    );
+
+    Ok(GoogleAuthUrlResponse { url })
+}
+
+#[tauri::command]
+pub async fn google_login(dto: GoogleLoginDto, state: State<'_, AppState>) -> Result<GoogleLoginResponse, String> {
+    let google_login_usecase = GoogleLoginUseCase::new(
+        state.user_repo.clone(),
+        state.token_generator.clone(),
+        state.session_repo.clone(),
+    );
+
+    google_login_usecase.execute(dto.email, dto.google_id, dto.name, dto.picture)
+        .await
+        .map(|(token, user_id)| GoogleLoginResponse { token, user_id })
+        .map_err(|e| e.to_string())
+}
 
 #[tauri::command]
 pub async fn login(dto: LoginDto, state: State<'_, AppState>) -> Result<LoginResponse, String> {

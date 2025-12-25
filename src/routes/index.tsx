@@ -8,6 +8,7 @@ import RegisterPage from "../pages/register";
 import ForgotPassword from "../pages/forgot-password";
 import ResetPassword from "../pages/reset-password";
 import HomePage from "../pages/home";
+import GoogleCallback from "../pages/auth/Callback";
 import { useAuth } from "../contexts/AuthContext";
 
 function SplashHandler() {
@@ -31,15 +32,20 @@ function AuthRedirectHandler() {
     if (isLoading) return; // Don't redirect while loading
 
     // Check authentication on route changes
-    const isPublicRoute = ["/", "/login", "/register", "/forgot-password"].includes(
+    const isPublicRoute = ["/", "/login", "/register", "/forgot-password", "/auth/callback"].includes(
       location.pathname
     ) || location.pathname.startsWith("/reset-password");
 
+    const logMessage = `AuthRedirectHandler: pathname=${location.pathname}, isAuthenticated=${isAuthenticated}, isPublicRoute=${isPublicRoute}`;
+    invoke("log_frontend_message", { message: logMessage }).catch(console.error);
+
     if (isAuthenticated && location.pathname === "/") {
       // User is logged in and on welcome page, redirect to home
+      invoke("log_frontend_message", { message: "Redirecting to /home (Authenticated on /)" }).catch(console.error);
       navigate("/home", { replace: true });
     } else if (!isAuthenticated && !isPublicRoute) {
       // User is not logged in and trying to access protected route
+      invoke("log_frontend_message", { message: "Redirecting to /login (Not authenticated on protected route)" }).catch(console.error);
       navigate("/login", { replace: true });
     }
   }, [location.pathname, isAuthenticated, isLoading, navigate]);
@@ -77,6 +83,7 @@ export default function AppRoutes() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />   
+          <Route path="/auth/callback" element={<GoogleCallback />} />
         </Routes>
       )}
     </>

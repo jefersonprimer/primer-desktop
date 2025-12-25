@@ -44,6 +44,7 @@ pub struct ChatServiceRequest {
     pub temperature: Option<f32>,
     pub max_tokens: Option<u32>,
     pub image: Option<String>,
+    pub output_language: Option<String>,
 }
 
 #[async_trait]

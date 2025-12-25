@@ -50,7 +50,13 @@ export default function HomePage() {
   const [historyMessages, setHistoryMessages] = useState<ChatMessage[]>([]);
   
   const { userId } = useAuth();
-  const { activeProvider, activeModel, activePromptPreset, setLastUserMessage } = useAi();
+  const { 
+    activeProvider, 
+    activeModel, 
+    activePromptPreset, 
+    outputLanguage,
+    setLastUserMessage 
+  } = useAi();
 
   const fetchSessions = async () => {
     if (!userId) return;
@@ -126,7 +132,7 @@ export default function HomePage() {
           dto: {
             user_id: userId,
             title: text.substring(0, 30) || "New Chat",
-            prompt_preset_id: activePromptPreset,
+            prompt_preset_id: activePromptPreset?.trim() || "general",
             model: activeModel || (activeProvider === "Google" ? "gemini-1.5-flash" : "gpt-4o"),
           },
         });
@@ -147,6 +153,7 @@ export default function HomePage() {
           model: activeModel || (activeProvider === "Google" ? "gemini-1.5-flash" : "gpt-4o"), 
           temperature: 0.7,
           image: image, // Pass the image
+          output_language: outputLanguage,
         },
       });
 

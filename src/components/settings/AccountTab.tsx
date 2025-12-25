@@ -11,7 +11,7 @@ import ChevronUpIcon from "../ui/icons/ChevronUpIcon";
 
 export default function AccountTab() {
   const { t, i18n } = useTranslation();
-  const { userEmail, userId, logout } = useAuth();
+  const { userEmail, userId, userName, userPicture, logout } = useAuth();
   const { addNotification } = useNotification();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -61,22 +61,26 @@ export default function AccountTab() {
   const currentLangLabel = currentLang === 'pt-BR' ? 'Português (Brasil)' : 'English (US)';
 
   return (
-    <div className="w-full h-full bg-[#1D1D1F] p-6 pb-8 text-white overflow-y-auto">
+    <div className="w-full h-full bg-[#1D1D1F] p-8 pb-8 text-white overflow-y-auto">
       {/* CONTA */}
       <h2 className="text-base font-semibold">{t("account.title")}</h2>
-      <p className="text-sm text-gray-400 mb-4">
+      <p className="text-sm text-neutral-400 mb-4">
         {t("account.description")}
       </p>
 
       <div className="bg-[#242425] rounded-xl p-5 mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-lg font-semibold">
-            {userEmail?.[0]?.toUpperCase() || "U"}
+          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-lg font-semibold overflow-hidden">
+            {userPicture ? (
+              <img src={userPicture} alt={userName || "User"} className="w-full h-full object-cover" />
+            ) : (
+              <span>{userName?.[0]?.toUpperCase() || userEmail?.[0]?.toUpperCase() || "U"}</span>
+            )}
           </div>
 
           <div className="flex-1">
-            <p className="text-base font-medium">{userEmail || "User"}</p>
-            <p className="text-sm text-gray-400">Plano Gratuito</p>
+            <p className="text-base font-medium">{userName || "User"}</p>
+            <p className="text-sm text-neutral-400">{userEmail}</p>
           </div>
 
           <button 
@@ -91,7 +95,7 @@ export default function AccountTab() {
       {/* IDIOMA */}
       <div className="mb-6">
         <h3 className="text-base font-semibold">{t("account.language.title")}</h3>
-        <p className="text-sm text-gray-400 mb-2">
+        <p className="text-sm text-neutral-400 mb-2">
           {t("account.language.description")}
         </p>
 
@@ -101,7 +105,7 @@ export default function AccountTab() {
             className="w-full flex items-center justify-between text-white bg-[#242425] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none cursor-pointer hover:bg-white/5 transition-colors"
           >
             <span>{currentLangLabel}</span>
-            <div className="text-gray-400">
+            <div className="text-neutral-400">
               {isLanguageDropdownOpen ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
             </div>
           </button>
@@ -134,24 +138,24 @@ export default function AccountTab() {
       {/* GERENCIAMENTO DE DADOS */}
       <div className="mb-8">
         <h3 className="text-base font-semibold">{t("account.dataManagement.title")}</h3>
-        <p className="text-sm text-gray-400 mb-4">
+        <p className="text-sm text-neutral-400 mb-4">
           {t("account.dataManagement.description")}
         </p>
 
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="bg-[#242425] rounded-xl p-4 flex flex-col items-center">
             <p className="text-2xl font-semibold">2</p>
-            <p className="text-xs text-gray-400">{t("account.dataManagement.sessions")}</p>
+            <p className="text-xs text-neutral-400">{t("account.dataManagement.sessions")}</p>
           </div>
 
           <div className="bg-[#242425] rounded-xl p-4 flex flex-col items-center">
             <p className="text-2xl font-semibold">4</p>
-            <p className="text-xs text-gray-400">{t("account.dataManagement.messages")}</p>
+            <p className="text-xs text-neutral-400">{t("account.dataManagement.messages")}</p>
           </div>
 
           <div className="bg-[#242425] rounded-xl p-4 flex flex-col items-center">
             <p className="text-2xl font-semibold">0</p>
-            <p className="text-xs text-gray-400">{t("account.dataManagement.active")}</p>
+            <p className="text-xs text-neutral-400">{t("account.dataManagement.active")}</p>
           </div>
         </div>
 
@@ -163,7 +167,7 @@ export default function AccountTab() {
       {/* DELETE ACCOUNT */}
       <div className="pt-4">
         <h3 className="text-base font-semibold text-white">{t("account.deleteAccount.title")}</h3>
-        <p className="text-sm text-gray-400 mb-4">
+        <p className="text-sm text-neutral-400 mb-4">
           {t("account.deleteAccount.description")}
         </p>
         

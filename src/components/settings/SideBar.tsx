@@ -1,12 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
-
 import CloseIcon from "../ui/icons/CloseIcon";
 import SettingsIcon from "../ui/icons/SettingsIcon";
 import CalendarIcon from "../ui/icons/CalendarIcon";
 import NetworkIcon from "../ui/icons/NetworkIcon";
 import BoxesIcon from "../ui/icons/BoxesIcon";
 import KeyboardIcon from "../ui/icons/KeyboardIcon";
-import ShieldIcon from "../ui/icons/ShieldIcon";
+import LanguagesIcon from "../ui/icons/LanguagesIcon";
 import CircleUserIcon from "../ui/icons/CircleUserIcon";
 import CreditCardIcon from "../ui/icons/CreditCardIcon";
 import CircleQuestionMarkIcon from "../ui/icons/CircleQuestionMarkIcon";
@@ -87,22 +86,11 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
             </button>
 
             <button
-              onClick={() => onSelectItem("Privacidade")}
-              className={`relative flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
-              text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === "Privacidade" ? "bg-neutral-800 text-white" : ""}`}
-            >
-              <ShieldIcon size={18}/>
-              Privacidade
-            </button>
-
-            <button
               onClick={() => onSelectItem("Profile")}
               className={`group relative flex items-center gap-3 p-2 w-full text-[#181719] hover:text-white text-sm font-medium rounded-lg transition
               text-[#181719] hover:bg-neutral-800 hover:text-white
               ${activeItem === "Profile" ? "bg-neutral-800 text-white" : ""}`}
             >
-
               <CircleUserIcon size={20} fill="#9D9DA3"/>
               <span className={`group-hover:text-white ${activeItem === "Profile" ? "text-white" : "text-neutral-400"}`}>
                 Profile
@@ -110,14 +98,51 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
             </button>
 
             <button
-              onClick={() => onSelectItem("Billing")}
+              onClick={() => onSelectItem("Languages")}
               className={`relative flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
+              text-neutral-300 hover:bg-neutral-800 hover:text-white
+              ${activeItem === "Languages" ? "bg-neutral-800 text-white" : ""}`}
+            >
+              <LanguagesIcon size={18}/>
+              Languages
+            </button>
+
+
+            <button
+              onClick={() => onSelectItem("Billing")}
+              className={`relative mb-4 flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
               text-neutral-300 hover:bg-neutral-800 hover:text-white
               ${activeItem === "Billing" ? "bg-neutral-800 text-white" : ""}`}
             >
               <CreditCardIcon size={18}/>
               Billing
             </button>
+
+            <span className="text-xs text-neutral-400 p-2">Support</span>
+
+            <button
+              onClick={() => onSelectItem("Changelog")}
+              className={`relative flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
+              text-neutral-300 hover:bg-neutral-800 hover:text-white
+              ${activeItem === "Changelog" ? "bg-neutral-800 text-white" : ""}`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18" 
+                height="18"
+                viewBox="0 0 24 24" 
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 7v14"/>
+                <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
+              </svg>
+              Changelog
+            </button>
+
 
             <button
               onClick={() => onSelectItem("Help Center")}
@@ -131,6 +156,54 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                 Help Center
               </span>
             </button>
+
+            <a
+              href="https://form.typeform.com"
+              className={`group relative flex items-center justify-between p-2 w-full text-[#181719] hover:text-white text-sm font-medium rounded-lg transition
+              hover:bg-neutral-800
+              ${activeItem === "Help Center" ? "bg-neutral-800 text-white" : ""}`}
+            >
+
+              <div className="flex items-center gap-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24" 
+                  fill="#9D9DA3"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round" 
+                >
+                  <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
+                  <path d="M7 11h10"/>
+                  <path d="M7 15h6"/>
+                  <path d="M7 7h8"/>
+                </svg>
+
+                <span className="group-hover:text-white font-medium text-neutral-400">
+                  Report a bug
+                </span>
+              </div>
+
+              <svg 
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24" 
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2" 
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <path d="M7 7h10v10"/>
+                <path d="M7 17 17 7"/>
+              </svg>
+            </a>
+
           </div>
 
           <div className="flex flex-col items-start gap-1 pt-4 mt-auto">
@@ -159,7 +232,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={handleQuit}
             >
               <CircleUserIcon size={20} fill="#9D9DA3"/>
-              <span className="text-neutral-400 group-hover:text-white">Quit PrimerAI</span>
+              <span className="text-neutral-400 group-hover:text-white">Quit Primer</span>
             </button>
           </div> 
          

@@ -51,6 +51,13 @@ export class WebSpeechService {
       }
     }
   
+    setLanguage(lang: string): void {
+      if (this.recognition) {
+        this.recognition.lang = lang;
+        console.log(`[WebSpeechService] Language set to: ${lang}`);
+      }
+    }
+
     startListening(
       onResult: (text: string) => void,
       onInterim?: (text: string) => void,

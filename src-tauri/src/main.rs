@@ -122,11 +122,42 @@ async fn toggle_global_stealth(app: tauri::AppHandle) {
     }
 }
 
+fn get_data_dir() -> std::path::PathBuf {
+    let identifier = "com.primer.dev";
+    
+    #[cfg(target_os = "windows")]
+    {
+        let app_data = std::env::var("APPDATA").expect("APPDATA not set");
+        std::path::PathBuf::from(app_data).join(identifier)
+    }
+    #[cfg(target_os = "macos")]
+    {
+        let home = std::env::var("HOME").expect("HOME not set");
+        std::path::PathBuf::from(home).join("Library/Application Support").join(identifier)
+    }
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    {
+        let home = std::env::var("HOME").expect("HOME not set");
+        std::path::PathBuf::from(home).join(".local/share").join(identifier)
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let config = Config::from_env();
 
-    let app_state = AppState::initialize(&config)
+    // Initialize Database Path
+    let app_local_data_dir = get_data_dir();
+    std::fs::create_dir_all(&app_local_data_dir)
+        .expect("failed to create app data directory");
+    
+    let db_path = app_local_data_dir.join("primer.sqlite");
+    let db_url = format!("sqlite:{}", db_path.to_string_lossy());
+    
+    log::info!("Initializing AppState with database at: {}", db_url);
+
+    // Initialize AppState (Async)
+    let app_state = AppState::initialize(&config, Some(db_url))
         .await
         .expect("failed to initialize application state");
 
@@ -165,6 +196,8 @@ async fn main() {
         .invoke_handler(tauri::generate_handler![
             // user commands
             user_commands::login,
+            user_commands::google_login,
+            user_commands::get_google_auth_url,
             user_commands::register,
             user_commands::reset_password,
             user_commands::add_api_key,
@@ -234,7 +267,7 @@ async fn main() {
             // Ollama commands
             ollama_commands::get_ollama_models,
         ])
-        .setup(|app| {
+        .setup(move |app| {
             let win = app.get_webview_window("main").unwrap();
 
             // 🧱 Limita a largura do conteúdo (não da janela fullscreen)

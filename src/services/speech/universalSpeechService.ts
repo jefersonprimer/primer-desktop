@@ -20,6 +20,10 @@ export class UniversalSpeechService {
       invoke('log_frontend_message', { message: `[UniversalSpeechService] Mode set to: ${mode}` }).catch(console.error);
   }
 
+  setLanguage(lang: string) {
+      this.webSpeech.setLanguage(lang);
+  }
+
   async startListening(
     onResult: (text: string) => void,
     onInterim?: (text: string) => void,

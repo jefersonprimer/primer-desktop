@@ -13,6 +13,20 @@ pub struct LoginResponse {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+pub struct GoogleLoginDto {
+    pub email: String,
+    pub name: String,
+    pub google_id: String,
+    pub picture: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GoogleLoginResponse {
+    pub token: String,
+    pub user_id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct RegisterDto {
     pub email: String,
     pub password: String,

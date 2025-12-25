@@ -136,6 +136,7 @@ pub async fn transcribe_with_whisper<R: Runtime>(
     app: AppHandle<R>,
     audio_path: String,
     model: String,
+    language: String,
 ) -> Result<String, String> {
     use tauri::path::BaseDirectory;
     use log::{info, error};
@@ -169,16 +170,24 @@ pub async fn transcribe_with_whisper<R: Runtime>(
 
     // -m model
     // -f file
-    // -l pt (Portuguese)
+    // -l lang
     // -nt (No timestamps)
     info!("[Whisper] Executing whisper command...");
+    
+    // Extract 2-letter code if possible (e.g., pt-BR -> pt)
+    let lang_code = if language.contains('-') {
+        language.split('-').next().unwrap_or(&language)
+    } else {
+        &language
+    };
+
     let output = Command::new(resource_path)
         .arg("-m")
         .arg(model_path)
         .arg("-f")
         .arg(&audio_path)
         .arg("-l")
-        .arg("pt") 
+        .arg(lang_code) 
         .arg("-nt") 
         .output()
         .map_err(|e| format!("Failed to execute whisper: {}", e))?;
@@ -203,6 +212,7 @@ pub async fn transcribe_with_whisper<R: Runtime>(
     _app: AppHandle<R>,
     _audio_path: String,
     _model: String,
+    _language: String,
 ) -> Result<String, String> {
     Err("Whisper is only supported on Linux".to_string())
 }

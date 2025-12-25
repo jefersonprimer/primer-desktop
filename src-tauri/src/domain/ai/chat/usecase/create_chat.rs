@@ -17,29 +17,20 @@ impl CreateChatUseCase {
     }
 
             pub async fn execute(&self, user_id: Uuid, title: Option<String>, prompt_preset_id: Option<String>, model: Option<String>) -> Result<Chat> {
+                // Sanitize prompt_preset_id: treat empty or whitespace strings as None
+                let prompt_preset_id = prompt_preset_id.filter(|s| !s.trim().is_empty());
 
                 let new_chat = Chat {
-
                     id: Uuid::new_v4(),
-
                     user_id,
-
                     title,
-
                     prompt_preset_id,
-
                     model,
-
                     created_at: Utc::now(),
-
                     updated_at: Utc::now(),
-
                 };
-
         
-
                 self.chat_repo.create(new_chat).await
-
             }
 
         

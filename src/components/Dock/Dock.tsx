@@ -42,7 +42,15 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
   const { userEmail, logout } = useAuth();
 
   const [showAssistantSelector, setShowAssistantSelector] = useState(false);
-  const { activePromptPreset, setActivePromptPreset, activeProvider, activeModel, getApiKeyForProvider, setLastUserMessage } = useAi();
+  const { 
+    activePromptPreset, 
+    setActivePromptPreset, 
+    activeProvider, 
+    activeModel, 
+    outputLanguage,
+    getApiKeyForProvider, 
+    setLastUserMessage 
+  } = useAi();
   const [activePresetName, setActivePresetName] = useState("Default");
 
   // Speech & AI state
@@ -145,7 +153,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
 
     try {
       console.log("[Dock] Generating actions via AI service...");
-      const generatedActions = await generateActions(textToProcess, activeProvider, apiKey, activeModel);
+      const generatedActions = await generateActions(textToProcess, activeProvider, apiKey, activeModel, outputLanguage);
       console.log("[Dock] Actions generated:", generatedActions);
       setActions(generatedActions);
     } catch (e) {

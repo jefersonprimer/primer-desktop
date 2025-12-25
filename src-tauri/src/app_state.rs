@@ -88,10 +88,14 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub async fn initialize(config: &Config) -> Result<Self> {
+    pub async fn initialize(config: &Config, db_url: Option<String>) -> Result<Self> {
         // --- Database connections ---
-        let sqlite_url = std::env::var("SQLITE_DATABASE_URL")
-            .unwrap_or_else(|_| "sqlite:../primer.sqlite".to_string());
+        let sqlite_url = if let Some(url) = db_url {
+            url
+        } else {
+            std::env::var("SQLITE_DATABASE_URL")
+                .unwrap_or_else(|_| "sqlite:../primer.sqlite".to_string())
+        };
         let sqlite_pool: SqlitePool = connect_sqlite(&sqlite_url).await?;
         migrate_sqlite(&sqlite_pool).await?;
 

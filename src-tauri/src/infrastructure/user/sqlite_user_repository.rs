@@ -22,13 +22,16 @@ impl UserRepository for SqliteUserRepository {
     async fn create(&self, user: User) -> Result<User> {
         sqlx::query(
             r#"
-            INSERT INTO users (id, email, password_hash, created_at, updated_at)
-            VALUES (?1, ?2, ?3, ?4, ?5)
+            INSERT INTO users (id, email, password_hash, google_id, full_name, profile_picture, created_at, updated_at)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
             "#
         )
         .bind(user.id.to_string())
         .bind(user.email.clone())
         .bind(user.password_hash.clone())
+        .bind(user.google_id.clone())
+        .bind(user.full_name.clone())
+        .bind(user.profile_picture.clone())
         .bind(user.created_at)
         .bind(user.updated_at)
         .execute(&self.pool)
@@ -41,7 +44,7 @@ impl UserRepository for SqliteUserRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<User>> {
         let rec = sqlx::query_as::<_, User>(
             r#"
-            SELECT id, email, password_hash, created_at, updated_at
+            SELECT id, email, password_hash, google_id, full_name, profile_picture, created_at, updated_at
             FROM users
             WHERE id = ?1
             "#
@@ -57,7 +60,7 @@ impl UserRepository for SqliteUserRepository {
     async fn find_by_email(&self, email: &str) -> Result<Option<User>> {
         let rec = sqlx::query_as::<_, User>(
             r#"
-            SELECT id, email, password_hash, created_at, updated_at
+            SELECT id, email, password_hash, google_id, full_name, profile_picture, created_at, updated_at
             FROM users
             WHERE email = ?1
             "#
@@ -70,17 +73,36 @@ impl UserRepository for SqliteUserRepository {
         Ok(rec)
     }
 
+    async fn find_by_google_id(&self, google_id: &str) -> Result<Option<User>> {
+        let rec = sqlx::query_as::<_, User>(
+            r#"
+            SELECT id, email, password_hash, google_id, full_name, profile_picture, created_at, updated_at
+            FROM users
+            WHERE google_id = ?1
+            "#
+        )
+        .bind(google_id)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| anyhow!("Failed to find user by google_id: {}", e))?;
+
+        Ok(rec)
+    }
+
     async fn update(&self, user: User) -> Result<User> {
         sqlx::query(
             r#"
             UPDATE users
-            SET email = ?2, password_hash = ?3, updated_at = ?4
+            SET email = ?2, password_hash = ?3, google_id = ?4, full_name = ?5, profile_picture = ?6, updated_at = ?7
             WHERE id = ?1
             "#
         )
         .bind(user.id.to_string())
         .bind(user.email.clone())
         .bind(user.password_hash.clone())
+        .bind(user.google_id.clone())
+        .bind(user.full_name.clone())
+        .bind(user.profile_picture.clone())
         .bind(user.updated_at)
         .execute(&self.pool)
         .await

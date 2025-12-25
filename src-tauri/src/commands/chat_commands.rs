@@ -36,10 +36,22 @@ pub async fn create_chat(dto: CreateChatDto, state: State<'_, AppState>) -> Resu
     let user_id = Uuid::parse_str(&dto.user_id)
         .map_err(|e| format!("Invalid user_id format: {}", e))?;
 
-    create_chat_usecase.execute(user_id, dto.title, dto.prompt_preset_id, dto.model)
-        .await
-        .map(|chat| CreateChatResponse { chat_id: chat.id.to_string() })
-        .map_err(|e| e.to_string())
+    // Attempt to create chat. If it fails due to FK constraint (likely invalid prompt_preset_id), retry with None.
+    match create_chat_usecase.execute(user_id, dto.title.clone(), dto.prompt_preset_id.clone(), dto.model.clone()).await {
+        Ok(chat) => Ok(CreateChatResponse { chat_id: chat.id.to_string() }),
+        Err(e) => {
+             let err_msg = e.to_string();
+             if err_msg.contains("FOREIGN KEY constraint failed") {
+                 log::warn!("Create chat failed with preset {:?}, retrying with None. Error: {}", dto.prompt_preset_id, err_msg);
+                 create_chat_usecase.execute(user_id, dto.title, None, dto.model)
+                    .await
+                    .map(|chat| CreateChatResponse { chat_id: chat.id.to_string() })
+                    .map_err(|e| e.to_string())
+             } else {
+                 Err(err_msg)
+             }
+        }
+    }
 }
 
 #[tauri::command]
@@ -62,6 +74,7 @@ pub async fn send_message(dto: SendMessageDto, state: State<'_, AppState>) -> Re
         temperature: dto.temperature,
         max_tokens: dto.max_tokens,
         image: dto.image,
+        output_language: dto.output_language,
     };
 
     send_message_usecase.execute(request)

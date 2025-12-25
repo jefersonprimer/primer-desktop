@@ -59,7 +59,7 @@ export default function HelpTab() {
           <div className="bg-[#242425] text-white rounded-lg">
             <div className="p-4 space-y-4">
               <p className="text-base font-medium flex items-center gap-2">
-                <CircleQuestionMarkIcon size={20} color="#141414" fill="#B9B9B9" />
+                <CircleQuestionMarkIcon size={20} stroke="#141414" fill="#B9B9B9" />
                 Suporte
               </p>
               <p className="text-sm text-gray-400">Precisa de ajuda com algo específico? Confira nossa documentação.</p>

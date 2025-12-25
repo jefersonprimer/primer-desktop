@@ -9,11 +9,12 @@ import GoogleTab from "./GoogleTab";
 import OpenAiTab from "./OpenAiTab";
 import OpenRouterTab from "./OpenRouterTab";
 import CustomTab from "./CustomTab";
-import PrivacyTab from "./PrivacyTab";
+import LanguagesTab from "./LanguagesTab";
 import ResourcesTab from "./ResourcesTab";
 import ShortcutsTab from "./ShortcutsTab";
 import AccountTab from "./AccountTab";
 import PremiumTab from "./PremiumTab";
+import ChangelogTab from "./ChangelogTab";
 import HelpTab from "./HelpTab";
 import { useAuth } from "../../contexts/AuthContext";
 import { useAi } from "../../contexts/AiContext";
@@ -183,12 +184,14 @@ export default function SettingsModal({ open, onClose }: Props) {
         return <ResourcesTab />;
       case "Keybinds":
         return <ShortcutsTab />;
-      case "Privacidade":
-        return <PrivacyTab />;
+      case "Languages":
+        return <LanguagesTab />;
       case "Profile":
         return <AccountTab/>;
       case "Billing":
         return <PremiumTab/>;
+      case "Changelog":
+        return <ChangelogTab/>;
       case "Help Center":
         return <HelpTab/>;
       default:

@@ -19,6 +19,12 @@ interface AiContextType {
   transcriptionModel: string;
   setTranscriptionModel: (model: string) => void;
   
+  transcriptionLanguage: string;
+  setTranscriptionLanguage: (lang: string) => void;
+
+  outputLanguage: string;
+  setOutputLanguage: (lang: string) => void;
+
   imageModel: string;
   setImageModel: (model: string) => void;
 
@@ -62,6 +68,14 @@ export function AiProvider({ children }: { children: ReactNode }) {
       OpenRouter: localStorage.getItem("ai_transcription_model_OpenRouter") || "whisper.cpp",
       Custom: localStorage.getItem("ai_transcription_model_Custom") || "whisper.cpp"
     };
+  });
+
+  const [transcriptionLanguage, setTranscriptionLanguageState] = useState<string>(() => {
+    return localStorage.getItem("ai_transcription_language") || "pt-BR";
+  });
+
+  const [outputLanguage, setOutputLanguageState] = useState<string>(() => {
+    return localStorage.getItem("ai_output_language") || "pt-BR";
   });
 
   const [imageModel, setImageModelState] = useState<string>(() => {
@@ -143,6 +157,16 @@ export function AiProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(`ai_transcription_model_${targetProvider}`, model);
   };
 
+  const setTranscriptionLanguage = (lang: string) => {
+    setTranscriptionLanguageState(lang);
+    localStorage.setItem("ai_transcription_language", lang);
+  };
+
+  const setOutputLanguage = (lang: string) => {
+    setOutputLanguageState(lang);
+    localStorage.setItem("ai_output_language", lang);
+  };
+
   const setImageModel = (model: string) => {
     setImageModelState(model);
     localStorage.setItem("ai_image_model", model);
@@ -188,6 +212,10 @@ export function AiProvider({ children }: { children: ReactNode }) {
       setActiveModel,
       transcriptionModel,
       setTranscriptionModel: (model) => updateTranscriptionModelForProvider(activeProvider, model),
+      transcriptionLanguage,
+      setTranscriptionLanguage,
+      outputLanguage,
+      setOutputLanguage,
       imageModel,
       setImageModel,
       inputDeviceId,

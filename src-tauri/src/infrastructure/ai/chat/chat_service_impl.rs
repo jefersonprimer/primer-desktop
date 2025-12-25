@@ -97,22 +97,6 @@ impl ChatService for ChatServiceImpl {
         // Convert previous messages to ChatMessage format for the AI provider
         let mut chat_messages: Vec<ChatMessage> = Vec::new();
 
-        let json_instruction = "\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas\n\nResponda em JSON no formato:\n{\n  \"answer\": string,\n  \"follow_ups\": string[]\n}";
-
-        if let Some(prompt) = system_prompt {
-             chat_messages.push(ChatMessage {
-                 role: "system".to_string(),
-                 content: format!("{}{}", prompt, json_instruction),
-                 image: None,
-             });
-        } else {
-             chat_messages.push(ChatMessage {
-                 role: "system".to_string(),
-                 content: json_instruction.to_string(),
-                 image: None,
-             });
-        }
-
         let history_messages: Vec<ChatMessage> = previous_messages
             .iter()
             .map(|msg| {
@@ -128,7 +112,31 @@ impl ChatService for ChatServiceImpl {
                 }
             })
             .collect();
-        
+
+        let lang_instruction = match &request.output_language {
+            Some(lang) => format!("\n- Responda OBRIGATORIAMENTE no idioma: {}", lang),
+            None => "".to_string(),
+        };
+
+        let json_instruction = format!(
+            "\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas{}\n\nResponda em JSON no formato:\n{{\n  \"answer\": string,\n  \"follow_ups\": string[]\n}}",
+            lang_instruction
+        );
+
+        if let Some(prompt) = system_prompt {
+             chat_messages.push(ChatMessage {
+                 role: "system".to_string(),
+                 content: format!("{}{}", prompt, json_instruction),
+                 image: None,
+             });
+        } else {
+             chat_messages.push(ChatMessage {
+                 role: "system".to_string(),
+                 content: json_instruction,
+                 image: None,
+             });
+        }
+
         chat_messages.extend(history_messages);
 
         let chat_req = ChatCompletionRequest {
@@ -146,13 +154,13 @@ impl ChatService for ChatServiceImpl {
         };
 
         // 5. Extract AI response content
-        let ai_response_message_content = ai_response.choices.first() // Changed .get(0) to .first()
-            .map(|choice| choice.message.content.clone()) // Changed .and_then to .map
+        let ai_response_message_content = ai_response.choices.first() 
+            .map(|choice| choice.message.content.clone()) 
             .ok_or_else(|| anyhow!("No response from AI"))?;
         
-        let ai_response_message_role = ai_response.choices.first() // Changed .get(0) to .first()
-            .map(|choice| choice.message.role.clone()) // Changed .and_then to .map
-            .unwrap_or_else(|| "assistant".to_string()); // Default to "assistant"
+        let ai_response_message_role = ai_response.choices.first() 
+            .map(|choice| choice.message.role.clone()) 
+            .unwrap_or_else(|| "assistant".to_string()); 
 
         // Parse JSON response
         let (content, follow_ups) = match serde_json::from_str::<AiResponse>(&ai_response_message_content) {

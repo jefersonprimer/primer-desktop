@@ -20,11 +20,12 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
   const fullTranscriptRef = useRef('');
   const serviceRef = useRef<UniversalSpeechService | null>(null);
 
-  const { activeProvider, transcriptionModel, getApiKeyForProvider } = useAi();
+  const { activeProvider, transcriptionModel, transcriptionLanguage, getApiKeyForProvider } = useAi();
   const { addNotification } = useNotification();
 
   useEffect(() => {
     serviceRef.current = new UniversalSpeechService();
+    serviceRef.current.setLanguage(transcriptionLanguage);
 
     // Check if already recording (for Whisper/Backend persistence)
     const checkStatus = async () => {
@@ -88,8 +89,12 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
             if (transcriptionModel === 'whisper_cpp' || activeProvider === "OpenRouter") {
                  log("[useSpeechRecognition] Using Whisper CPP local.");
                  const whisperModelName = localStorage.getItem("whisper_model") || "tiny";
-                 log(`[useSpeechRecognition] Invoking transcribe_with_whisper with model ${whisperModelName}...`);
-                 finalMetadata = await invoke<string>('transcribe_with_whisper', { audioPath, model: whisperModelName });
+                 log(`[useSpeechRecognition] Invoking transcribe_with_whisper with model ${whisperModelName} and lang ${transcriptionLanguage}...`);
+                 finalMetadata = await invoke<string>('transcribe_with_whisper', { 
+                   audioPath, 
+                   model: whisperModelName,
+                   language: transcriptionLanguage 
+                 });
                  log(`[useSpeechRecognition] Whisper returned length: ${finalMetadata.length}`);
             } else {
                  log(`[useSpeechRecognition] Using Cloud API: ${activeProvider}`);
@@ -105,7 +110,7 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
                      log("[useSpeechRecognition] Reading audio file...");
                      const audioBase64 = await invoke<string>('read_audio_file', { path: audioPath });
                      log("[useSpeechRecognition] Transcribing via API...");
-                     finalMetadata = await transcribeAudio(audioBase64, activeProvider, transcriptionModel, apiKey);
+                     finalMetadata = await transcribeAudio(audioBase64, activeProvider, transcriptionModel, apiKey, transcriptionLanguage);
                  }
             }
             
@@ -131,7 +136,7 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
             type: 'error'
         });
     }
-  }, [isListening, onResult, onEnd, activeProvider, transcriptionModel, getApiKeyForProvider, addNotification]);
+  }, [isListening, onResult, onEnd, activeProvider, transcriptionModel, transcriptionLanguage, getApiKeyForProvider, addNotification]);
 
   // Use an effect to trigger stopListening when the event fires
   useEffect(() => {
@@ -214,6 +219,7 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
     try {
         const mode = transcriptionModel === 'web_speech_api' ? 'web_speech' : 'backend_recording';
         serviceRef.current?.setMode(mode);
+        serviceRef.current?.setLanguage(transcriptionLanguage);
 
         await serviceRef.current?.startListening(
             (text) => {
@@ -254,7 +260,7 @@ export function useSpeechRecognition({ onResult, onEnd }: UseSpeechRecognitionPr
             });
         }
     }
-  }, [isListening, onResult, onEnd, transcriptionModel, addNotification]);
+  }, [isListening, onResult, onEnd, transcriptionModel, transcriptionLanguage, addNotification]);
 
   return {
     isListening,
