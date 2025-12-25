@@ -21,6 +21,7 @@ use crate::domain::user::{
         DeleteAccountDto, DeleteAccountResponse,
         SessionResponse, ClearSessionResponse,
         GetShortcutsDto, GetShortcutsResponse, ShortcutDto,
+        ClearAllDataDto, ClearAllDataResponse,
     },
 };
 use crate::app_state::AppState;
@@ -215,6 +216,18 @@ pub async fn clear_session(state: State<'_, AppState>) -> Result<ClearSessionRes
     Ok(ClearSessionResponse {
         message: "Session cleared successfully".to_string(),
     })
+}
+
+#[tauri::command]
+pub async fn clear_all_data(dto: ClearAllDataDto, state: State<'_, AppState>) -> Result<ClearAllDataResponse, String> {
+    let user_id = Uuid::parse_str(&dto.user_id)
+        .map_err(|e| format!("Invalid user_id format: {}", e))?;
+
+    state.maintenance_repo.clear_all_data(user_id)
+        .await
+        .map_err(|e| format!("Failed to clear all data: {}", e))?;
+
+    Ok(ClearAllDataResponse { message: "All data cleared successfully".to_string() })
 }
 
 #[tauri::command]

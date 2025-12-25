@@ -15,6 +15,7 @@ export default function AccountTab() {
   const { addNotification } = useNotification();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isClearingData, setIsClearingData] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
 
   const handleLanguageChange = async (value: string) => {
@@ -25,6 +26,37 @@ export default function AccountTab() {
           console.error("Failed to save language preference:", err);
       }
       setIsLanguageDropdownOpen(false);
+  };
+
+  const handleClearAllData = async () => {
+    if (!userId || isClearingData) return;
+
+    if (!confirm(t("account.dataManagement.confirmClear"))) {
+       return;
+    }
+    
+    setIsClearingData(true);
+    try {
+      await invoke("clear_all_data", {
+        dto: {
+          user_id: userId,
+        },
+      });
+      
+      addNotification({
+        type: 'success',
+        message: t("account.dataManagement.successClear")
+      });
+
+    } catch (error) {
+      console.error("Failed to clear data:", error);
+      addNotification({
+        type: 'error',
+        message: t("account.dataManagement.errorClear")
+      });
+    } finally {
+      setIsClearingData(false);
+    }
   };
   
   const handleDeleteAccount = async (password: string) => {
@@ -159,8 +191,12 @@ export default function AccountTab() {
           </div>
         </div>
 
-        <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-sm cursor-pointer">
-          {t("account.dataManagement.clearAll")}
+        <button 
+          onClick={handleClearAllData}
+          disabled={isClearingData}
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-sm cursor-pointer ${isClearingData ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {isClearingData ? "..." : t("account.dataManagement.clearAll")}
         </button>
       </div>
 

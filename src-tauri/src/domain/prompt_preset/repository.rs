@@ -9,4 +9,5 @@ pub trait PromptPresetRepository: Send + Sync {
     async fn save(&self, preset: &PromptPreset) -> Result<PromptPreset>;
     async fn update(&self, preset: &PromptPreset) -> Result<PromptPreset>;
     async fn delete(&self, id: &str) -> Result<()>;
+    async fn delete_all_custom(&self) -> Result<()>;
 }

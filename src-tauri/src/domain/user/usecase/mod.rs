@@ -6,3 +6,4 @@ pub mod reset_password;
 pub mod add_api_key;
 pub mod get_api_keys;
 pub mod delete_api_key;
+pub mod delete_all_api_keys;

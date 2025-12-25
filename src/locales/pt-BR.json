@@ -18,7 +18,10 @@
       "sessions": "SESSÕES",
       "messages": "MENSAGENS",
       "active": "ATIVO",
-      "clearAll": "Limpar Todos os Dados"
+      "clearAll": "Limpar Todos os Dados",
+      "confirmClear": "Tem certeza que deseja limpar todos os dados? Isso não pode ser desfeito.",
+      "successClear": "Todos os dados foram limpos com sucesso.",
+      "errorClear": "Falha ao limpar dados."
     },
     "deleteAccount": {
       "title": "Excluir Conta",

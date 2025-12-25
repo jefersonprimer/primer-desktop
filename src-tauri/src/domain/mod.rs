@@ -3,3 +3,4 @@ pub mod config;
 pub mod notification;
 pub mod user;
 pub mod prompt_preset;
+pub mod maintenance;

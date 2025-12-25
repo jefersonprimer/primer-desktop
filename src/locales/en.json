@@ -18,7 +18,10 @@
       "sessions": "SESSIONS",
       "messages": "MESSAGES",
       "active": "ACTIVE",
-      "clearAll": "Clear All Data"
+      "clearAll": "Clear All Data",
+      "confirmClear": "Are you sure you want to clear all data? This cannot be undone.",
+      "successClear": "All data cleared successfully.",
+      "errorClear": "Failed to clear data."
     },
     "deleteAccount": {
       "title": "Delete Account",

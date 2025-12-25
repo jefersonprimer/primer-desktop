@@ -134,3 +134,13 @@ pub struct GetShortcutsDto {
 pub struct GetShortcutsResponse {
     pub shortcuts: Vec<ShortcutDto>,
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ClearAllDataDto {
+    pub user_id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ClearAllDataResponse {
+    pub message: String,
+}

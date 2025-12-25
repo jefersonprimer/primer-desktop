@@ -104,4 +104,18 @@ impl PromptPresetRepository for SqlitePromptPresetRepository {
 
         Ok(())
     }
+
+    async fn delete_all_custom(&self) -> Result<()> {
+        sqlx::query(
+            r#"
+            DELETE FROM prompt_presets
+            WHERE is_built_in = 0
+            "#
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| anyhow!("Failed to delete custom prompt presets: {}", e))?;
+
+        Ok(())
+    }
 }

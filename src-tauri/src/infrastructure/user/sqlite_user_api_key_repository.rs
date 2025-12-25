@@ -88,4 +88,19 @@ impl UserApiKeyRepository for SqliteUserApiKeyRepository {
 
         Ok(())
     }
+
+    async fn delete_all_by_user_id(&self, user_id: Uuid) -> Result<()> {
+        sqlx::query(
+            r#"
+            DELETE FROM user_api_keys
+            WHERE user_id = ?1
+            "#
+        )
+        .bind(user_id.to_string())
+        .execute(&self.pool)
+        .await
+        .map_err(|e| anyhow!("Failed to delete all api keys: {}", e))?;
+
+        Ok(())
+    }
 }

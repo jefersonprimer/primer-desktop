@@ -33,6 +33,7 @@ use crate::{
         },
         config::repository::ConfigRepository,
         prompt_preset::repository::PromptPresetRepository,
+        maintenance::repository::MaintenanceRepository,
     },
     infrastructure::{
         ai::{
@@ -63,6 +64,7 @@ use crate::{
         },
         config::sqlite::SqliteConfigRepository,
         prompt_preset::sqlite_repository::SqlitePromptPresetRepository,
+        maintenance::sqlite_repository::SqliteMaintenanceRepository,
     },
 };
 
@@ -78,6 +80,7 @@ pub struct AppState {
 
     pub config_repo: Arc<dyn ConfigRepository>,
     pub prompt_preset_repo: Arc<dyn PromptPresetRepository>,
+    pub maintenance_repo: Arc<dyn MaintenanceRepository>,
 
     pub chat_service: Arc<dyn ChatService>,
 
@@ -112,6 +115,9 @@ impl AppState {
 
         let prompt_preset_repo: Arc<dyn PromptPresetRepository> =
             Arc::new(SqlitePromptPresetRepository::new(sqlite_pool.clone()));
+
+        let maintenance_repo: Arc<dyn MaintenanceRepository> =
+            Arc::new(SqliteMaintenanceRepository::new(sqlite_pool.clone()));
 
         let pg_url = &config.database.database_url;
         let pg_pool_result = connect_pg(pg_url).await;
@@ -189,6 +195,7 @@ impl AppState {
             postgres_message_repo,
             config_repo,
             prompt_preset_repo,
+            maintenance_repo,
             chat_service,
             password_hasher,
             token_generator,
