@@ -3,6 +3,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { StealthModeProvider } from "./contexts/StealthModeContext";
 import { AiProvider } from "./contexts/AiContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import NotificationContainer from "./components/ui/NotificationContainer";
 import AppRoutes from "./routes";
 import StealthMirror from "./components/StealthMirror";
@@ -33,13 +34,15 @@ function App() {
       <StealthModeProvider>
         <AiProvider>
           <NotificationProvider>
-            <HashRouter>
-              <StealthMirror />
-              <div className="w-full max-w-[1440px] mx-auto h-screen relative">
-                <AppRoutes />
-              </div>
-              <NotificationContainer />
-            </HashRouter>
+            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+              <HashRouter>
+                <StealthMirror />
+                <div className="w-full max-w-[1440px] mx-auto h-screen relative">
+                  <AppRoutes />
+                </div>
+                <NotificationContainer />
+              </HashRouter>
+            </ThemeProvider>
           </NotificationProvider>
         </AiProvider>
       </StealthModeProvider>

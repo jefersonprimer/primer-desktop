@@ -21,25 +21,31 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
     await invoke("close_app");
   };
 
+  const itemClass = (isActive: boolean) => `
+    relative flex items-center gap-3 p-2 w-full text-sm font-medium rounded-lg transition
+    ${isActive 
+      ? "bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white" 
+      : "text-gray-600 dark:text-neutral-400 hover:bg-gray-50 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white"
+    }
+  `;
+
   return (
-    <aside className="w-52 bg-[#181719] border-r border-neutral-700 h-full flex flex-col">
+    <aside className="w-52 bg-white dark:bg-[#181719] border-r border-gray-200 dark:border-neutral-700 h-full flex flex-col">
       <div className="flex items-center justify-between p-3 shrink-0">
         <button
           onClick={onClose}
-          className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
+          className="text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 p-1 rounded-full transition-colors"
         >
           <CloseIcon size={20}/>
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto py-3 px-2">
-        <nav className="flex flex-col h-full space-y-2">
-          <div className="flex-1">
+        <nav className="flex flex-col h-full space-y-1">
+          <div className="flex-1 space-y-1">
             <button
               onClick={() => onSelectItem("General")}
-              className={`relative flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
-              text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === "General" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "General")}
             >
               <SettingsIcon size={18}/>
               General
@@ -47,9 +53,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
             <button
               onClick={() => onSelectItem("Calendar")}
-              className={`relative flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
-              text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === "Calendar" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "Calendar")}
             >
               <CalendarIcon size={18}/>
               Calendar
@@ -57,9 +61,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
             <button
               onClick={() => onSelectItem("API e Modelos")}
-              className={`relative flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
-              text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === "API e Modelos" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "API e Modelos")}
             >
               <NetworkIcon size={18}/>
               API e Modelos
@@ -67,9 +69,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
             <button
               onClick={() => onSelectItem("Recursos")}
-              className={`relative flex items-center text-neutral-400 hover:text-white gap-3 p-2 w-full text-sm font-medium rounded-lg transition
-              text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === "Recursos" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "Recursos")}
             >
               <BoxesIcon size={18}/>
               Recursos
@@ -77,9 +77,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
             <button
               onClick={() => onSelectItem("Keybinds")}
-              className={`relative flex items-center gap-3 text-neutral-400 hover:text-white p-2 w-full text-sm font-medium rounded-lg transition
-              text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === "Keybinds" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "Keybinds")}
             >
               <KeyboardIcon size={18}/>
               Keybinds
@@ -87,21 +85,17 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
             <button
               onClick={() => onSelectItem("Profile")}
-              className={`group relative flex items-center gap-3 p-2 w-full text-[#181719] hover:text-white text-sm font-medium rounded-lg transition
-              text-[#181719] hover:bg-neutral-800 hover:text-white
-              ${activeItem === "Profile" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "Profile")}
             >
-              <CircleUserIcon size={20} fill="#9D9DA3"/>
-              <span className={`group-hover:text-white ${activeItem === "Profile" ? "text-white" : "text-neutral-400"}`}>
+              <CircleUserIcon size={20} className={activeItem === "Profile" ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-[#9D9DA3]"} />
+              <span>
                 Profile
               </span>
             </button>
 
             <button
               onClick={() => onSelectItem("Languages")}
-              className={`relative flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
-              text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === "Languages" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "Languages")}
             >
               <LanguagesIcon size={18}/>
               Languages
@@ -110,21 +104,19 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
             <button
               onClick={() => onSelectItem("Billing")}
-              className={`relative mb-4 flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
-              text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === "Billing" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "Billing")}
             >
               <CreditCardIcon size={18}/>
               Billing
             </button>
 
-            <span className="text-xs text-neutral-400 p-2">Support</span>
+            <div className="py-2">
+              <span className="text-xs font-medium text-gray-400 dark:text-neutral-500 px-2 uppercase tracking-wider">Support</span>
+            </div>
 
             <button
               onClick={() => onSelectItem("Changelog")}
-              className={`relative flex items-center gap-3 p-2 w-full text-neutral-400 hover:text-white text-sm font-medium rounded-lg transition
-              text-neutral-300 hover:bg-neutral-800 hover:text-white
-              ${activeItem === "Changelog" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "Changelog")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -133,9 +125,9 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                 viewBox="0 0 24 24" 
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <path d="M12 7v14"/>
                 <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
@@ -146,22 +138,17 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
             <button
               onClick={() => onSelectItem("Help Center")}
-              className={`group relative flex items-center gap-3 p-2 w-full text-[#181719] hover:text-white text-sm font-medium rounded-lg transition
-              hover:bg-neutral-800
-              ${activeItem === "Help Center" ? "bg-neutral-800 text-white" : ""}`}
+              className={itemClass(activeItem === "Help Center")}
             >
-
-              <CircleQuestionMarkIcon size={20} fill="#9D9DA3" />
-              <span className={`group-hover:text-white font-medium ${activeItem === "Help Center" ? "text-white" : "text-neutral-400"}`}>
+              <CircleQuestionMarkIcon size={20} className={activeItem === "Help Center" ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-[#9D9DA3]"} />
+              <span className="font-medium">
                 Help Center
               </span>
             </button>
 
             <a
               href="https://form.typeform.com"
-              className={`group relative flex items-center justify-between p-2 w-full text-[#181719] hover:text-white text-sm font-medium rounded-lg transition
-              hover:bg-neutral-800
-              ${activeItem === "Report a bug" ? "bg-neutral-800 text-white" : ""}`}
+              className={`group ${itemClass(activeItem === "Report a bug")} justify-between`}
             >
 
               <div className="flex items-center gap-3">
@@ -170,11 +157,12 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                   width="20"
                   height="20"
                   viewBox="0 0 24 24" 
-                  fill="#9D9DA3"
+                  fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round" 
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-gray-400 dark:text-[#9D9DA3]" 
                 >
                   <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
                   <path d="M7 11h10"/>
@@ -182,7 +170,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                   <path d="M7 7h8"/>
                 </svg>
 
-                <span className="group-hover:text-white font-medium text-neutral-400">
+                <span className="font-medium">
                   Report a bug
                 </span>
               </div>
@@ -197,7 +185,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                 strokeWidth="2" 
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 dark:text-neutral-500"
               >
                 <path d="M7 7h10v10"/>
                 <path d="M7 17 17 7"/>
@@ -206,8 +194,8 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
           </div>
 
-          <div className="flex flex-col items-start gap-1 pt-4 mt-auto">
-            <button className="flex items-center gap-3 p-2 w-full text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition">
+          <div className="flex flex-col items-start gap-1 pt-4 mt-auto border-t border-gray-100 dark:border-neutral-800">
+            <button className="flex items-center gap-3 p-2 w-full text-sm font-medium text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -215,9 +203,9 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round" 
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round" 
+                strokeLinejoin="round"
               >
                 <path d="m16 17 5-5-5-5"/>
                 <path d="M21 12H9"/>
@@ -228,11 +216,11 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
 
             <button 
-              className="group flex items-center gap-3 p-2 w-full text-sm font-medium text-[#181719] hover:text-white hover:bg-neutral-800 rounded-lg transition"
+              className="group flex items-center gap-3 p-2 w-full text-sm font-medium text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition"
               onClick={handleQuit}
             >
-              <CircleUserIcon size={20} fill="#9D9DA3"/>
-              <span className="text-neutral-400 group-hover:text-white">Quit Primer</span>
+              <CircleUserIcon size={20} className="text-gray-400 dark:text-[#9D9DA3] group-hover:text-gray-600 dark:group-hover:text-white"/>
+              <span>Quit Primer</span>
             </button>
           </div> 
          
