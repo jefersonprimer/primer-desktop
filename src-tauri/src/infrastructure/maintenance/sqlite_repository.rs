@@ -16,26 +16,40 @@ impl SqliteMaintenanceRepository {
 
 #[async_trait]
 impl MaintenanceRepository for SqliteMaintenanceRepository {
-    async fn clear_all_data(&self, user_id: Uuid) -> Result<()> {
+    async fn clear_all_data(&self, _user_id: Uuid) -> Result<()> {
         let mut tx = self.pool.begin().await.map_err(|e| anyhow!("Failed to begin transaction: {}", e))?;
 
-        // 1. Delete all chats (cascades to messages)
-        // Note: chats table user_id is NOT a foreign key to users table in local sqlite, so we delete by column.
-        sqlx::query("DELETE FROM chats WHERE user_id = ?1")
-            .bind(user_id.to_string())
+        // 1. Delete all messages
+        sqlx::query("DELETE FROM messages")
+            .execute(&mut *tx)
+            .await
+            .map_err(|e| anyhow!("Failed to delete messages: {}", e))?;
+
+        // 2. Delete all chats
+        sqlx::query("DELETE FROM chats")
             .execute(&mut *tx)
             .await
             .map_err(|e| anyhow!("Failed to delete chats: {}", e))?;
 
-        // 2. Delete all API keys
-        sqlx::query("DELETE FROM user_api_keys WHERE user_id = ?1")
-            .bind(user_id.to_string())
+        // 3. Delete all API keys
+        sqlx::query("DELETE FROM user_api_keys")
             .execute(&mut *tx)
             .await
             .map_err(|e| anyhow!("Failed to delete api keys: {}", e))?;
 
-        // 3. Delete all custom prompt presets (is_built_in = 0)
-        // These are global (no user_id column), so they are deleted for the app installation context.
+        // 4. Delete all users
+        sqlx::query("DELETE FROM users")
+            .execute(&mut *tx)
+            .await
+            .map_err(|e| anyhow!("Failed to delete users: {}", e))?;
+
+        // 5. Delete session (Force logout state)
+        sqlx::query("DELETE FROM session")
+            .execute(&mut *tx)
+            .await
+            .map_err(|e| anyhow!("Failed to delete session: {}", e))?;
+
+        // 6. Delete all custom prompt presets (is_built_in = 0)
         sqlx::query("DELETE FROM prompt_presets WHERE is_built_in = 0")
             .execute(&mut *tx)
             .await

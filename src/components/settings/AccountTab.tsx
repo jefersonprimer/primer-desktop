@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import DeleteAccountModal from "./DeleteAccountModal";
 import { invoke } from "@tauri-apps/api/core";
 import { useNotification } from "../../contexts/NotificationContext";
+import { createPortal } from "react-dom";
 
 import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
 import ChevronUpIcon from "../ui/icons/ChevronUpIcon";
@@ -14,6 +15,7 @@ export default function AccountTab() {
   const { userEmail, userId, userName, userPicture, logout } = useAuth();
   const { addNotification } = useNotification();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isClearDataModalOpen, setIsClearDataModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isClearingData, setIsClearingData] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
@@ -28,12 +30,13 @@ export default function AccountTab() {
       setIsLanguageDropdownOpen(false);
   };
 
-  const handleClearAllData = async () => {
+  const handleClearAllDataClick = () => {
     if (!userId || isClearingData) return;
+    setIsClearDataModalOpen(true);
+  };
 
-    if (!confirm(t("account.dataManagement.confirmClear"))) {
-       return;
-    }
+  const confirmClearData = async () => {
+    if (!userId) return;
     
     setIsClearingData(true);
     try {
@@ -47,6 +50,9 @@ export default function AccountTab() {
         type: 'success',
         message: t("account.dataManagement.successClear")
       });
+      
+      setIsClearDataModalOpen(false);
+      logout();
 
     } catch (error) {
       console.error("Failed to clear data:", error);
@@ -192,7 +198,7 @@ export default function AccountTab() {
         </div>
 
         <button 
-          onClick={handleClearAllData}
+          onClick={handleClearAllDataClick}
           disabled={isClearingData}
           className={`w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-sm cursor-pointer ${isClearingData ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
@@ -221,7 +227,60 @@ export default function AccountTab() {
         onConfirm={handleDeleteAccount}
         isLoading={isDeleting}
       />
+      
+      <ClearDataModal
+        isOpen={isClearDataModalOpen}
+        onClose={() => setIsClearDataModalOpen(false)}
+        onConfirm={confirmClearData}
+        isLoading={isClearingData}
+      />
     </div>
+  );
+}
+
+interface ClearDataModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+  isLoading: boolean;
+}
+
+function ClearDataModal({ isOpen, onClose, onConfirm, isLoading }: ClearDataModalProps) {
+  const { t } = useTranslation();
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-[#1D1D1F] border border-white/10 rounded-2xl p-6 shadow-2xl">
+        <h2 className="text-base font-semibold text-white mb-2">
+           {t("account.dataManagement.clearAll")}
+        </h2>
+        <p className="text-sm text-gray-300 mb-6">
+          {t("account.dataManagement.confirmClear")}
+        </p>
+
+        <div className="flex gap-3 pt-2">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition font-medium cursor-pointer"
+              disabled={isLoading}
+            >
+              {t("account.deleteAccount.cancelButton")}
+            </button>
+            <button
+              onClick={onConfirm}
+              className="flex-1 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500/20 transition font-medium flex items-center justify-center gap-2 cursor-pointer"
+              disabled={isLoading}
+            >
+              {isLoading && (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              )}
+              {t("account.dataManagement.clearAll")}
+            </button>
+          </div>
+      </div>
+    </div>,
+    document.body
   );
 }
 
