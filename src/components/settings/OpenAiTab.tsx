@@ -98,6 +98,7 @@ export default function OpenAiTab({
   };
 
   const [performanceMode, setPerformanceMode] = useState<PerformanceMode>(() => getInitialPerformanceMode(model));
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     setPerformanceMode(getInitialPerformanceMode(model));
@@ -110,6 +111,12 @@ export default function OpenAiTab({
     if (mode !== "personalizado") {
       setModel(performanceModes[mode].model);
     }
+  };
+
+  const handleSave = () => {
+    onSave();
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
   };
 
   return (
@@ -383,10 +390,14 @@ export default function OpenAiTab({
         </a>
 
         <button
-          onClick={onSave}
-          className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
+          onClick={handleSave}
+          className={`px-6 py-2 font-semibold rounded-lg transition ${
+            isSaved 
+              ? "bg-green-600 text-white hover:bg-green-700" 
+              : "bg-white text-black hover:bg-neutral-200"
+          }`}
         >
-          Salvar Alterações
+          {isSaved ? "Alterações Salvas" : "Salvar Alterações"}
         </button>
 
       </div>

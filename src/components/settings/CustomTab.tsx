@@ -40,6 +40,7 @@ export default function CustomTab({
   const [errorOllama, setErrorOllama] = useState("");
   const [activeWhisperModel, setActiveWhisperModel] = useState<string>(() => localStorage.getItem("whisper_model") || "tiny");
   const [showWhisperConfig, setShowWhisperConfig] = useState(transcriptionModel === "whisper_cpp");
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     if (transcriptionModel === "whisper_cpp") {
@@ -87,6 +88,12 @@ export default function CustomTab({
   const formatSize = (bytes: number) => {
     const gb = bytes / (1024 * 1024 * 1024);
     return `${gb.toFixed(2)} GB`;
+  };
+
+  const handleSave = () => {
+    onSave();
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
   };
 
   return (
@@ -249,10 +256,14 @@ export default function CustomTab({
 
       <div className="flex justify-end pt-4 border-t border-neutral-800">
         <button
-          onClick={onSave}
-          className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
+          onClick={handleSave}
+          className={`px-6 py-2 font-semibold rounded-lg transition ${
+            isSaved 
+              ? "bg-green-600 text-white hover:bg-green-700" 
+              : "bg-white text-black hover:bg-neutral-200"
+          }`}
         >
-          Salvar Alterações
+          {isSaved ? "Alterações Salvas" : "Salvar Alterações"}
         </button>
       </div>
 

@@ -36,6 +36,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
 
   const { addNotification } = useNotification();
   const [terminationStep, setTerminationStep] = useState<'none' | 'confirm_end' | 'confirm_email'>('none');
+  const [isCopied, setIsCopied] = useState(false);
 
   // Input state
   const [input, setInput] = useState("");
@@ -243,9 +244,12 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                             ? allAiResponses
                             : message;
                         navigator.clipboard.writeText(textToCopy);
+                        setIsCopied(true);
+                        setTimeout(() => setIsCopied(false), 2000);
                       }}
+                      title="Copy"
                     >
-                      <CopyIcon size={16}/>
+                      {isCopied ? <CheckIcon size={16}/> : <CopyIcon size={16}/>}
                     </button>
 
                     <button 

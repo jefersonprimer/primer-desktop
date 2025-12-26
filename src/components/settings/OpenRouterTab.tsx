@@ -32,6 +32,7 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
   const [availableModels, setAvailableModels] = useState<OpenRouterModel[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
   
   // Track specific whisper model selection
   const [activeWhisperModel, setActiveWhisperModel] = useState<string>(() => localStorage.getItem("whisper_model") || "tiny");
@@ -150,6 +151,12 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
     selectedModelInfo.pricing.prompt !== "?" &&
     parseFloat(selectedModelInfo.pricing.prompt) === 0 && 
     parseFloat(selectedModelInfo.pricing.completion) === 0;
+
+  const handleSave = () => {
+    onSave();
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
+  };
 
   return (
     <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300">
@@ -388,10 +395,14 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         </a>
 
         <button
-          onClick={onSave}
-          className="px-6 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition"
+          onClick={handleSave}
+          className={`px-6 py-2 font-semibold rounded-lg transition ${
+            isSaved 
+              ? "bg-green-600 text-white hover:bg-green-700" 
+              : "bg-white text-black hover:bg-neutral-200"
+          }`}
         >
-          Salvar Alterações
+          {isSaved ? "Alterações Salvas" : "Salvar Alterações"}
         </button>
 
       </div>
