@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { setAppLanguage } from "../../lib/tauri";
 import { useAuth } from "../../contexts/AuthContext";
@@ -19,6 +19,20 @@ export default function AccountTab() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isClearingData, setIsClearingData] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const [stats, setStats] = useState({ sessions: 0, messages: 0, active: 0 });
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const data = await invoke<{ sessions: number, messages: number, active: number }>("get_user_stats");
+      setStats(data);
+    } catch (error) {
+      console.error("Failed to fetch user stats:", error);
+    }
+  };
 
   const handleLanguageChange = async (value: string) => {
       await i18n.changeLanguage(value);
@@ -137,10 +151,10 @@ export default function AccountTab() {
           {t("account.language.description")}
         </p>
 
-        <div className="relative">
+        <div className="relative w-fit">
           <button
             onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-            className="w-full flex items-center justify-between text-white bg-[#242425] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none cursor-pointer hover:bg-white/5 transition-colors"
+            className="flex items-center justify-between text-white bg-[#242425] border border-white/10 rounded-xl px-4 py-3 gap-4 text-sm focus:outline-none cursor-pointer hover:bg-white/5 transition-colors"
           >
             <span>{currentLangLabel}</span>
             <div className="text-neutral-400">
@@ -154,7 +168,7 @@ export default function AccountTab() {
                 className="fixed inset-0 z-10" 
                 onClick={() => setIsLanguageDropdownOpen(false)}
               />
-              <div className="absolute top-full left-0 right-0 mt-2 bg-[#242425] border border-white/10 rounded-xl overflow-hidden z-20 shadow-lg">
+              <div className="absolute top-full left-0 min-w-[180px] mt-2 bg-[#242425] border border-white/10 overflow-hidden z-20 shadow-lg">
                 <button
                   onClick={() => handleLanguageChange("pt-BR")}
                   className={`w-full text-left px-4 py-3 text-sm hover:bg-white/5 transition-colors ${currentLang === 'pt-BR' ? 'bg-white/5' : ''}`}
@@ -182,17 +196,17 @@ export default function AccountTab() {
 
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="bg-[#242425] rounded-xl p-4 flex flex-col items-center">
-            <p className="text-2xl font-semibold">2</p>
+            <p className="text-2xl font-semibold">{stats.sessions}</p>
             <p className="text-xs text-neutral-400">{t("account.dataManagement.sessions")}</p>
           </div>
 
           <div className="bg-[#242425] rounded-xl p-4 flex flex-col items-center">
-            <p className="text-2xl font-semibold">4</p>
+            <p className="text-2xl font-semibold">{stats.messages}</p>
             <p className="text-xs text-neutral-400">{t("account.dataManagement.messages")}</p>
           </div>
 
           <div className="bg-[#242425] rounded-xl p-4 flex flex-col items-center">
-            <p className="text-2xl font-semibold">0</p>
+            <p className="text-2xl font-semibold">{stats.active}</p>
             <p className="text-xs text-neutral-400">{t("account.dataManagement.active")}</p>
           </div>
         </div>

@@ -24,6 +24,7 @@ use crate::domain::user::{
         ClearAllDataDto, ClearAllDataResponse,
     },
 };
+use crate::domain::maintenance::entity::UserStats;
 use crate::app_state::AppState;
 use uuid::Uuid;
 
@@ -228,6 +229,21 @@ pub async fn clear_all_data(dto: ClearAllDataDto, state: State<'_, AppState>) ->
         .map_err(|e| format!("Failed to clear all data: {}", e))?;
 
     Ok(ClearAllDataResponse { message: "All data cleared successfully".to_string() })
+}
+
+#[tauri::command]
+pub async fn get_user_stats(state: State<'_, AppState>) -> Result<UserStats, String> {
+    // We can use a dummy UUID if we just count everything in SQLite, 
+    // or extract it from session if we want per-user stats in the future.
+    // For now, local sqlite is single user mostly or we count global.
+    // Let's just pass a dummy one or grab from session if needed.
+    // But since get_stats implementation ignores user_id for now...
+    
+    let stats = state.maintenance_repo.get_stats(Uuid::nil())
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(stats)
 }
 
 #[tauri::command]

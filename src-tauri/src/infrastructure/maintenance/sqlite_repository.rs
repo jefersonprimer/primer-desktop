@@ -3,6 +3,7 @@ use sqlx::SqlitePool;
 use uuid::Uuid;
 use anyhow::{Result, anyhow};
 use crate::domain::maintenance::repository::MaintenanceRepository;
+use crate::domain::maintenance::entity::UserStats;
 
 pub struct SqliteMaintenanceRepository {
     pool: SqlitePool,
@@ -16,6 +17,32 @@ impl SqliteMaintenanceRepository {
 
 #[async_trait]
 impl MaintenanceRepository for SqliteMaintenanceRepository {
+    async fn get_stats(&self, _user_id: Uuid) -> Result<UserStats> {
+        // Count sessions (should be 1 or 0 usually locally)
+        let sessions: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM session")
+            .fetch_one(&self.pool)
+            .await
+            .unwrap_or(0);
+
+        // Count messages
+        let messages: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM messages")
+            .fetch_one(&self.pool)
+            .await
+            .unwrap_or(0);
+
+        // Count chats (using this for "Active" stats for now)
+        let active: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM chats")
+            .fetch_one(&self.pool)
+            .await
+            .unwrap_or(0);
+
+        Ok(UserStats {
+            sessions,
+            messages,
+            active,
+        })
+    }
+
     async fn clear_all_data(&self, _user_id: Uuid) -> Result<()> {
         let mut tx = self.pool.begin().await.map_err(|e| anyhow!("Failed to begin transaction: {}", e))?;
 

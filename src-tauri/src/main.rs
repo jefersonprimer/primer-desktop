@@ -208,6 +208,7 @@ async fn main() {
             user_commands::clear_session,
             user_commands::get_shortcuts,
             user_commands::clear_all_data,
+            user_commands::get_user_stats,
             // chat commands
             chat_commands::create_chat,
             chat_commands::send_message,
