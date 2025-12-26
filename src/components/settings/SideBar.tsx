@@ -161,7 +161,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               href="https://form.typeform.com"
               className={`group relative flex items-center justify-between p-2 w-full text-[#181719] hover:text-white text-sm font-medium rounded-lg transition
               hover:bg-neutral-800
-              ${activeItem === "Help Center" ? "bg-neutral-800 text-white" : ""}`}
+              ${activeItem === "Report a bug" ? "bg-neutral-800 text-white" : ""}`}
             >
 
               <div className="flex items-center gap-3">

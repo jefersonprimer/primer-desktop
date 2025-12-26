@@ -102,5 +102,26 @@ export async function updatePromptPreset(dto: UpdatePromptPresetDto): Promise<Pr
 }
 
 export async function deletePromptPreset(id: string): Promise<void> {
+
   return await invoke('delete_prompt_preset', { id });
+
+}
+
+
+
+// Changelog
+
+export interface Changelog {
+  id: string;
+  title: string;
+  content: string;
+  published_at: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export async function getChangelogs(): Promise<Changelog[]> {
+
+  return await invoke('get_changelogs');
+
 }

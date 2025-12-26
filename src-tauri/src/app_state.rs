@@ -34,6 +34,7 @@ use crate::{
         config::repository::ConfigRepository,
         prompt_preset::repository::PromptPresetRepository,
         maintenance::repository::MaintenanceRepository,
+        changelog::repository::ChangelogRepository,
     },
     infrastructure::{
         ai::{
@@ -65,6 +66,10 @@ use crate::{
         config::sqlite::SqliteConfigRepository,
         prompt_preset::sqlite_repository::SqlitePromptPresetRepository,
         maintenance::sqlite_repository::SqliteMaintenanceRepository,
+        changelog::{
+            postgres_repository::PostgresChangelogRepository,
+            noop_repository::NoOpChangelogRepository,
+        },
     },
 };
 
@@ -81,6 +86,7 @@ pub struct AppState {
     pub config_repo: Arc<dyn ConfigRepository>,
     pub prompt_preset_repo: Arc<dyn PromptPresetRepository>,
     pub maintenance_repo: Arc<dyn MaintenanceRepository>,
+    pub changelog_repo: Arc<dyn ChangelogRepository>,
 
     pub chat_service: Arc<dyn ChatService>,
 
@@ -122,7 +128,7 @@ impl AppState {
         let pg_url = &config.database.database_url;
         let pg_pool_result = connect_pg(pg_url).await;
 
-        let (user_repo, user_api_key_repo, postgres_chat_repo, postgres_message_repo) = match pg_pool_result {
+        let (user_repo, user_api_key_repo, postgres_chat_repo, postgres_message_repo, changelog_repo) = match pg_pool_result {
             Ok(pg_pool) => {
                 migrate_pg(&pg_pool).await?;
                 (
@@ -130,6 +136,7 @@ impl AppState {
                     Arc::new(SqlUserApiKeyRepository::new(pg_pool.clone())) as Arc<dyn UserApiKeyRepository>,
                     Arc::new(PostgresChatRepository::new(pg_pool.clone())) as Arc<dyn ChatRepository>,
                     Arc::new(PostgresMessageRepository::new(pg_pool.clone())) as Arc<dyn MessageRepository>,
+                    Arc::new(PostgresChangelogRepository::new(pg_pool.clone())) as Arc<dyn ChangelogRepository>,
                 )
             },
             Err(e) => {
@@ -139,6 +146,7 @@ impl AppState {
                     Arc::new(SqliteUserApiKeyRepository::new(sqlite_pool.clone())) as Arc<dyn UserApiKeyRepository>,
                     Arc::new(SqliteChatRepository::new(sqlite_pool.clone())) as Arc<dyn ChatRepository>,
                     Arc::new(SqliteMessageRepository::new(sqlite_pool.clone())) as Arc<dyn MessageRepository>,
+                    Arc::new(NoOpChangelogRepository::new()) as Arc<dyn ChangelogRepository>,
                 )
             }
         };
@@ -196,6 +204,7 @@ impl AppState {
             config_repo,
             prompt_preset_repo,
             maintenance_repo,
+            changelog_repo,
             chat_service,
             password_hasher,
             token_generator,

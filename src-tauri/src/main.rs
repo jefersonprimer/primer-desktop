@@ -2,7 +2,7 @@
 
 use app_lib::{
     app_state::AppState,
-    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands, audio_commands, whisper_commands, ollama_commands},
+    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands, audio_commands, whisper_commands, ollama_commands, changelog_commands},
     config::Config,
     clickthrough,
     visibility,
@@ -268,6 +268,8 @@ async fn main() {
             whisper_commands::download_whisper_model,
             // Ollama commands
             ollama_commands::get_ollama_models,
+            // Changelog commands
+            changelog_commands::get_changelogs,
         ])
         .setup(move |app| {
             let win = app.get_webview_window("main").unwrap();

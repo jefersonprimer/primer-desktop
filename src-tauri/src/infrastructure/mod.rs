@@ -5,3 +5,4 @@ pub mod user;
 pub mod config;
 pub mod prompt_preset;
 pub mod maintenance;
+pub mod changelog;

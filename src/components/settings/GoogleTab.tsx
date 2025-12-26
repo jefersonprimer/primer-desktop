@@ -112,7 +112,7 @@ export default function GoogleTab({
   };
 
   return (
-    <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300">
+    <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-400">
       <div className="flex justify-between items-center bg-[#242425] py-2 px-4 rounded-lg">
         <div>
           <h2 className="text-white text-base font-semibold">Google</h2>
