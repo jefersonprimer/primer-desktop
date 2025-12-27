@@ -97,11 +97,11 @@ export default function CustomTab({
   };
 
   return (
-    <div className="px-6 py-4 pb-8 bg-[#1D1D1F] text-neutral-300">
-      <div className="flex justify-between items-center bg-[#242425] py-2 px-4 rounded-lg">
+    <div className="px-6 py-4 pb-8 bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-300">
+      <div className="flex justify-between items-center bg-neutral-100 dark:bg-[#242425] px-4 py-3 rounded-xl">
         <div>
-          <h2 className="text-white text-base font-semibold">Custom</h2>
-          <p className="text-gray-400 text-sm">Run models locally with Ollama and Whisper.cpp</p>
+          <h2 className="text-neutral-900 dark:text-white text-base font-semibold">Custom</h2>
+          <p className="text-neutral-500 dark:text-gray-400 text-sm">Run models locally with Ollama and Whisper.cpp</p>
         </div>
         <div className="flex items-center">
           {activeProvider === "Custom" ? (
@@ -112,7 +112,7 @@ export default function CustomTab({
           ) : (
             <button 
               onClick={() => setActiveProvider("Custom")}
-              className="text-sm bg-neutral-800 hover:bg-neutral-700 text-white px-3 py-1.5 rounded-lg border border-neutral-700 transition"
+              className="text-sm bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white px-3 py-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 transition"
             >
               Usar este modelo
             </button>
@@ -120,26 +120,26 @@ export default function CustomTab({
         </div>
       </div>
 
-      <label className="flex flex-col gap-1 my-6 bg-[#242425] py-2 px-4 rounded-lg">
+      <label className="flex flex-col gap-1 my-6 bg-neutral-100 dark:bg-[#242425] py-2 px-4 rounded-lg">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-neutral-400">Ollama URL</span>
+          <span className="text-sm text-neutral-500 dark:text-neutral-400">Ollama URL</span>
           <button className={`flex items-center gap-2 text-sm rounded-lg border py-1 px-2 ${
             currentStatus === "success" 
-              ? "border-[#5BBF4B] bg-[#071C0B]" 
-              : "border-red-500/50 bg-red-500/10"
+              ? "border-green-500/50 dark:border-[#5BBF4B] bg-green-100 dark:bg-[#071C0B]" 
+              : "border-red-500/50 bg-red-100 dark:bg-red-500/10"
           }`}>
             <span className={`rounded-full p-0.5 ${
               currentStatus === "success" 
-                ? "bg-[#5BBF4B] text-[#071C0B]" 
+                ? "bg-green-500 dark:bg-[#5BBF4B] text-white dark:text-[#071C0B]" 
                 : "bg-red-500 text-white"
             }`}>
               {currentStatus === "success" ? (
-                <CheckIcon size={12} color="#071C0B"/>
+                <CheckIcon size={12} color={currentStatus === "success" ? "#FFFFFF" : "#071C0B"}/>
               ) : (
                 <CloseIcon size={12} color="#FFFFFF"/>
               )}
             </span>
-            <span className={`${currentStatus === "success" ? "text-green-500" : "text-red-500"}`}>
+            <span className={`${currentStatus === "success" ? "text-green-700 dark:text-green-500" : "text-red-600 dark:text-red-500"}`}>
               {currentStatus === "success" ? "Ready" : "Waiting for Save"}
             </span>
           </button>
@@ -148,32 +148,32 @@ export default function CustomTab({
         <div className="flex gap-2">
           <input
               type="text"
-              className="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-neutral-300 focus:outline-none focus:border-blue-500"
+              className="flex-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="http://localhost:11434"
           />
           <button 
               onClick={fetchOllamaModels}
-              className="px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-lg hover:bg-neutral-700 transition"
+              className="px-4 py-2 bg-neutral-200 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white transition"
           >
               Refresh
           </button>
         </div>
 
         {errorOllama && (
-            <div className="p-3 bg-red-900/20 border border-red-900/50 text-red-400 text-sm rounded-lg">
+            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-sm rounded-lg">
                 Could not connect to Ollama. Make sure it is running. ({errorOllama})
             </div>
         )}
       </label>
 
-      <label className="flex flex-col gap-1 my-6 bg-[#242425] py-2 px-4 rounded-lg">
-          <span className="text-sm text-white">Selected Model</span>
+      <label className="flex flex-col gap-1 my-6 bg-neutral-100 dark:bg-[#242425] py-2 px-4 rounded-lg">
+          <span className="text-sm text-neutral-900 dark:text-white">Selected Model</span>
           <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+              className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
               disabled={loadingOllama || ollamaModels.length === 0}
           >
               {ollamaModels.length === 0 ? (
@@ -187,15 +187,15 @@ export default function CustomTab({
               )}
           </select>
 
-        <p className="text-neutral-400 text-sm">
+        <p className="text-neutral-500 dark:text-neutral-400 text-sm">
           Downloaded models found in your local Ollama instance.
         </p>
       </label>
 
       {/* Whisper Section */}
-      <div className="bg-[#242425] py-2 px-4 rounded-lg">
-        <h3 className="text-base text-white font-semibold">Speech Recognition</h3>
-        <p className="text-sm text-neutral-400 mb-3">
+      <div className="bg-neutral-100 dark:bg-[#242425] py-2 px-4 rounded-lg">
+        <h3 className="text-base text-neutral-900 dark:text-white font-semibold">Speech Recognition</h3>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
             Choose your speech-to-text provider.
         </p>
 
@@ -208,7 +208,7 @@ export default function CustomTab({
                     setShowWhisperConfig(true);
                   }
                 }}
-                className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+                className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
             >
                 {sttStrategies.map((m) => (
                     <option key={m.id} value={m.id}>
@@ -221,7 +221,7 @@ export default function CustomTab({
             {transcriptionModel === "whisper_cpp" && (
               <button 
                 onClick={() => setShowWhisperConfig(!showWhisperConfig)}
-                className="mt-3 flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors group"
+                className="mt-3 flex items-center gap-2 text-sm font-medium text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors group"
               >
                 <div className={`p-1.5 rounded-md bg-blue-500/10 group-hover:bg-blue-500/20 transition-transform ${showWhisperConfig ? 'rotate-180' : ''}`}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -233,15 +233,15 @@ export default function CustomTab({
 
         {/* Whisper Model Manager Section */}
         {transcriptionModel === "whisper_cpp" && showWhisperConfig && (
-          <div className="mt-4 bg-[#0A0A0A] border border-neutral-800 rounded-xl p-5 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="flex items-center justify-between mb-5 border-b border-neutral-800 pb-4">
+          <div className="mt-4 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center justify-between mb-5 border-b border-neutral-200 dark:border-neutral-800 pb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-400 border border-blue-500/20">
+                <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-500 dark:text-blue-400 border border-blue-500/20">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">Central de Modelos Locais</h4>
-                  <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-semibold">Status: <span className="text-blue-400">{activeWhisperModel} Ativo</span></p>
+                  <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Central de Modelos Locais</h4>
+                  <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-semibold">Status: <span className="text-blue-500 dark:text-blue-400">{activeWhisperModel} Ativo</span></p>
                 </div>
               </div>
             </div>
@@ -254,13 +254,13 @@ export default function CustomTab({
         )}
       </div>
 
-      <div className="flex justify-end pt-4 border-t border-neutral-800">
+      <div className="flex justify-end pt-4 border-t border-neutral-200 dark:border-neutral-800">
         <button
           onClick={handleSave}
           className={`px-6 py-2 font-semibold rounded-lg transition ${
             isSaved 
               ? "bg-green-600 text-white hover:bg-green-700" 
-              : "bg-white text-black hover:bg-neutral-200"
+              : "bg-neutral-900 dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200"
           }`}
         >
           {isSaved ? "Alterações Salvas" : "Salvar Alterações"}

@@ -1,4 +1,5 @@
 import React from "react";
+
 import CalendarIcon from "../ui/icons/CalendarIcon";
 
 export default function CalendarTab() {
@@ -8,31 +9,28 @@ export default function CalendarTab() {
   };
 
   return (
-    <div className="p-8 pb-8 bg-[#1D1D1F] text-neutral-400 w-full h-full">
-      {/* Header */}
+    <div className="w-full h-full bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 p-8">
       <div className="mb-4">
-        <h2 className="text-base font-semibold">Visible Calendars</h2>
-        <p className="text-sm text-neutral-400">
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Visible Calendars</h1>
+        <p className="text-sm">
           Upcoming meetings are synchronized from these calendars
         </p>
       </div>
 
-      {/* Empty state card */}
-      <div className="rounded-lg border border-zinc-800 bg-[#272628] p-6 w-full">
+      <div className="bg-gray-50 dark:bg-[#242425] p-6 rounded-xl border border-gray-200 dark:border-transparent">
         <div className="flex flex-col gap-4">
           <div>
             <CalendarIcon size={20}/>
-            <p className="text-sm text-white font-medium mt-2">No calendars</p>
-            <p className="text-sm text-neutral-400">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mt-2">No calendars</h2>
+            <p className="text-sm">
               Get started by connecting a Google account.
             </p>
           </div>
 
           <button
             onClick={handleConnectGoogle}
-            className="inline-flex w-fit items-center gap-2 rounded-md border border-zinc-700 bg-[#423F44] hover:bg-[#423F44]/80 px-4 py-2 text-sm text-white font-semibold hover:bg-zinc-700 transition"
+            className="inline-flex w-fit items-center text-sm font-semibold text-gray-900 dark:text-white hover:text-white gap-2 rounded-lg border border-zinc-700 dark:border-neutral-600 bg-white dark:bg-[#423F44] hover:bg-zinc-700 px-4 py-2 transition"
           > 
-            {/* Google icon */}
             <svg
               width="20"
               height="20"

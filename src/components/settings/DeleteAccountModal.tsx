@@ -23,42 +23,42 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirm, isLoadi
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-[#1D1D1F] border border-white/10 rounded-2xl p-6 shadow-2xl">
-        <h2 className="text-base font-semibold text-white mb-2">
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 dark:bg-black/80 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-white dark:bg-[#1D1D1F] border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-2xl transition-colors">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
           {t("account.deleteAccount.modalTitle")}
         </h2>
-        <p className="text-sm text-gray-300 mb-6">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
           {t("account.deleteAccount.modalWarning")}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              {t("account.deleteAccount.passwordLabel")}
-            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500/50 transition"
+              className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-red-500/50 transition"
               placeholder="Password"
               required
             />
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
+              {t("account.deleteAccount.passwordLabel")}
+            </label>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex items-center pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition font-medium cursor-pointer"
+              className="flex-1 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition font-medium cursor-pointer"
               disabled={isLoading}
             >
               {t("account.deleteAccount.cancelButton")}
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500/20 transition font-medium flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 px-4 py-2 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 text-red-600 dark:text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 transition font-medium flex items-center justify-center gap-2 cursor-pointer"
               disabled={isLoading}
             >
               {isLoading && (

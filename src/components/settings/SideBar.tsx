@@ -22,15 +22,15 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
   };
 
   const itemClass = (isActive: boolean) => `
-    relative flex items-center gap-3 p-2 w-full text-sm font-medium rounded-lg transition
+    relative flex items-center gap-3 p-2 w-full text-sm rounded-lg transition
     ${isActive 
       ? "bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white" 
-      : "text-gray-600 dark:text-neutral-400 hover:bg-gray-50 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white"
+      : "text-gray-600 dark:text-neutral-400 hover:bg-gray-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white"
     }
   `;
 
   return (
-    <aside className="w-52 bg-white dark:bg-[#181719] border-r border-gray-200 dark:border-neutral-700 h-full flex flex-col">
+    <aside className="w-52 bg-white dark:bg-[#181719] border-r border-gray-200 dark:border-neutral-700 h-full overflow-y-auto flex flex-col">
       <div className="flex items-center justify-between p-3 shrink-0">
         <button
           onClick={onClose}
@@ -42,12 +42,12 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
       <div className="flex-1 overflow-y-auto py-3 px-2">
         <nav className="flex flex-col h-full space-y-1">
-          <div className="flex-1 space-y-1">
+          <div className="flex-1">
             <button
               onClick={() => onSelectItem("General")}
               className={itemClass(activeItem === "General")}
             >
-              <SettingsIcon size={18}/>
+              <SettingsIcon size={20}/>
               General
             </button>
 
@@ -55,7 +55,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Calendar")}
               className={itemClass(activeItem === "Calendar")}
             >
-              <CalendarIcon size={18}/>
+              <CalendarIcon size={20}/>
               Calendar
             </button>
 
@@ -63,7 +63,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("API e Modelos")}
               className={itemClass(activeItem === "API e Modelos")}
             >
-              <NetworkIcon size={18}/>
+              <NetworkIcon size={20}/>
               API e Modelos
             </button>
 
@@ -71,7 +71,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Recursos")}
               className={itemClass(activeItem === "Recursos")}
             >
-              <BoxesIcon size={18}/>
+              <BoxesIcon size={20}/>
               Recursos
             </button>
 
@@ -79,7 +79,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Keybinds")}
               className={itemClass(activeItem === "Keybinds")}
             >
-              <KeyboardIcon size={18}/>
+              <KeyboardIcon size={20}/>
               Keybinds
             </button>
 
@@ -97,7 +97,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Languages")}
               className={itemClass(activeItem === "Languages")}
             >
-              <LanguagesIcon size={18}/>
+              <LanguagesIcon size={20}/>
               Languages
             </button>
 
@@ -106,12 +106,12 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Billing")}
               className={itemClass(activeItem === "Billing")}
             >
-              <CreditCardIcon size={18}/>
+              <CreditCardIcon size={20}/>
               Billing
             </button>
 
             <div className="py-2">
-              <span className="text-xs font-medium text-gray-400 dark:text-neutral-500 px-2 uppercase tracking-wider">Support</span>
+              <span className="text-xs text-gray-600 dark:text-neutral-400 px-2 tracking-wider">Support</span>
             </div>
 
             <button
@@ -120,8 +120,8 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="18" 
-                height="18"
+                width="20" 
+                height="20"
                 viewBox="0 0 24 24" 
                 fill="none"
                 stroke="currentColor"
@@ -150,7 +150,6 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               href="https://form.typeform.com"
               className={`group ${itemClass(activeItem === "Report a bug")} justify-between`}
             >
-
               <div className="flex items-center gap-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -162,7 +161,6 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-gray-400 dark:text-[#9D9DA3]" 
                 >
                   <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
                   <path d="M7 11h10"/>
@@ -185,7 +183,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                 strokeWidth="2" 
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 dark:text-neutral-500"
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <path d="M7 7h10v10"/>
                 <path d="M7 17 17 7"/>
@@ -194,8 +192,8 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
           </div>
 
-          <div className="flex flex-col items-start gap-1 pt-4 mt-auto border-t border-gray-100 dark:border-neutral-800">
-            <button className="flex items-center gap-3 p-2 w-full text-sm font-medium text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition">
+          <div className="flex flex-col items-start gap-1 pt-4 mt-auto">
+            <button className="flex items-center gap-3 p-2 w-full text-sm font-medium text-gray-600 dark:text-neutral-400 hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -216,10 +214,25 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
 
 
             <button 
-              className="group flex items-center gap-3 p-2 w-full text-sm font-medium text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition"
+              className="group flex items-center gap-3 p-2 w-full text-sm font-medium text-gray-600 dark:text-neutral-400 hover:text-red-400 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition"
               onClick={handleQuit}
             >
-              <CircleUserIcon size={20} className="text-gray-400 dark:text-[#9D9DA3] group-hover:text-gray-600 dark:group-hover:text-white"/>
+              <svg
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
+                <line x1="9" x2="9.01" y1="9" y2="9"/>
+                <line x1="15" x2="15.01" y1="9" y2="9"/>
+              </svg>
               <span>Quit Primer</span>
             </button>
           </div> 

@@ -2,6 +2,16 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+body {
+  font-size: 16px;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }

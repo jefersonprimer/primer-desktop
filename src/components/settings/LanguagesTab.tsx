@@ -28,22 +28,22 @@ export default function LanguagesTab() {
   const currentOutputLanguage = languages.find(lang => lang.code === outputLanguage) || languages[1];
 
   return (
-    <div className="p-8 pb-8 bg-[#1D1D1F] text-neutral-400 font-medium w-full h-full overflow-y-auto">
+    <div className="p-8 pb-8 bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 font-medium w-full h-full overflow-y-auto transition-colors">
       <div className="flex flex-col mb-4">
-        <h3 className="text-white text-base font-semibold">Languages</h3>
+        <h3 className="text-gray-900 dark:text-white text-base font-semibold">Languages</h3>
         <p className="text-sm">Select the languages for audio interaction and AI responses.</p>
       </div> 
 
       {/* Transcription Language */}
       <div className="flex flex-col py-3 mb-6">
         <div className="flex flex-col gap-3">
-          <div className="w-12 h-12 bg-[#272628] rounded flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 bg-gray-100 dark:bg-[#272628] rounded flex items-center justify-center shrink-0 transition-colors">
             <LanguagesIcon size={24}/>
           </div>
           
           <div className="my-2">
-            <h3 className="text-sm font-medium text-white">Transcription language</h3>
-            <p className="text-sm text-neutral-400">The language you will be speaking during meetings.</p>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Transcription language</h3>
+            <p className="text-sm text-gray-500 dark:text-neutral-400">The language you will be speaking during meetings.</p>
           </div>
         </div>
 
@@ -53,14 +53,14 @@ export default function LanguagesTab() {
               setIsTranscriptionDropdownOpen(!isTranscriptionDropdownOpen);
               setIsOutputDropdownOpen(false);
             }}
-            className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-sm text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-colors border border-zinc-700 justify-between min-w-[180px]"
+            className="flex items-center gap-2 bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-sm text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-4 py-2 rounded-lg transition-colors border border-gray-200 dark:border-zinc-700"
           >
             <span>{currentTranscriptionLanguage.nativeName}</span>
             <ChevronDownIcon size={16} />
           </button>
 
           {isTranscriptionDropdownOpen && (
-            <div className="absolute top-full mt-1 left-0 bg-[#272628] border border-zinc-700 rounded shadow-lg z-20 overflow-hidden">
+            <div className="absolute top-full mt-1 left-0 bg-white dark:bg-[#272628] border border-gray-200 dark:border-zinc-700 rounded shadow-xl dark:shadow-lg z-20 overflow-hidden">
               {languages.map((lang) => (
                 <button
                   key={lang.code}
@@ -68,7 +68,7 @@ export default function LanguagesTab() {
                     setTranscriptionLanguage(lang.code);
                     setIsTranscriptionDropdownOpen(false);
                   }}
-                  className="w-full text-left flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:bg-zinc-700 hover:text-white transition-colors"
+                  className="w-full text-left flex items-center justify-between px-3 py-2 gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700 hover:text-black dark:hover:text-white transition-colors"
                 >
                   <span>{lang.nativeName}</span>
                   {transcriptionLanguage === lang.code && <CheckIcon size={14} className="text-blue-400" />}
@@ -82,13 +82,13 @@ export default function LanguagesTab() {
       {/* Output Language */}
       <div className="flex flex-col py-3 ">
         <div className="flex flex-col gap-3">
-          <div className="w-12 h-12 bg-[#272628] rounded flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 bg-gray-100 dark:bg-[#272628] rounded flex items-center justify-center shrink-0 transition-colors">
             <LanguagesIcon size={24}/>
           </div>
           
             <div className="my-2">
-            <h3 className="text-sm font-medium text-white">Output language</h3>
-            <p className="text-sm text-neutral-400">The language Primer will use for responses and notes.</p>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Output language</h3>
+            <p className="text-sm text-gray-500 dark:text-neutral-400">The language Primer will use for responses and notes.</p>
           </div>
         </div>
 
@@ -98,14 +98,14 @@ export default function LanguagesTab() {
               setIsOutputDropdownOpen(!isOutputDropdownOpen);
               setIsTranscriptionDropdownOpen(false);
             }}
-            className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-sm text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-colors border border-zinc-700 justify-between min-w-[180px]"
+            className="flex items-center gap-2 bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-sm text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-4 py-2 rounded-lg transition-colors border border-gray-200 dark:border-zinc-700"
           >
             <span>{currentOutputLanguage.nativeName}</span>
             <ChevronDownIcon size={16} />
           </button>
 
           {isOutputDropdownOpen && (
-            <div className="absolute top-full mt-1 left-0 bg-[#272628] border border-zinc-700 rounded shadow-lg z-20 overflow-hidden">
+            <div className="absolute top-full mt-1 left-0 bg-white dark:bg-[#272628] border border-gray-200 dark:border-zinc-700 rounded shadow-xl dark:shadow-lg z-20 overflow-hidden">
               {languages.map((lang) => (
                 <button
                   key={lang.code}
@@ -113,7 +113,7 @@ export default function LanguagesTab() {
                     setOutputLanguage(lang.code);
                     setIsOutputDropdownOpen(false);
                   }}
-                  className="w-full text-left flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:bg-zinc-700 hover:text-white transition-colors"
+                  className="w-full text-left flex items-center justify-between px-3 py-2 gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700 hover:text-black dark:hover:text-white transition-colors"
                 >
                   <span>{lang.nativeName}</span>
                   {outputLanguage === lang.code && <CheckIcon size={14} className="text-blue-400" />}

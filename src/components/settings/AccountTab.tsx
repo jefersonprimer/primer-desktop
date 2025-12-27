@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { setAppLanguage } from "../../lib/tauri";
 import { useAuth } from "../../contexts/AuthContext";
-import DeleteAccountModal from "./DeleteAccountModal";
 import { invoke } from "@tauri-apps/api/core";
 import { useNotification } from "../../contexts/NotificationContext";
 import { createPortal } from "react-dom";
 
 import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
 import ChevronUpIcon from "../ui/icons/ChevronUpIcon";
+import DeleteAccountModal from "./DeleteAccountModal";
 
 export default function AccountTab() {
   const { t, i18n } = useTranslation();
@@ -113,51 +113,51 @@ export default function AccountTab() {
   const currentLangLabel = currentLang === 'pt-BR' ? 'Português (Brasil)' : 'English (US)';
 
   return (
-    <div className="w-full h-full bg-[#1D1D1F] p-8 pb-8 text-white overflow-y-auto">
-      {/* CONTA */}
-      <h2 className="text-base font-semibold">{t("account.title")}</h2>
-      <p className="text-sm text-neutral-400 mb-4">
+    <div className="w-full h-full bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 p-8 overflow-y-auto transition-colors">
+      <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{t("account.title")}</h1>
+      <p className="text-sm mb-2">
         {t("account.description")}
       </p>
 
-      <div className="bg-[#242425] rounded-xl p-5 mb-8">
+      <div className="bg-gray-50 dark:bg-[#242425] rounded-xl p-5 mb-8 transition-colors">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-lg font-semibold overflow-hidden">
+          <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center text-lg font-semibold overflow-hidden transition-colors">
             {userPicture ? (
               <img src={userPicture} alt={userName || "User"} className="w-full h-full object-cover" />
             ) : (
-              <span>{userName?.[0]?.toUpperCase() || userEmail?.[0]?.toUpperCase() || "U"}</span>
+              <span className="text-gray-600 dark:text-white">{userName?.[0]?.toUpperCase() || userEmail?.[0]?.toUpperCase() || "U"}</span>
             )}
           </div>
 
           <div className="flex-1">
-            <p className="text-base font-medium">{userName || "User"}</p>
-            <p className="text-sm text-neutral-400">{userEmail}</p>
+            <p className="text-base font-medium text-gray-900 dark:text-white">{userName || "User"}</p>
+            <p className="text-sm text-gray-500 dark:text-neutral-400">{userEmail}</p>
           </div>
 
           <button 
             onClick={logout}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-sm cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition text-sm cursor-pointer text-gray-700 dark:text-white"
           >
             {t("account.signOut")}
           </button>
         </div>
       </div>
 
-      {/* IDIOMA */}
       <div className="mb-6">
-        <h3 className="text-base font-semibold">{t("account.language.title")}</h3>
-        <p className="text-sm text-neutral-400 mb-2">
+        <h3 className="font-semibold text-gray-900 dark:text-white">
+          {t("account.language.title")}
+        </h3>
+        <p className="text-sm mb-2">
           {t("account.language.description")}
         </p>
 
         <div className="relative w-fit">
           <button
             onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-            className="flex items-center justify-between text-white bg-[#242425] border border-white/10 rounded-xl px-4 py-3 gap-4 text-sm focus:outline-none cursor-pointer hover:bg-white/5 transition-colors"
+            className="flex items-center justify-between text-gray-900 dark:text-white bg-gray-50 dark:bg-[#242425] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 gap-3 text-sm focus:outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
           >
             <span>{currentLangLabel}</span>
-            <div className="text-neutral-400">
+            <div className="text-gray-400 dark:text-neutral-400">
               {isLanguageDropdownOpen ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
             </div>
           </button>
@@ -168,16 +168,16 @@ export default function AccountTab() {
                 className="fixed inset-0 z-10" 
                 onClick={() => setIsLanguageDropdownOpen(false)}
               />
-              <div className="absolute top-full left-0 min-w-[180px] mt-2 bg-[#242425] border border-white/10 overflow-hidden z-20 shadow-lg">
+              <div className="absolute top-full left-0 min-w-[180px] mt-2 bg-white dark:bg-[#242425] border border-gray-200 dark:border-white/10 overflow-hidden z-20 shadow-lg">
                 <button
                   onClick={() => handleLanguageChange("pt-BR")}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-white/5 transition-colors ${currentLang === 'pt-BR' ? 'bg-white/5' : ''}`}
+                  className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-gray-700 dark:text-white ${currentLang === 'pt-BR' ? 'bg-gray-100 dark:bg-white/5' : ''}`}
                 >
                   Português (Brasil)
                 </button>
                 <button
                   onClick={() => handleLanguageChange("en-US")}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-white/5 transition-colors ${currentLang === 'en-US' ? 'bg-white/5' : ''}`}
+                  className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-gray-700 dark:text-white ${currentLang === 'en-US' ? 'bg-gray-100 dark:bg-white/5' : ''}`}
                 >
                   English (US)
                 </button>
@@ -187,49 +187,49 @@ export default function AccountTab() {
         </div>
       </div>
 
-      {/* GERENCIAMENTO DE DADOS */}
       <div className="mb-8">
-        <h3 className="text-base font-semibold">{t("account.dataManagement.title")}</h3>
-        <p className="text-sm text-neutral-400 mb-4">
+        <h3 className="font-semibold text-gray-900 dark:text-white">
+          {t("account.dataManagement.title")}
+        </h3>
+        <p className="text-sm mb-4">
           {t("account.dataManagement.description")}
         </p>
 
         <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="bg-[#242425] rounded-xl p-4 flex flex-col items-center">
-            <p className="text-2xl font-semibold">{stats.sessions}</p>
-            <p className="text-xs text-neutral-400">{t("account.dataManagement.sessions")}</p>
+          <div className="bg-gray-50 dark:bg-[#242425] rounded-xl p-4 flex flex-col items-center transition-colors">
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.sessions}</h3>
+            <p className="text-xs">{t("account.dataManagement.sessions")}</p>
           </div>
 
-          <div className="bg-[#242425] rounded-xl p-4 flex flex-col items-center">
-            <p className="text-2xl font-semibold">{stats.messages}</p>
-            <p className="text-xs text-neutral-400">{t("account.dataManagement.messages")}</p>
+          <div className="bg-gray-50 dark:bg-[#242425] rounded-xl p-4 flex flex-col items-center transition-colors">
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.messages}</h3>
+            <p className="text-xs">{t("account.dataManagement.messages")}</p>
           </div>
 
-          <div className="bg-[#242425] rounded-xl p-4 flex flex-col items-center">
-            <p className="text-2xl font-semibold">{stats.active}</p>
-            <p className="text-xs text-neutral-400">{t("account.dataManagement.active")}</p>
+          <div className="bg-gray-50 dark:bg-[#242425] rounded-xl p-4 flex flex-col items-center transition-colors">
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.active}</h3>
+            <p className="text-xs">{t("account.dataManagement.active")}</p>
           </div>
         </div>
 
         <button 
           onClick={handleClearAllDataClick}
           disabled={isClearingData}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-sm cursor-pointer ${isClearingData ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition text-sm cursor-pointer text-gray-700 dark:text-white ${isClearingData ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isClearingData ? "..." : t("account.dataManagement.clearAll")}
         </button>
       </div>
 
-      {/* DELETE ACCOUNT */}
       <div className="pt-4">
-        <h3 className="text-base font-semibold text-white">{t("account.deleteAccount.title")}</h3>
-        <p className="text-sm text-neutral-400 mb-4">
+        <h3 className="font-semibold text-gray-900 dark:text-white">{t("account.deleteAccount.title")}</h3>
+        <p className="text-sm mb-4">
           {t("account.deleteAccount.description")}
         </p>
         
         <button 
           onClick={() => setIsDeleteModalOpen(true)}
-          className="flex items-center justify-center gap-2 px-4 py-2 border border-red-900 rounded-xl text-white hover:bg-red-500/20 transition text-sm cursor-pointer"
+          className="flex items-center justify-center gap-2 px-4 py-2 border border-red-200 dark:border-red-900 rounded-xl text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-500/20 transition text-sm cursor-pointer"
         >
           {t("account.deleteAccount.button")}
         </button>
@@ -264,37 +264,39 @@ function ClearDataModal({ isOpen, onClose, onConfirm, isLoading }: ClearDataModa
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-[#1D1D1F] border border-white/10 rounded-2xl p-6 shadow-2xl">
-        <h2 className="text-base font-semibold text-white mb-2">
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 dark:bg-black/80 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-white dark:bg-[#1D1D1F] border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-2xl transition-colors">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
            {t("account.dataManagement.clearAll")}
         </h2>
-        <p className="text-sm text-gray-300 mb-6">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
           {t("account.dataManagement.confirmClear")}
         </p>
 
-        <div className="flex gap-3 pt-2">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition font-medium cursor-pointer"
-              disabled={isLoading}
-            >
-              {t("account.deleteAccount.cancelButton")}
-            </button>
-            <button
-              onClick={onConfirm}
-              className="flex-1 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500/20 transition font-medium flex items-center justify-center gap-2 cursor-pointer"
-              disabled={isLoading}
-            >
-              {isLoading && (
-                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              )}
-              {t("account.dataManagement.clearAll")}
-            </button>
-          </div>
+        <div className="flex items-center justify-between pt-2">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition"
+            disabled={isLoading}
+          >
+            {t("account.deleteAccount.cancelButton")}
+          </button>
+
+          <button
+            onClick={onConfirm}
+            className="flex-1 px-4 py-2 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 text-red-600 dark:text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 transition flex items-center justify-center gap-2"
+            disabled={isLoading}
+          >
+            {isLoading && (
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            )}
+            {t("account.dataManagement.clearAll")}
+          </button>
+        </div>
       </div>
     </div>,
     document.body
   );
 }
+
 

@@ -12,13 +12,14 @@ export default function ApiTabs({ active, onTabChange }: Props) {
   const { activeProvider } = useAi();
 
   return (
-    <div className="flex gap-2 bg-[#1D1D1F] px-6 pt-6 pb-2">
+    <div className="flex gap-2 bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 p-8">
       {tabs.map((tab) => (
         <div 
           key={tab}
-          className={`relative group flex items-center  rounded-lg transition cursor-pointer border
-            ${activeProvider === tab ? "bg-neutral-800 text-white" : "hover:bg-neutral-800"}
-            ${active === tab ? "bg-neutral-800 text-white" : "border-neutral-700"}
+          className={`relative group flex items-center rounded-lg transition cursor-pointer border
+            ${active === tab 
+              ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white border-neutral-300 dark:border-neutral-700" 
+              : "border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 text-neutral-500 dark:text-neutral-400"}
           `}
         >
           {/* Tab Button */}
@@ -26,8 +27,8 @@ export default function ApiTabs({ active, onTabChange }: Props) {
             onClick={() => onTabChange(tab)}
             className={`px-4 py-2 flex items-center gap-2 ${
               active === tab
-                ? "text-white"
-                : "text-neutral-400 group-hover:text-white"
+                ? "text-neutral-900 dark:text-white"
+                : "text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white"
             }`}
           >
             {tab === "Custom" ? "Custom API" : tab}

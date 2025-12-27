@@ -13,31 +13,31 @@ export default function ChangelogTab() {
   }, []);
 
   if (loading) {
-    return <div className="p-8 text-neutral-400">Loading changes...</div>;
+    return <div className="p-8 text-gray-500 dark:text-neutral-400">Loading changes...</div>;
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#1D1D1F] overflow-y-auto">
+    <div className="flex flex-col h-full bg-white dark:bg-[#1D1D1F] overflow-y-auto transition-colors">
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
           <div className="flex flex-col">
-            <h2 className="text-base font-semibold text-white">Changelog</h2>
-            <p className="text-sm text-neutral-400">Primer innovates every day. See what's new!</p>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Changelog</h2>
+            <p className="text-sm text-gray-500 dark:text-neutral-400">Primer innovates every day. See what's new!</p>
           </div>
             
             {changelogs.map((log) => (
               <div key={log.id} className="mb-8">
-                <div className="flex justify-between items-start mb-4 text-white">
+                <div className="flex justify-between items-start mb-4 text-gray-900 dark:text-white">
                   <h3 className="text-lg font-semibold">{log.title}</h3>
                 </div>
                 <div 
-                  className="text-neutral-300 leading-relaxed text-sm changelog-content"
+                  className="text-gray-600 dark:text-neutral-300 leading-relaxed text-sm changelog-content"
                   dangerouslySetInnerHTML={{ __html: log.content }}
                 />
               </div>
             ))}
             
             {changelogs.length === 0 && (
-                <div className="text-neutral-500 text-center py-10 flex flex-col items-center gap-2">
+                <div className="text-gray-400 dark:text-neutral-500 text-center py-10 flex flex-col items-center gap-2">
                     <div className="text-4xl">📜</div>
                     <div>No release notes found.</div>
                 </div>
@@ -45,11 +45,15 @@ export default function ChangelogTab() {
         </div>
         <style>{`
           .changelog-content h3 {
-            color: white;
+            color: inherit;
             font-weight: 600;
             margin-top: 1.5rem;
             margin-bottom: 0.75rem;
             font-size: 1rem;
+          }
+          .dark .changelog-content h3 {
+            filter: brightness(1);
+            color: white;
           }
           .changelog-content h3:first-child {
             margin-top: 0;
@@ -66,8 +70,13 @@ export default function ChangelogTab() {
             margin-bottom: 0.25rem;
           }
           .changelog-content strong {
-            color: white;
+            color: inherit;
+            filter: brightness(0.1);
             font-weight: 600;
+          }
+          .dark .changelog-content strong {
+            filter: brightness(1);
+            color: white;
           }
         `}</style>
     </div>
