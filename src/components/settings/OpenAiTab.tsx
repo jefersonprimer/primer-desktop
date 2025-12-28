@@ -52,14 +52,6 @@ export default function OpenAiTab({
     setActiveWhisperModel(name);
   };
 
-  // Os 4 melhores modelos da OpenAI (Atualizado para a solicitação)
-  const topModels = [
-    { id: "gpt-4.1", label: "GPT-4.1", description: t("openai.models.gpt41.description") },
-    { id: "gpt-4.1-nano", label: "GPT-4.1 Nano", description: t("openai.models.gpt41nano.description") },
-    { id: "gpt-4o", label: "GPT-4o", description: t("openai.models.gpt4o.description") },
-    { id: "gpt-4o-mini", label: "GPT-4o Mini", description: t("openai.models.gpt4omini.description") }
-  ];
-
   // Lista completa de modelos para personalizado (Restrita conforme solicitado)
   const allModels = [
     { id: "gpt-4.1", label: "gpt-4.1", description: "Advanced multimodal model for complex analysis and reasoning." },

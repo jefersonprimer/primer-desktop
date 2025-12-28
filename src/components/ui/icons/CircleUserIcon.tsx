@@ -2,9 +2,10 @@ interface Props {
   size: number;
   stroke?: string;
   fill?: string;
+  className?: string;
 }
 
-export default function CircleUserIcon({ stroke="currentColor", fill="none", size }: Props) {
+export default function CircleUserIcon({ stroke="currentColor", fill="none", size, className }: Props) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -13,9 +14,10 @@ export default function CircleUserIcon({ stroke="currentColor", fill="none", siz
       viewBox="0 0 24 24"
       fill={fill}
       stroke={stroke}
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
     >
       <circle cx="12" cy="12" r="10"/>
       <circle cx="12" cy="10" r="3"/>
