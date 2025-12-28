@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { 
   getPromptPresets, 
   createPromptPreset, 
@@ -11,6 +12,7 @@ import {
 import CloseIcon from "./ui/icons/CloseIcon";
 
 export default function AssistantsManagerModal({ onClose }: { onClose: () => void; open?: boolean }) {
+  const { t } = useTranslation();
   const [assistants, setAssistants] = useState<PromptPreset[]>([]);
   const [selected, setSelected] = useState<PromptPreset | null>(null);
   
@@ -56,7 +58,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
       if (!selected) return;
 
       let finalName = editName.trim();
-      const defaultName = 'New Assistant';
+      const defaultName = t('assistantsManager.defaultName');
       
       // Smart naming: if name is empty or default, try to grab first line of prompt
       if (!finalName || finalName === defaultName) {
@@ -139,8 +141,8 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                 onClick={() => setSelected(a)}
                 className={`p-3 rounded-lg cursor-pointer transition mb-1 ${selected?.id === a.id ? "bg-white/10" : "hover:bg-white/5"}`}
               >
-                <p className="text-white text-sm font-medium">{a.name || "Untitled"}</p>
-                <p className="text-xs text-white/40">{a.is_built_in ? "Built-in" : "Custom"}</p>
+                <p className="text-white text-sm font-medium">{a.name || t('assistantsManager.untitled')}</p>
+                <p className="text-xs text-white/40">{a.is_built_in ? t('assistantsManager.builtin') : t('assistantsManager.custom')}</p>
               </div>
             ))}
 
@@ -148,7 +150,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                 onClick={handleCreateNew}
                 className="mt-3 w-full p-2 rounded-lg bg-white/5 text-white text-sm hover:bg-white/10 transition"
             >
-              + Create New Assistant
+              {t('assistantsManager.createNew')}
             </button>
           </aside>
 
@@ -162,7 +164,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                     ref={titleInputRef}
                     value={editName}
                     onChange={e => setEditName(e.target.value)}
-                    placeholder={selected?.is_built_in ? "" : "Novo prompt preset"}
+                    placeholder={selected?.is_built_in ? "" : t('assistantsManager.newPresetPlaceholder')}
                     disabled={selected?.is_built_in}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -177,7 +179,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                 <textarea
                     ref={promptInputRef}
                     className="flex-1 w-full bg-transparent text-white text-sm focus:outline-none resize-none font-mono leading-relaxed placeholder:text-neutral-600 mt-2"
-                    placeholder={selected?.is_built_in ? "" : "Start writing instructions..."}
+                    placeholder={selected?.is_built_in ? "" : t('assistantsManager.instructionsPlaceholder')}
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     disabled={selected?.is_built_in}
@@ -192,7 +194,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
             
             {/* Footer / Info */}
             {selected?.is_built_in && (
-                <p className="text-xs text-white/40 mt-4 border-t border-white/5 pt-4">Built-in assistants cannot be modified.</p>
+                <p className="text-xs text-white/40 mt-4 border-t border-white/5 pt-4">{t('assistantsManager.builtinWarning')}</p>
             )}
 
             {!selected?.is_built_in && (
@@ -201,12 +203,12 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                         onClick={handleSave}
                         className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
                     >
-                    Save Changes
+                    {t('assistantsManager.saveChanges')}
                     </button>
                     {selected?.id !== 'new' && (
                         <button 
                             onClick={async () => {
-                                if (confirm("Are you sure you want to delete this assistant?")) {
+                                if (confirm(t('assistantsManager.deleteConfirm'))) {
                                     if (selected) {
                                         await deletePromptPreset(selected.id);
                                         // Reset to first available or empty
@@ -217,7 +219,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                             }}
                             className="px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-500 rounded-lg text-sm transition-colors"
                         >
-                        Delete
+                        {t('assistantsManager.delete')}
                         </button>
                     )}
                 </div>

@@ -1,8 +1,11 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import CalendarIcon from "../ui/icons/CalendarIcon";
 
 export default function CalendarTab() {
+  const { t } = useTranslation();
+
   const handleConnectGoogle = () => {
     // TODO: integrar OAuth / Tauri command
     console.log("Connect Google clicked");
@@ -11,26 +14,26 @@ export default function CalendarTab() {
   return (
     <div className="w-full h-full bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 p-8">
       <div className="mb-4">
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Visible Calendars</h1>
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{t('calendar.title')}</h1>
         <p className="text-sm">
-          Upcoming meetings are synchronized from these calendars
+          {t('calendar.description')}
         </p>
       </div>
 
       <div className="bg-gray-50 dark:bg-[#242425] p-6 rounded-xl border border-gray-200 dark:border-transparent">
         <div className="flex flex-col gap-4">
           <div>
-            <CalendarIcon size={20}/>
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mt-2">No calendars</h2>
+            <CalendarIcon size={20} />
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mt-2">{t('calendar.noCalendars')}</h2>
             <p className="text-sm">
-              Get started by connecting a Google account.
+              {t('calendar.getStarted')}
             </p>
           </div>
 
           <button
             onClick={handleConnectGoogle}
             className="inline-flex w-fit items-center text-sm font-semibold text-gray-900 dark:text-white hover:text-white gap-2 rounded-lg border border-zinc-700 dark:border-neutral-600 bg-white dark:bg-[#423F44] hover:bg-zinc-700 px-4 py-2 transition"
-          > 
+          >
             <svg
               width="20"
               height="20"
@@ -55,7 +58,7 @@ export default function CalendarTab() {
               />
             </svg>
 
-            Connect Google
+            {t('calendar.connectGoogle')}
           </button>
         </div>
       </div>

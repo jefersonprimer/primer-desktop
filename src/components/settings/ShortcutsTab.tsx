@@ -1,20 +1,23 @@
+import { useTranslation } from "react-i18next";
 import HatGlassesIcon from "../ui/icons/HatGlassesIcon"
 import EnterIcon from "../ui/icons/EnterIcon";
 import MonitorIcon from "../ui/icons/MonitorIcon";
 import MicIcon from "../ui/icons/MicIcon";
 
 export default function ShortcutsTab() {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full h-full bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 p-8">
       <div className="mb-6 px-4">
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Keyboard shortcuts</h1>
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{t("shortcuts.title")}</h1>
         <p className="text-sm">
-          Visualize os atalhos de teclado configurados para o seu fluxo de trabalho.
+          {t("shortcuts.description")}
         </p>
       </div>
 
       <div className="mb-4">
-        <h2 className="font-semibold text-gray-900 dark:text-white px-4">General</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-white px-4">{t("shortcuts.general.title")}</h2>
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="gap-2 flex items-center">
             <div className="text-gray-500 dark:text-neutral-400">
@@ -35,7 +38,7 @@ export default function ShortcutsTab() {
                 <path d="M14 8h.01"/>
               </svg>
             </div>
-            <h3 className="text-sm text-gray-900 dark:text-white">Toggle visibility of Primer</h3>
+            <h3 className="text-sm text-gray-900 dark:text-white">{t("shortcuts.general.toggleVisibility")}</h3>
           </div>
 
           <div className="flex items-center gap-2">
@@ -68,7 +71,7 @@ export default function ShortcutsTab() {
                 <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/>
               </svg> 
             </div>
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Ask Primer about your screen or anything</h3>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">{t("shortcuts.general.askScreen")}</h3>
           </div>
 
           <div className="flex items-center gap-2">
@@ -81,7 +84,7 @@ export default function ShortcutsTab() {
           <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
             <MonitorIcon size={16}/>
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Take a screenshot and submit to AI 
+              {t("shortcuts.general.screenshot")}
             </h3>
           </div>
 
@@ -103,7 +106,7 @@ export default function ShortcutsTab() {
           <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
             <MicIcon size={16}/>
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Ask Primer with audio
+              {t("shortcuts.general.audio")}
             </h3>
           </div>
 
@@ -132,7 +135,7 @@ export default function ShortcutsTab() {
               </svg>
             </div>
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Clear the current conversation with Primer
+              {t("shortcuts.general.clearConversation")}
             </h3>
           </div>
 
@@ -146,7 +149,7 @@ export default function ShortcutsTab() {
           <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
             <HatGlassesIcon size={16}/> 
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Start or stop a Stealth mode session
+              {t("shortcuts.general.stealthMode")}
             </h3>
           </div>
 
@@ -159,7 +162,7 @@ export default function ShortcutsTab() {
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 dark:text-white px-4">Scroll</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white px-4">{t("shortcuts.scroll.title")}</h3>
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="flex items-center gap-2">
             <div className="text-gray-500 dark:text-neutral-400">
@@ -182,7 +185,7 @@ export default function ShortcutsTab() {
               </svg>
             </div>
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Scroll the response window up
+              {t("shortcuts.scroll.up")}
             </h3>
           </div>
 
@@ -229,7 +232,7 @@ export default function ShortcutsTab() {
               </svg>
             </div>
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Scroll the response window down
+              {t("shortcuts.scroll.down")}
             </h3>
           </div>
 

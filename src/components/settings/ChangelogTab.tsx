@@ -12,10 +12,6 @@ export default function ChangelogTab() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return <div className="p-8 text-gray-500 dark:text-neutral-400">Loading changes...</div>;
-  }
-
   return (
     <div className="flex flex-col h-full bg-white dark:bg-[#1D1D1F] overflow-y-auto transition-colors">
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
@@ -24,23 +20,32 @@ export default function ChangelogTab() {
             <p className="text-sm text-gray-500 dark:text-neutral-400">Primer innovates every day. See what's new!</p>
           </div>
             
-            {changelogs.map((log) => (
-              <div key={log.id} className="mb-8">
-                <div className="flex justify-between items-start mb-4 text-gray-900 dark:text-white">
-                  <h3 className="text-lg font-semibold">{log.title}</h3>
-                </div>
-                <div 
-                  className="text-gray-600 dark:text-neutral-300 leading-relaxed text-sm changelog-content"
-                  dangerouslySetInnerHTML={{ __html: log.content }}
-                />
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-8 h-8 border-2 border-gray-200 dark:border-white/20 border-t-gray-800 dark:border-t-white rounded-full animate-spin" />
+                <p className="text-sm text-gray-500 dark:text-neutral-400">Fetching latest updates...</p>
               </div>
-            ))}
-            
-            {changelogs.length === 0 && (
-                <div className="text-gray-400 dark:text-neutral-500 text-center py-10 flex flex-col items-center gap-2">
-                    <div className="text-4xl">📜</div>
-                    <div>No release notes found.</div>
-                </div>
+            ) : (
+              <>
+                {changelogs.map((log) => (
+                  <div key={log.id} className="mb-8">
+                    <div className="flex justify-between items-start mb-4 text-gray-900 dark:text-white">
+                      <h3 className="text-lg font-semibold">{log.title}</h3>
+                    </div>
+                    <div 
+                      className="text-gray-600 dark:text-neutral-300 leading-relaxed text-sm changelog-content"
+                      dangerouslySetInnerHTML={{ __html: log.content }}
+                    />
+                  </div>
+                ))}
+                
+                {changelogs.length === 0 && (
+                    <div className="text-gray-400 dark:text-neutral-500 text-center py-10 flex flex-col items-center gap-2">
+                        <div className="text-4xl">📜</div>
+                        <div>No release notes found.</div>
+                    </div>
+                )}
+              </>
             )}
         </div>
         <style>{`

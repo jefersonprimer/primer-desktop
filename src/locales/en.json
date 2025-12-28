@@ -30,10 +30,143 @@
       "modalTitle": "Are you sure you want to delete your account?",
       "modalWarning": "By deleting your account, you will lose access to all your data, history, and settings. This action cannot be undone.",
       "passwordLabel": "Enter your password to confirm",
-      "confirmButton": "Yes, delete my account",
+      "confirmButton": "delete account",
       "cancelButton": "Cancel",
       "success": "Account deleted successfully.",
       "error": "Error deleting account. Check your password."
     }
+  },
+  "history": {
+    "clearHistory": "Clear History?",
+    "deleteConversation": "Delete Conversation?",
+    "clearHistoryWarning": "This action will permanently delete all conversations. This cannot be undone.",
+    "deleteConversationWarning": "This conversation will be permanently deleted. This cannot be undone.",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "clearAll": "Clear all",
+    "noSessions": "No sessions found.",
+    "selectSession": "Select a session to view details.",
+    "deleteConversationTitle": "Delete conversation"
+  },
+  "general": {
+    "detectable": "Detectable",
+    "detectableDescription": "Primer is currently Detectable by screen-sharing.",
+    "supportedApps": "Supported apps here",
+    "undetectable": "Undetectable",
+    "undetectableDescription": "Primer is now completely undetectable to screen-sharing.",
+    "title": "General settings",
+    "description": "Customize how Primer works for you.",
+    "openOnLogin": "Open Primer when you log in",
+    "openOnLoginDescription": "Primer will automatically open when you log in to your computer",
+    "theme": "Theme",
+    "themeDescription": "Customize how Primer looks on your device",
+    "systemPreference": "System preference",
+    "light": "Light",
+    "dark": "Dark",
+    "version": "Version",
+    "versionDescription": "You are currently using Primer version",
+    "checkForUpdates": "Check for updates",
+    "advanced": "Advanced",
+    "advancedDescription": "Configure experimental Primer features.",
+    "autoFocus": "Auto focus",
+    "autoFocusDescription": "Start typing instantly without clicking when Primer is shown",
+    "ambientAiChat": "Ambient AI Chat",
+    "ambientAiChatDescription": "Chat with Primer outside meetings",
+    "about": "About"
+  },
+  "calendar": {
+    "title": "Visible Calendars",
+    "description": "Upcoming meetings are synchronized from these calendars",
+    "noCalendars": "No calendars",
+    "getStarted": "Get started by connecting a Google account.",
+    "connectGoogle": "Connect Google"
+  },
+  "resources": {
+    "title": "Resources",
+    "description": "Manage additional features and resource settings.",
+    "autoScroll": {
+      "title": "Auto Scroll",
+      "subtitle": "Automatically scroll to the newest answer in the conversation",
+      "description": "When enabled, the conversation will automatically scroll to the most recent AI response. Auto-scroll temporarily pauses when you scroll up to read history and resumes when you return to the bottom."
+    },
+    "selectToPrompt": {
+      "title": "Select to Prompt",
+      "subtitle": "Parse clipboard text with Ctrl+Shift+C",
+      "description": "When enabled, selecting text and pressing Ctrl+Shift+C will automatically parse the content and provide insights."
+    }
+  },
+  "languages": {
+    "title": "Languages",
+    "description": "Select the languages for audio interaction and AI responses.",
+    "transcription": {
+      "title": "Transcription language",
+      "description": "The language you will be speaking during meetings."
+    },
+    "output": {
+      "title": "Output language",
+      "description": "The language Primer will use for responses and notes."
+    }
+  },
+  "help": {
+    "about": {
+      "title": "About",
+      "version": "Version"
+    },
+    "community": {
+      "title": "Community",
+      "discord": {
+        "title": "Discord",
+        "description": "Join our community on Discord to get help, share feedback, and connect.",
+        "button": "Join Discord"
+      },
+      "support": {
+        "title": "Support",
+        "description": "Need help with something specific? Check our documentation.",
+        "button": "Get Help"
+      }
+    },
+    "gettingStarted": {
+      "title": "Getting Started",
+      "description": "Need a refresher? Restart the onboarding guide to review permissions, audio settings, and API configurations.",
+      "button": "Restart Onboarding"
+    },
+    "debugLogs": {
+      "title": "Debug Logs",
+      "openFolder": "Open Logs Folder",
+      "copyLogs": "Copy Logs to Clipboard",
+      "copied": "Copied!",
+      "error": "Error copying (File not found?)"
+    }
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "description": "Visualize the configured keyboard shortcuts for your workflow.",
+    "general": {
+      "title": "General",
+      "toggleVisibility": "Toggle visibility of Primer",
+      "askScreen": "Ask Primer about your screen or anything",
+      "screenshot": "Take a screenshot and submit to AI",
+      "audio": "Ask Primer with audio",
+      "clearConversation": "Clear the current conversation with Primer",
+      "stealthMode": "Start or stop a Stealth mode session"
+    },
+    "scroll": {
+      "title": "Scroll",
+      "up": "Scroll the response window up",
+      "down": "Scroll the response window down"
+    }
+  },
+  "assistantsManager": {
+    "untitled": "Untitled",
+    "builtin": "Built-in",
+    "custom": "Custom",
+    "createNew": "+ Create New Assistant",
+    "newPresetPlaceholder": "New prompt preset",
+    "instructionsPlaceholder": "Start writing instructions...",
+    "builtinWarning": "Built-in assistants cannot be modified.",
+    "saveChanges": "Save Changes",
+    "deleteConfirm": "Are you sure you want to delete this assistant?",
+    "delete": "Delete",
+    "defaultName": "New Assistant"
   }
 }

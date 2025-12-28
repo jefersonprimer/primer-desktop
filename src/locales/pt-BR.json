@@ -35,5 +35,138 @@
       "success": "Conta excluída com sucesso.",
       "error": "Erro ao excluir conta. Verifique sua senha."
     }
+  },
+  "history": {
+    "clearHistory": "Limpar Histórico?",
+    "deleteConversation": "Apagar Conversa?",
+    "clearHistoryWarning": "Esta ação apagará todas as conversas permanentemente. Não é possível desfazer.",
+    "deleteConversationWarning": "Esta conversa será apagada permanentemente. Não é possível desfazer.",
+    "delete": "Apagar",
+    "cancel": "Cancelar",
+    "clearAll": "Limpar tudo",
+    "noSessions": "Nenhuma sessão encontrada.",
+    "selectSession": "Selecione uma sessão para ver os detalhes.",
+    "deleteConversationTitle": "Apagar conversa"
+  },
+  "general": {
+    "detectable": "Detectável",
+    "detectableDescription": "O Primer está atualmente detectável por compartilhamento de tela.",
+    "supportedApps": "Apps suportados aqui",
+    "undetectable": "Indetectável",
+    "undetectableDescription": "O Primer agora está completamente indetectável ao compartilhamento de tela.",
+    "title": "Configurações gerais",
+    "description": "Personalize como o Primer funciona para você.",
+    "openOnLogin": "Abrir Primer ao fazer login",
+    "openOnLoginDescription": "O Primer abrirá automaticamente quando você fizer login no seu computador",
+    "theme": "Tema",
+    "themeDescription": "Personalize a aparência do Primer no seu dispositivo",
+    "systemPreference": "Preferência do sistema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "version": "Versão",
+    "versionDescription": "Você está usando a versão do Primer",
+    "checkForUpdates": "Verificar atualizações",
+    "advanced": "Avançado",
+    "advancedDescription": "Configure recursos experimentais do Primer.",
+    "autoFocus": "Foco automático",
+    "autoFocusDescription": "Comece a digitar instantaneamente sem clicar quando o Primer for exibido",
+    "ambientAiChat": "Chat IA Ambiente",
+    "ambientAiChatDescription": "Converse com o Primer fora de reuniões",
+    "about": "Sobre"
+  },
+  "calendar": {
+    "title": "Calendários Visíveis",
+    "description": "Próximas reuniões são sincronizadas destes calendários",
+    "noCalendars": "Nenhum calendário",
+    "getStarted": "Comece conectando uma conta Google.",
+    "connectGoogle": "Conectar Google"
+  },
+  "resources": {
+    "title": "Recursos",
+    "description": "Gerencie recursos adicionais e configurações de recursos.",
+    "autoScroll": {
+      "title": "Rolagem Automática",
+      "subtitle": "Rolar automaticamente para a resposta mais recente na conversa",
+      "description": "Quando ativado, a conversa rolará automaticamente para a resposta da IA mais recente. A rolagem automática pausa temporariamente quando você rola para cima para ler o histórico e retoma quando você retorna ao final."
+    },
+    "selectToPrompt": {
+      "title": "Selecionar para Prompt",
+      "subtitle": "Analisar texto da área de transferência com Ctrl+Shift+C",
+      "description": "Quando ativado, selecionar texto e pressionar Ctrl+Shift+C analisará automaticamente o conteúdo e fornecerá insights."
+    }
+  },
+  "languages": {
+    "title": "Idiomas",
+    "description": "Selecione os idiomas para interação de áudio e respostas da IA.",
+    "transcription": {
+      "title": "Idioma de transcrição",
+      "description": "O idioma que você falará durante as reuniões."
+    },
+    "output": {
+      "title": "Idioma de saída",
+      "description": "O idioma que o Primer usará para respostas e notas."
+    }
+  },
+  "help": {
+    "about": {
+      "title": "Sobre",
+      "version": "Versão"
+    },
+    "community": {
+      "title": "Comunidade",
+      "discord": {
+        "title": "Discord",
+        "description": "Junte-se à nossa comunidade no Discord para obter ajuda, compartilhar feedback e conectar-se.",
+        "button": "Entrar no Discord"
+      },
+      "support": {
+        "title": "Suporte",
+        "description": "Precisa de ajuda com algo específico? Confira nossa documentação.",
+        "button": "Obter Ajuda"
+      }
+    },
+    "gettingStarted": {
+      "title": "Primeiros Passos",
+      "description": "Precisa de uma atualização? Reinicie o guia de integração para revisar permissões, configurações de áudio e configurações de API.",
+      "button": "Reiniciar Integração"
+    },
+    "debugLogs": {
+      "title": "Logs de Depuração",
+      "openFolder": "Abrir Pasta de Logs",
+      "copyLogs": "Copiar Logs para Área de Transferência",
+      "copied": "Copiado!",
+      "error": "Erro ao copiar (Arquivo não encontrado?)"
+    }
+  },
+  "shortcuts": {
+    "title": "Atalhos de teclado",
+    "description": "Visualize os atalhos de teclado configurados para o seu fluxo de trabalho.",
+    "general": {
+      "title": "Geral",
+      "toggleVisibility": "Alternar visibilidade do Primer",
+      "askScreen": "Pergunte ao Primer sobre sua tela ou qualquer coisa",
+      "screenshot": "Tirar um print e enviar para a IA",
+      "audio": "Perguntar ao Primer com áudio",
+      "clearConversation": "Limpar a conversa atual com o Primer",
+      "stealthMode": "Iniciar ou parar uma sessão em modo Stealth"
+    },
+    "scroll": {
+      "title": "Rolagem",
+      "up": "Rolar a janela de resposta para cima",
+      "down": "Rolar a janela de resposta para baixo"
+    }
+  },
+  "assistantsManager": {
+    "untitled": "Sem título",
+    "builtin": "Integrado",
+    "custom": "Personalizado",
+    "createNew": "+ Criar Novo Assistente",
+    "newPresetPlaceholder": "Novo prompt preset",
+    "instructionsPlaceholder": "Comece a escrever instruções...",
+    "builtinWarning": "Assistentes integrados não podem ser modificados.",
+    "saveChanges": "Salvar Alterações",
+    "deleteConfirm": "Tem certeza que deseja excluir este assistente?",
+    "delete": "Excluir",
+    "defaultName": "Novo Assistente"
   }
 }

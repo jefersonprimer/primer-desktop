@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAi } from '../../contexts/AiContext';
+
 import LanguagesIcon from "../ui/icons/LanguagesIcon";
 import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
 import CheckIcon from "../ui/icons/CheckIcon";
 
 export default function LanguagesTab() {
+  const { t } = useTranslation();
   const { 
     transcriptionLanguage, 
     setTranscriptionLanguage, 
@@ -28,13 +31,12 @@ export default function LanguagesTab() {
   const currentOutputLanguage = languages.find(lang => lang.code === outputLanguage) || languages[1];
 
   return (
-    <div className="p-8 pb-8 bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 font-medium w-full h-full overflow-y-auto transition-colors">
+    <div className="w-full h-full bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 font-medium p-8">
       <div className="flex flex-col mb-4">
-        <h3 className="text-gray-900 dark:text-white text-base font-semibold">Languages</h3>
-        <p className="text-sm">Select the languages for audio interaction and AI responses.</p>
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{t("languages.title")}</h1>
+        <p className="text-sm">{t("languages.description")}</p>
       </div> 
 
-      {/* Transcription Language */}
       <div className="flex flex-col py-3 mb-6">
         <div className="flex flex-col gap-3">
           <div className="w-12 h-12 bg-gray-100 dark:bg-[#272628] rounded flex items-center justify-center shrink-0 transition-colors">
@@ -42,8 +44,8 @@ export default function LanguagesTab() {
           </div>
           
           <div className="my-2">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Transcription language</h3>
-            <p className="text-sm text-gray-500 dark:text-neutral-400">The language you will be speaking during meetings.</p>
+            <h3 className="text-gray-900 dark:text-white">{t("languages.transcription.title")}</h3>
+            <p className="text-sm">{t("languages.transcription.description")}</p>
           </div>
         </div>
 
@@ -79,7 +81,6 @@ export default function LanguagesTab() {
         </div>
       </div>
 
-      {/* Output Language */}
       <div className="flex flex-col py-3 ">
         <div className="flex flex-col gap-3">
           <div className="w-12 h-12 bg-gray-100 dark:bg-[#272628] rounded flex items-center justify-center shrink-0 transition-colors">
@@ -87,8 +88,8 @@ export default function LanguagesTab() {
           </div>
           
             <div className="my-2">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Output language</h3>
-            <p className="text-sm text-gray-500 dark:text-neutral-400">The language Primer will use for responses and notes.</p>
+            <h3 className="text-gray-900 dark:text-white">{t("languages.output.title")}</h3>
+            <p className="text-sm">{t("languages.output.description")}</p>
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ChatHistory from "./ChatHistory";
 import CloseIcon from "./ui/icons/CloseIcon";
 
@@ -39,6 +40,7 @@ export default function HistoryModal({
   onDelete,
   onDeleteAll,
 }: HistoryModalProps) {
+  const { t } = useTranslation();
 
   const [confirmState, setConfirmState] = useState<{
     type: 'single' | 'all';
@@ -59,19 +61,19 @@ export default function HistoryModal({
   return (
     <div className="fixed inset-0 bg-transparent flex items-center justify-center z-[9999]">
       <div className="relative w-full max-w-[900px] bg-[#1D1D1F] text-neutral-300 rounded-xl shadow-xl flex h-[80vh] overflow-hidden">
-        
+
         {/* Custom Confirmation Modal Overlay */}
         {confirmState && (
           <div className="absolute inset-0 z-50 bg-black/50 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl p-6 w-full max-w-xs transform transition-all scale-100 animate-in zoom-in-95 duration-200">
               <div className="text-center mb-6">
                 <h3 className="text-white font-semibold text-lg mb-2">
-                  {confirmState.type === 'all' ? 'Limpar Histórico?' : 'Apagar Conversa?'}
+                  {confirmState.type === 'all' ? t('history.clearHistory') : t('history.deleteConversation')}
                 </h3>
                 <p className="text-neutral-400 text-sm leading-relaxed">
-                  {confirmState.type === 'all' 
-                    ? 'Esta ação apagará todas as conversas permanentemente. Não é possível desfazer.' 
-                    : 'Esta conversa será apagada permanentemente. Não é possível desfazer.'}
+                  {confirmState.type === 'all'
+                    ? t('history.clearHistoryWarning')
+                    : t('history.deleteConversationWarning')}
                 </p>
               </div>
               <div className="flex flex-col gap-3">
@@ -86,13 +88,13 @@ export default function HistoryModal({
                   }}
                   className="w-full py-3 px-4 bg-red-500/90 hover:bg-red-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
                 >
-                  Apagar
+                  {t('history.delete')}
                 </button>
                 <button
                   onClick={() => setConfirmState(null)}
                   className="w-full py-3 px-4 bg-[#2c2c2e] hover:bg-[#3a3a3c] text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
                 >
-                  Cancelar
+                  {t('history.cancel')}
                 </button>
               </div>
             </div>
@@ -106,40 +108,39 @@ export default function HistoryModal({
               onClick={onClose}
               className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
             >
-              <CloseIcon size={20}/>
+              <CloseIcon size={20} />
             </button>
           </div>
 
           <div className="px-4 py-2 flex justify-between items-center">
             {sessions.length > 0 && (
-              <button 
+              <button
                 onClick={() => setConfirmState({ type: 'all' })}
                 className="text-xs text-red-400 hover:text-red-300 "
               >
-                Limpar tudo
+                {t('history.clearAll')}
               </button>
             )}
           </div>
 
           <div className="flex-1 overflow-y-auto p-2 space-y-2">
             {sessions.length === 0 && (
-              <p className="text-neutral-500 text-sm text-center mt-10">Nenhuma sessão encontrada.</p>
+              <p className="text-neutral-500 text-sm text-center mt-10">{t('history.noSessions')}</p>
             )}
 
             {sessions.map((s) => (
-              <div 
-                 key={s.id}
-                 className={`group relative w-full rounded-lg transition flex items-center
-                  ${
-                    selected?.id === s.id
-                      ? "bg-neutral-800 border-neutral-600"
-                      : "bg-neutral-900 border-neutral-800 hover:bg-neutral-800"
+              <div
+                key={s.id}
+                className={`group relative w-full rounded-lg transition flex items-center
+                  ${selected?.id === s.id
+                    ? "bg-neutral-800 border-neutral-600"
+                    : "bg-neutral-900 border-neutral-800 hover:bg-neutral-800"
                   }`}
               >
                 <button
                   onClick={() => {
                     onSelect(s);
-                    onLoadMessages(s.id); 
+                    onLoadMessages(s.id);
                   }}
                   className="flex-1 text-left p-3 pr-10"
                 >
@@ -154,9 +155,9 @@ export default function HistoryModal({
                     setConfirmState({ type: 'single', id: s.id });
                   }}
                   className="absolute right-2 p-2 text-neutral-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"
-                  title="Apagar conversa"
+                  title={t('history.deleteConversationTitle')}
                 >
-                  <svg 
+                  <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
                     height="24"
@@ -167,11 +168,11 @@ export default function HistoryModal({
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <path d="M10 11v6"/>
-                    <path d="M14 11v6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
-                    <path d="M3 6h18"/>
-                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                   </svg>
                 </button>
               </div>
@@ -186,7 +187,7 @@ export default function HistoryModal({
             <div className="flex-1 flex items-center justify-center text-neutral-500 text-center">
               <div>
                 <div className="text-base mb-4">👉</div>
-                <p>Selecione uma sessão para ver os detalhes.</p>
+                <p>{t('history.selectSession')}</p>
               </div>
             </div>
           )}
