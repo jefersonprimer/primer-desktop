@@ -1,4 +1,20 @@
 {
+  "sidebar": {
+    "general": "General",
+    "calendar": "Calendar",
+    "apiAndModels": "API & Models",
+    "resources": "Resources",
+    "keybinds": "Keybinds",
+    "profile": "Profile",
+    "languages": "Languages",
+    "billing": "Billing",
+    "support": "Support",
+    "changelog": "Changelog",
+    "helpCenter": "Help Center",
+    "reportBug": "Report a bug",
+    "signOut": "Sign Out",
+    "quitPrimer": "Quit Primer"
+  },
   "welcome": {
     "title": "Welcome to Perssua",
     "description": "Your realtime assistant during meetings, classes, podcasts, interviews, and online activities",
@@ -155,5 +171,198 @@
       "up": "Scroll the response window up",
       "down": "Scroll the response window down"
     }
+  },
+  "openai": {
+    "subtitle": "GPT-4.1, GPT-4o and other models",
+    "active": "Active",
+    "useThisModel": "Use this model",
+    "apiKey": {
+      "label": "API Key",
+      "ready": "Ready",
+      "required": "Key required",
+      "description": "Your API key is stored locally and is never sent to our servers."
+    },
+    "transcription": {
+      "title": "Transcription Model",
+      "description": "Select the model used for voice transcription"
+    },
+    "whisper": {
+      "hideConfig": "Hide local settings",
+      "manageModels": "Manage Whisper Models (Local)",
+      "localModelsCenter": "Local Models Center",
+      "status": "Status"
+    },
+    "performance": {
+      "title": "Performance",
+      "description": "Choose your preferred balance between speed and quality. We will automatically select the best models for you.",
+      "fast": "Fast",
+      "fastDescription": "Quick responses, short answers",
+      "standard": "Standard",
+      "standardDescription": "Good balance of speed and quality",
+      "quality": "Quality",
+      "qualityDescription": "Complete responses, detailed answers",
+      "custom": "Custom",
+      "customDescription": "Choose your own models",
+      "autoOptimize": "Model selections are automatically optimized based on your performance choice."
+    },
+    "models": {
+      "gpt41": {
+        "description": "The most advanced model for complex analysis and multimodality."
+      },
+      "gpt41nano": {
+        "description": "Ultra-fast and efficient version of GPT-4.1."
+      },
+      "gpt4o": {
+        "description": "The versatile standard model for text, vision and audio."
+      },
+      "gpt4omini": {
+        "description": "Fast and economical model for everyday tasks."
+      }
+    },
+    "analysisModel": {
+      "title": "Analysis Model",
+      "description": "Model used to analyze images and conversations"
+    },
+    "imageModel": {
+      "title": "Image Generation Model",
+      "description": "Model used to generate images"
+    },
+    "viewModelDetails": "View model details",
+    "saveChanges": "Save Changes",
+    "changesSaved": "Changes Saved"
+  },
+  "google": {
+    "subtitle": "Gemini 3 Pro, Gemini 2.5 and other models",
+    "active": "Active",
+    "useThisModel": "Use this model",
+    "apiKey": {
+      "label": "API Key",
+      "ready": "Ready",
+      "required": "Key required",
+      "description": "Your API key is stored locally and is never sent to our servers."
+    },
+    "transcription": {
+      "title": "Transcription Model",
+      "description": "Select the model used for voice transcription"
+    },
+    "whisper": {
+      "hideConfig": "Hide local settings",
+      "manageModels": "Manage Whisper Models (Local)",
+      "localModelsCenter": "Local Models Center",
+      "status": "Status"
+    },
+    "performance": {
+      "title": "Performance",
+      "description": "Choose your preferred balance between speed and quality. We will automatically select the best models for you.",
+      "fast": "Fast",
+      "fastDescription": "Quick responses, short answers",
+      "standard": "Standard",
+      "standardDescription": "Good balance of speed and quality",
+      "quality": "Quality",
+      "qualityDescription": "Complete responses, detailed answers",
+      "custom": "Custom",
+      "customDescription": "Choose your own models",
+      "autoOptimize": "Model selections are automatically optimized based on your performance choice."
+    },
+    "models": {
+      "gemini3pro": {
+        "description": "Next-generation Gemini model with advanced multimodal capabilities."
+      },
+      "gemini25pro": {
+        "description": "Powerful model for complex reasoning and multimodal tasks."
+      },
+      "gemini25flash": {
+        "description": "Model optimized for speed and cost efficiency."
+      },
+      "gemini25flashlite": {
+        "description": "Ultra-lightweight and economical version of Flash."
+      },
+      "gemini20flashlite": {
+        "description": "Lightweight model focused on speed."
+      }
+    },
+    "analysisModel": {
+      "title": "Analysis Model",
+      "description": "Model used to analyze images and conversations"
+    },
+    "imageModel": {
+      "title": "Image Generation Model",
+      "description": "Model used to generate images with Imagen"
+    },
+    "viewModelDetails": "View model details",
+    "saveChanges": "Save Changes",
+    "changesSaved": "Changes Saved"
+  },
+  "openrouter": {
+    "subtitle": "Access multiple models via openrouter.ai",
+    "active": "Active",
+    "useThisModel": "Use this model",
+    "apiKey": {
+      "label": "API Key",
+      "ready": "Ready",
+      "required": "Key required",
+      "description": "Your API key is stored locally and is never sent to our servers."
+    },
+    "transcription": {
+      "title": "Transcription Model",
+      "description": "Select the model used for voice transcription"
+    },
+    "whisper": {
+      "hideConfig": "Hide local settings",
+      "manageModels": "Manage Whisper Models (Local)",
+      "localModelsCenter": "Local Models Center",
+      "status": "Status"
+    },
+    "model": {
+      "title": "Model",
+      "loading": "Loading...",
+      "loadModels": "Load Models",
+      "saved": "Saved",
+      "availableCount": "{{count}} models available. Free models appear first.",
+      "clickToLoad": "Click 'Load Models' to see all available models.",
+      "free": "FREE",
+      "freePrice": "Free",
+      "prompt": "Prompt",
+      "completion": "Completion",
+      "context": "Context"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch models",
+      "loadFailed": "Could not load models. Using default models."
+    },
+    "savedModelPlaceholder": "Saved model (details not loaded)",
+    "viewModelDetails": "View model details",
+    "saveChanges": "Save Changes",
+    "changesSaved": "Changes Saved"
+  },
+  "custom": {
+    "title": "Custom",
+    "subtitle": "Run models locally with Ollama and Whisper.cpp",
+    "active": "Active",
+    "useThisModel": "Use this model",
+    "ollama": {
+      "ready": "Ready",
+      "waitingForSave": "Waiting for Save",
+      "refresh": "Refresh",
+      "connectionError": "Could not connect to Ollama. Make sure it is running."
+    },
+    "model": {
+      "selected": "Selected Model",
+      "loading": "Loading...",
+      "noModels": "No models found",
+      "description": "Downloaded models found in your local Ollama instance."
+    },
+    "speech": {
+      "title": "Speech Recognition",
+      "description": "Choose your speech-to-text provider."
+    },
+    "whisper": {
+      "hideConfig": "Hide local settings",
+      "manageModels": "Manage Whisper Models (Local)",
+      "localModelsCenter": "Local Models Center",
+      "status": "Status"
+    },
+    "saveChanges": "Save Changes",
+    "changesSaved": "Changes Saved"
   }
 }

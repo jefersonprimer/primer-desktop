@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import CheckIcon from "../ui/icons/CheckIcon";
 import CloseIcon from "../ui/icons/CloseIcon";
 import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
@@ -24,6 +25,7 @@ export default function OpenAiTab({
   savedKey,
   onSave,
 }: Props) {
+  const { t } = useTranslation();
   const {
     activeProvider,
     setActiveProvider,
@@ -32,7 +34,7 @@ export default function OpenAiTab({
     imageModel,
     setImageModel
   } = useAi();
-  
+
   const transcriptionModel = getTranscriptionModelForProvider("OpenAI");
 
   // Track specific whisper model selection
@@ -52,10 +54,10 @@ export default function OpenAiTab({
 
   // Os 4 melhores modelos da OpenAI (Atualizado para a solicitação)
   const topModels = [
-    { id: "gpt-4.1", label: "GPT-4.1", description: "O modelo mais avançado para análise complexa e multimodality." },
-    { id: "gpt-4.1-nano", label: "GPT-4.1 Nano", description: "Versão ultra-rápida e eficiente do GPT-4.1." },
-    { id: "gpt-4o", label: "GPT-4o", description: "O modelo versátil padrão para texto, visão e áudio." },
-    { id: "gpt-4o-mini", label: "GPT-4o Mini", description: "Modelo rápido e econômico para tarefas cotidianas." }
+    { id: "gpt-4.1", label: "GPT-4.1", description: t("openai.models.gpt41.description") },
+    { id: "gpt-4.1-nano", label: "GPT-4.1 Nano", description: t("openai.models.gpt41nano.description") },
+    { id: "gpt-4o", label: "GPT-4o", description: t("openai.models.gpt4o.description") },
+    { id: "gpt-4o-mini", label: "GPT-4o Mini", description: t("openai.models.gpt4omini.description") }
   ];
 
   // Lista completa de modelos para personalizado (Restrita conforme solicitado)
@@ -84,10 +86,10 @@ export default function OpenAiTab({
   ];
 
   const performanceModes = {
-    rapido: { model: "gpt-4o-mini", label: "Rápido" },
-    padrao: { model: "gpt-4o", label: "Padrão" },
-    qualidade: { model: "gpt-4.1", label: "Qualidade" },
-    personalizado: { model: model, label: "Personalizado" }
+    rapido: { model: "gpt-4o-mini", label: t("openai.performance.fast") },
+    padrao: { model: "gpt-4o", label: t("openai.performance.standard") },
+    qualidade: { model: "gpt-4.1", label: t("openai.performance.quality") },
+    personalizado: { model: model, label: t("openai.performance.custom") }
   };
 
   const getInitialPerformanceMode = (currentModel: string): PerformanceMode => {
@@ -124,48 +126,46 @@ export default function OpenAiTab({
       <div className="flex justify-between items-center bg-neutral-100 dark:bg-[#242425] px-4 py-3 rounded-xl">
         <div>
           <h2 className="text-neutral-900 dark:text-white text-base font-semibold">OpenAI</h2>
-          <p className="text-neutral-500 dark:text-neutral-400 text-sm">GPT-4.1, GPT-4o e outros modelos</p>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm">{t("openai.subtitle")}</p>
         </div>
         <div className="flex items-center">
           {activeProvider === "OpenAI" ? (
             <span className="flex items-center gap-2 text-green-500 bg-green-500/10 px-3 py-1.5 rounded-full text-sm font-medium border border-green-500/20">
-              <CheckIcon size={16} color="#22c55e"/>
-              Ativo
+              <CheckIcon size={16} color="#22c55e" />
+              {t("openai.active")}
             </span>
           ) : (
             <button
               onClick={() => setActiveProvider("OpenAI")}
               className="text-sm bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white px-3 py-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 transition"
             >
-              Usar este modelo
+              {t("openai.useThisModel")}
             </button>
           )}
         </div>
       </div>
 
-      
+
       <label className="flex flex-col gap-1 my-6 relative bg-neutral-100 dark:bg-[#242425] py-2 px-4 rounded-lg">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-neutral-900 dark:text-white">Chave de API</span>
+          <span className="text-sm text-neutral-900 dark:text-white">{t("openai.apiKey.label")}</span>
 
-          <button className={`flex items-center gap-2 rounded-lg text-sm border py-1 px-2 ${
-            currentStatus === "success" 
-              ? "border-[#5BBF4B] bg-[#071C0B]" 
+          <button className={`flex items-center gap-2 rounded-lg text-sm border py-1 px-2 ${currentStatus === "success"
+              ? "border-[#5BBF4B] bg-[#071C0B]"
               : "border-red-500/50 bg-red-500/10"
-          }`}>
-            <span className={`rounded-full p-0.5 ${
-              currentStatus === "success" 
-                ? "bg-[#5BBF4B] text-[#071C0B]" 
-                : "bg-red-500 text-white"
             }`}>
+            <span className={`rounded-full p-0.5 ${currentStatus === "success"
+                ? "bg-[#5BBF4B] text-[#071C0B]"
+                : "bg-red-500 text-white"
+              }`}>
               {currentStatus === "success" ? (
-                <CheckIcon size={12} color="#071C0B"/>
+                <CheckIcon size={12} color="#071C0B" />
               ) : (
-                <CloseIcon size={12} color="#FFFFFF"/>
+                <CloseIcon size={12} color="#FFFFFF" />
               )}
             </span>
             <span className={`${currentStatus === "success" ? "text-green-500" : "text-red-500"}`}>
-              {currentStatus === "success" ? "Pronto" : "Chave necessária"}
+              {currentStatus === "success" ? t("openai.apiKey.ready") : t("openai.apiKey.required")}
             </span>
           </button>
 
@@ -179,17 +179,17 @@ export default function OpenAiTab({
         />
 
         <p className="text-neutral-500 dark:text-neutral-400 text-sm">
-          Sua chave de API e armazenada localmente, e nunca e enviada aos nossos servidores. 
+          {t("openai.apiKey.description")}
         </p>
 
       </label>
 
-      
+
       {/* Speech-to-Text Model Selection (Moved outside personalized) */}
       <div className="mb-8">
-        <h3 className="text-base font-semibold text-neutral-900 dark:text-white">Modelo de Transcrição</h3>
-        <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">Selecione o modelo usado para transcrição de voz</p>
-        
+        <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("openai.transcription.title")}</h3>
+        <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("openai.transcription.description")}</p>
+
         <select
           value={transcriptionModel}
           onChange={(e) => {
@@ -206,17 +206,17 @@ export default function OpenAiTab({
             </option>
           ))}
         </select>
-        
+
         {/* Whisper Management Toggle Button */}
         {transcriptionModel === "whisper_cpp" && (
-          <button 
+          <button
             onClick={() => setShowWhisperConfig(!showWhisperConfig)}
             className="mt-3 flex items-center gap-2 text-sm font-medium text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors group"
           >
             <div className={`p-1.5 rounded-md bg-blue-500/10 group-hover:bg-blue-500/20 transition-transform ${showWhisperConfig ? 'rotate-180' : ''}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
             </div>
-            {showWhisperConfig ? 'Ocultar configurações locais' : 'Gerenciar Modelos Whisper (Local)'}
+            {showWhisperConfig ? t("openai.whisper.hideConfig") : t("openai.whisper.manageModels")}
           </button>
         )}
 
@@ -226,36 +226,35 @@ export default function OpenAiTab({
             <div className="flex items-center justify-between mb-5 border-b border-neutral-200 dark:border-neutral-800 pb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-500 dark:text-blue-400 border border-blue-500/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Central de Modelos Locais</h4>
-                  <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-semibold">Status: <span className="text-blue-500 dark:text-blue-400">{activeWhisperModel} Ativo</span></p>
+                  <h4 className="text-sm font-bold text-neutral-900 dark:text-white">{t("openai.whisper.localModelsCenter")}</h4>
+                  <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-semibold">{t("openai.whisper.status")}: <span className="text-blue-500 dark:text-blue-400">{activeWhisperModel} {t("openai.active")}</span></p>
                 </div>
               </div>
             </div>
-            
-            <WhisperManager 
-              activeModel={activeWhisperModel} 
-              onModelChange={handleSetWhisperModel} 
+
+            <WhisperManager
+              activeModel={activeWhisperModel}
+              onModelChange={handleSetWhisperModel}
             />
           </div>
         )}
       </div>
 
-      <h3 className="text-base font-semibold text-neutral-900 dark:text-white">Desempenho</h3>
+      <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("openai.performance.title")}</h3>
       <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4">
-        Escolha o equilíbrio preferido entre velocidade e qualidade. Selecionaremos automaticamente os melhores modelos para você.
+        {t("openai.performance.description")}
       </p>
 
       <div className="grid grid-cols-4 gap-3 mb-6">
         <button
           onClick={() => handlePerformanceChange("rapido")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${
-            performanceMode === "rapido"
+          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${performanceMode === "rapido"
               ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-700"
               : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-800"
-          }`}
+            }`}
         >
           {performanceMode === "rapido" && (
             <div className="absolute top-2 right-2">
@@ -265,17 +264,16 @@ export default function OpenAiTab({
           <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
           </svg>
-          <span className="font-medium mb-1">Rápido</span>
-          <span className="font-medium text-xs">Respostas rápidas, respostas curtas</span>
+          <span className="font-medium mb-1">{t("openai.performance.fast")}</span>
+          <span className="font-medium text-xs">{t("openai.performance.fastDescription")}</span>
         </button>
 
         <button
           onClick={() => handlePerformanceChange("padrao")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${
-            performanceMode === "padrao"
-              ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-700" 
+          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${performanceMode === "padrao"
+              ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-700"
               : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-800"
-          }`}
+            }`}
         >
           {performanceMode === "padrao" && (
             <div className="absolute top-2 right-2">
@@ -286,17 +284,16 @@ export default function OpenAiTab({
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="3" fill="currentColor" />
           </svg>
-          <span className="font-medium mb-1">Padrão</span>
-          <span className="font-medium text-xs">Boa combinação de velocidade e qualidade</span>
+          <span className="font-medium mb-1">{t("openai.performance.standard")}</span>
+          <span className="font-medium text-xs">{t("openai.performance.standardDescription")}</span>
         </button>
 
         <button
           onClick={() => handlePerformanceChange("qualidade")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${
-            performanceMode === "qualidade"
+          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${performanceMode === "qualidade"
               ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-700"
               : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-800"
-          }`}
+            }`}
         >
           {performanceMode === "qualidade" && (
             <div className="absolute top-2 right-2">
@@ -306,17 +303,16 @@ export default function OpenAiTab({
           <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
-          <span className="font-medium mb-1">Qualidade</span>
-          <span className="font-medium text-xs">Respostas completas, respostas detalhadas</span>
+          <span className="font-medium mb-1">{t("openai.performance.quality")}</span>
+          <span className="font-medium text-xs">{t("openai.performance.qualityDescription")}</span>
         </button>
 
         <button
           onClick={() => handlePerformanceChange("personalizado")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${
-            performanceMode === "personalizado"
+          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${performanceMode === "personalizado"
               ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-700"
               : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-800"
-          }`}
+            }`}
         >
           {performanceMode === "personalizado" && (
             <div className="absolute top-2 right-2">
@@ -325,16 +321,16 @@ export default function OpenAiTab({
           )}
           <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.364 6.364l-2.121-2.121M8.757 8.757L6.636 6.636m12.728 0l-2.121 2.121m-9.9 9.9l-2.121 2.121" />
-            </svg>
-          <span className="font-medium mb-1">Personalizado</span>
-          <span className="text-xs">Escolha seus próprios modelos</span>
+          </svg>
+          <span className="font-medium mb-1">{t("openai.performance.custom")}</span>
+          <span className="text-xs">{t("openai.performance.customDescription")}</span>
         </button>
       </div>
 
       <div className="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 rounded-lg p-3 mb-6 flex items-start gap-2">
-        <CircleAlertIcon size={18}/>
+        <CircleAlertIcon size={18} />
         <p className="text-sm text-neutral-600 dark:text-neutral-300">
-          As seleções de modelo são otimizadas automaticamente com base na sua escolha de desempenho.
+          {t("openai.performance.autoOptimize")}
         </p>
       </div>
 
@@ -343,9 +339,9 @@ export default function OpenAiTab({
         <div className="space-y-6 mb-6">
           {/* Modelo de Análise */}
           <div>
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">Modelo de Análise</h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">Modelo usado para analisar imagens e conversas</p>
-            
+            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("openai.analysisModel.title")}</h3>
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("openai.analysisModel.description")}</p>
+
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
@@ -361,9 +357,9 @@ export default function OpenAiTab({
 
           {/* Modelo de Geração de Imagem */}
           <div>
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">Modelo de Geração de Imagem</h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">Modelo usado para gerar imagens</p>
-            
+            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("openai.imageModel.title")}</h3>
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("openai.imageModel.description")}</p>
+
             <select
               value={imageModel}
               onChange={(e) => setImageModel?.(e.target.value)}
@@ -380,24 +376,23 @@ export default function OpenAiTab({
       )}
 
       <div className="flex items-center justify-between mt-4 mb-8">
-        <a 
-          href="https://platform.openai.com/docs/models" 
-          target="_blank" 
+        <a
+          href="https://platform.openai.com/docs/models"
+          target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 underline"
         >
-          Ver detalhes do modelo
+          {t("openai.viewModelDetails")}
         </a>
 
         <button
           onClick={handleSave}
-          className={`px-6 py-2 font-semibold rounded-lg transition ${
-            isSaved 
-              ? "bg-green-600 text-white hover:bg-green-700" 
+          className={`px-6 py-2 font-semibold rounded-lg transition ${isSaved
+              ? "bg-green-600 text-white hover:bg-green-700"
               : "bg-neutral-900 dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200"
-          }`}
+            }`}
         >
-          {isSaved ? "Alterações Salvas" : "Salvar Alterações"}
+          {isSaved ? t("openai.changesSaved") : t("openai.saveChanges")}
         </button>
 
       </div>

@@ -1,4 +1,20 @@
 {
+  "sidebar": {
+    "general": "Geral",
+    "calendar": "Calendário",
+    "apiAndModels": "API e Modelos",
+    "resources": "Recursos",
+    "keybinds": "Atalhos",
+    "profile": "Perfil",
+    "languages": "Idiomas",
+    "billing": "Faturamento",
+    "support": "Suporte",
+    "changelog": "Novidades",
+    "helpCenter": "Central de Ajuda",
+    "reportBug": "Reportar erro",
+    "signOut": "Sair",
+    "quitPrimer": "Fechar Primer"
+  },
   "welcome": {
     "title": "Bem-vindo ao Perssua",
     "description": "Seu assistente em tempo real durante reuniões, aulas, podcasts, entrevistas e atividades online",
@@ -168,5 +184,198 @@
     "deleteConfirm": "Tem certeza que deseja excluir este assistente?",
     "delete": "Excluir",
     "defaultName": "Novo Assistente"
+  },
+  "openai": {
+    "subtitle": "GPT-4.1, GPT-4o e outros modelos",
+    "active": "Ativo",
+    "useThisModel": "Usar este modelo",
+    "apiKey": {
+      "label": "Chave de API",
+      "ready": "Pronto",
+      "required": "Chave necessária",
+      "description": "Sua chave de API é armazenada localmente e nunca é enviada aos nossos servidores."
+    },
+    "transcription": {
+      "title": "Modelo de Transcrição",
+      "description": "Selecione o modelo usado para transcrição de voz"
+    },
+    "whisper": {
+      "hideConfig": "Ocultar configurações locais",
+      "manageModels": "Gerenciar Modelos Whisper (Local)",
+      "localModelsCenter": "Central de Modelos Locais",
+      "status": "Status"
+    },
+    "performance": {
+      "title": "Desempenho",
+      "description": "Escolha o equilíbrio preferido entre velocidade e qualidade. Selecionaremos automaticamente os melhores modelos para você.",
+      "fast": "Rápido",
+      "fastDescription": "Respostas rápidas, respostas curtas",
+      "standard": "Padrão",
+      "standardDescription": "Boa combinação de velocidade e qualidade",
+      "quality": "Qualidade",
+      "qualityDescription": "Respostas completas, respostas detalhadas",
+      "custom": "Personalizado",
+      "customDescription": "Escolha seus próprios modelos",
+      "autoOptimize": "As seleções de modelo são otimizadas automaticamente com base na sua escolha de desempenho."
+    },
+    "models": {
+      "gpt41": {
+        "description": "O modelo mais avançado para análise complexa e multimodality."
+      },
+      "gpt41nano": {
+        "description": "Versão ultra-rápida e eficiente do GPT-4.1."
+      },
+      "gpt4o": {
+        "description": "O modelo versátil padrão para texto, visão e áudio."
+      },
+      "gpt4omini": {
+        "description": "Modelo rápido e econômico para tarefas cotidianas."
+      }
+    },
+    "analysisModel": {
+      "title": "Modelo de Análise",
+      "description": "Modelo usado para analisar imagens e conversas"
+    },
+    "imageModel": {
+      "title": "Modelo de Geração de Imagem",
+      "description": "Modelo usado para gerar imagens"
+    },
+    "viewModelDetails": "Ver detalhes do modelo",
+    "saveChanges": "Salvar Alterações",
+    "changesSaved": "Alterações Salvas"
+  },
+  "google": {
+    "subtitle": "Gemini 3 Pro, Gemini 2.5 e outros modelos",
+    "active": "Ativo",
+    "useThisModel": "Usar este modelo",
+    "apiKey": {
+      "label": "Chave de API",
+      "ready": "Pronto",
+      "required": "Chave necessária",
+      "description": "Sua chave de API é armazenada localmente e nunca é enviada aos nossos servidores."
+    },
+    "transcription": {
+      "title": "Modelo de Transcrição",
+      "description": "Selecione o modelo usado para transcrição de voz"
+    },
+    "whisper": {
+      "hideConfig": "Ocultar configurações locais",
+      "manageModels": "Gerenciar Modelos Whisper (Local)",
+      "localModelsCenter": "Central de Modelos Locais",
+      "status": "Status"
+    },
+    "performance": {
+      "title": "Desempenho",
+      "description": "Escolha o equilíbrio preferido entre velocidade e qualidade. Selecionaremos automaticamente os melhores modelos para você.",
+      "fast": "Rápido",
+      "fastDescription": "Respostas rápidas, respostas curtas",
+      "standard": "Padrão",
+      "standardDescription": "Boa combinação de velocidade e qualidade",
+      "quality": "Qualidade",
+      "qualityDescription": "Respostas completas, respostas detalhadas",
+      "custom": "Personalizado",
+      "customDescription": "Escolha seus próprios modelos",
+      "autoOptimize": "As seleções de modelo são otimizadas automaticamente com base na sua escolha de desempenho."
+    },
+    "models": {
+      "gemini3pro": {
+        "description": "O modelo de próxima geração do Gemini, com capacidades avançadas e multimodais."
+      },
+      "gemini25pro": {
+        "description": "Modelo poderoso para raciocínio complexo e tarefas multimodais."
+      },
+      "gemini25flash": {
+        "description": "Modelo otimizado para velocidade e eficiência de custo."
+      },
+      "gemini25flashlite": {
+        "description": "Versão ultra-leve e econômica do Flash."
+      },
+      "gemini20flashlite": {
+        "description": "Modelo leve focado em velocidade."
+      }
+    },
+    "analysisModel": {
+      "title": "Modelo de Análise",
+      "description": "Modelo usado para analisar imagens e conversas"
+    },
+    "imageModel": {
+      "title": "Modelo de Geração de Imagem",
+      "description": "Modelo usado para gerar imagens com Imagen"
+    },
+    "viewModelDetails": "Ver detalhes do modelo",
+    "saveChanges": "Salvar Alterações",
+    "changesSaved": "Alterações Salvas"
+  },
+  "openrouter": {
+    "subtitle": "Acesse múltiplos modelos via openrouter.ai",
+    "active": "Ativo",
+    "useThisModel": "Usar este modelo",
+    "apiKey": {
+      "label": "Chave de API",
+      "ready": "Pronto",
+      "required": "Chave necessária",
+      "description": "Sua chave de API é armazenada localmente e nunca é enviada aos nossos servidores."
+    },
+    "transcription": {
+      "title": "Modelo de Transcrição",
+      "description": "Selecione o modelo usado para transcrição de voz"
+    },
+    "whisper": {
+      "hideConfig": "Ocultar configurações locais",
+      "manageModels": "Gerenciar Modelos Whisper (Local)",
+      "localModelsCenter": "Central de Modelos Locais",
+      "status": "Status"
+    },
+    "model": {
+      "title": "Modelo",
+      "loading": "Carregando...",
+      "loadModels": "Carregar Modelos",
+      "saved": "Salvo",
+      "availableCount": "{{count}} modelos disponíveis. Modelos gratuitos aparecem primeiro.",
+      "clickToLoad": "Clique em 'Carregar Modelos' para ver todos os modelos disponíveis.",
+      "free": "GRATUITO",
+      "freePrice": "Grátis",
+      "prompt": "Prompt",
+      "completion": "Completion",
+      "context": "Contexto"
+    },
+    "errors": {
+      "fetchFailed": "Falha ao buscar modelos",
+      "loadFailed": "Não foi possível carregar os modelos. Usando modelos padrão."
+    },
+    "savedModelPlaceholder": "Modelo salvo (detalhes não carregados)",
+    "viewModelDetails": "Ver detalhes do modelo",
+    "saveChanges": "Salvar Alterações",
+    "changesSaved": "Alterações Salvas"
+  },
+  "custom": {
+    "title": "Personalizado",
+    "subtitle": "Execute modelos localmente com Ollama e Whisper.cpp",
+    "active": "Ativo",
+    "useThisModel": "Usar este modelo",
+    "ollama": {
+      "ready": "Pronto",
+      "waitingForSave": "Aguardando salvamento",
+      "refresh": "Atualizar",
+      "connectionError": "Não foi possível conectar ao Ollama. Certifique-se de que está em execução."
+    },
+    "model": {
+      "selected": "Modelo Selecionado",
+      "loading": "Carregando...",
+      "noModels": "Nenhum modelo encontrado",
+      "description": "Modelos baixados encontrados na sua instância local do Ollama."
+    },
+    "speech": {
+      "title": "Reconhecimento de Fala",
+      "description": "Escolha seu provedor de conversão de fala em texto."
+    },
+    "whisper": {
+      "hideConfig": "Ocultar configurações locais",
+      "manageModels": "Gerenciar Modelos Whisper (Local)",
+      "localModelsCenter": "Central de Modelos Locais",
+      "status": "Status"
+    },
+    "saveChanges": "Salvar Alterações",
+    "changesSaved": "Alterações Salvas"
   }
 }

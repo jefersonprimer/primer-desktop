@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { useTranslation } from "react-i18next";
 import CloseIcon from "../ui/icons/CloseIcon";
 import SettingsIcon from "../ui/icons/SettingsIcon";
 import CalendarIcon from "../ui/icons/CalendarIcon";
@@ -17,14 +18,16 @@ interface Props {
 }
 
 export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
+  const { t } = useTranslation();
+
   const handleQuit = async () => {
     await invoke("close_app");
   };
 
   const itemClass = (isActive: boolean) => `
     relative flex items-center gap-3 p-2 w-full text-sm rounded-lg transition
-    ${isActive 
-      ? "bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white" 
+    ${isActive
+      ? "bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white"
       : "text-gray-600 dark:text-neutral-400 hover:bg-gray-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white"
     }
   `;
@@ -36,7 +39,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
           onClick={onClose}
           className="text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 p-1 rounded-full transition-colors"
         >
-          <CloseIcon size={20}/>
+          <CloseIcon size={20} />
         </button>
       </div>
 
@@ -47,40 +50,40 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("General")}
               className={itemClass(activeItem === "General")}
             >
-              <SettingsIcon size={20}/>
-              General
+              <SettingsIcon size={20} />
+              {t('sidebar.general')}
             </button>
 
             <button
               onClick={() => onSelectItem("Calendar")}
               className={itemClass(activeItem === "Calendar")}
             >
-              <CalendarIcon size={20}/>
-              Calendar
+              <CalendarIcon size={20} />
+              {t('sidebar.calendar')}
             </button>
 
             <button
               onClick={() => onSelectItem("API e Modelos")}
               className={itemClass(activeItem === "API e Modelos")}
             >
-              <NetworkIcon size={20}/>
-              API e Modelos
+              <NetworkIcon size={20} />
+              {t('sidebar.apiAndModels')}
             </button>
 
             <button
               onClick={() => onSelectItem("Recursos")}
               className={itemClass(activeItem === "Recursos")}
             >
-              <BoxesIcon size={20}/>
-              Recursos
+              <BoxesIcon size={20} />
+              {t('sidebar.resources')}
             </button>
 
             <button
               onClick={() => onSelectItem("Keybinds")}
               className={itemClass(activeItem === "Keybinds")}
             >
-              <KeyboardIcon size={20}/>
-              Keybinds
+              <KeyboardIcon size={20} />
+              {t('sidebar.keybinds')}
             </button>
 
             <button
@@ -89,7 +92,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
             >
               <CircleUserIcon size={20} className={activeItem === "Profile" ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-[#9D9DA3]"} />
               <span>
-                Profile
+                {t('sidebar.profile')}
               </span>
             </button>
 
@@ -97,8 +100,8 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Languages")}
               className={itemClass(activeItem === "Languages")}
             >
-              <LanguagesIcon size={20}/>
-              Languages
+              <LanguagesIcon size={20} />
+              {t('sidebar.languages')}
             </button>
 
 
@@ -106,12 +109,12 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Billing")}
               className={itemClass(activeItem === "Billing")}
             >
-              <CreditCardIcon size={20}/>
-              Billing
+              <CreditCardIcon size={20} />
+              {t('sidebar.billing')}
             </button>
 
             <div className="py-2">
-              <span className="text-xs text-gray-600 dark:text-neutral-400 px-2 tracking-wider">Support</span>
+              <span className="text-xs text-gray-600 dark:text-neutral-400 px-2 tracking-wider">{t('sidebar.support')}</span>
             </div>
 
             <button
@@ -120,19 +123,19 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="20" 
+                width="20"
                 height="20"
-                viewBox="0 0 24 24" 
+                viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M12 7v14"/>
-                <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
+                <path d="M12 7v14" />
+                <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
               </svg>
-              Changelog
+              {t('sidebar.changelog')}
             </button>
 
 
@@ -142,7 +145,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
             >
               <CircleQuestionMarkIcon size={20} className={activeItem === "Help Center" ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-[#9D9DA3]"} />
               <span className="font-medium">
-                Help Center
+                {t('sidebar.helpCenter')}
               </span>
             </button>
 
@@ -155,38 +158,38 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
                   height="20"
-                  viewBox="0 0 24 24" 
+                  viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
-                  <path d="M7 11h10"/>
-                  <path d="M7 15h6"/>
-                  <path d="M7 7h8"/>
+                  <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" />
+                  <path d="M7 11h10" />
+                  <path d="M7 15h6" />
+                  <path d="M7 7h8" />
                 </svg>
 
                 <span className="font-medium">
-                  Report a bug
+                  {t('sidebar.reportBug')}
                 </span>
               </div>
 
-              <svg 
+              <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
                 height="20"
-                viewBox="0 0 24 24" 
+                viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2" 
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 className="opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <path d="M7 7h10v10"/>
-                <path d="M7 17 17 7"/>
+                <path d="M7 7h10v10" />
+                <path d="M7 17 17 7" />
               </svg>
             </a>
 
@@ -202,23 +205,23 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
-                strokeLinecap="round" 
+                strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="m16 17 5-5-5-5"/>
-                <path d="M21 12H9"/>
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <path d="m16 17 5-5-5-5" />
+                <path d="M21 12H9" />
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               </svg>
-              <span >Sign Out</span>
+              <span>{t('sidebar.signOut')}</span>
             </button>
 
 
-            <button 
+            <button
               className="group flex items-center gap-3 p-2 w-full text-sm font-medium text-gray-600 dark:text-neutral-400 hover:text-red-400 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition"
               onClick={handleQuit}
             >
               <svg
-                xmlns="http://www.w3.org/2000/svg" 
+                xmlns="http://www.w3.org/2000/svg"
                 width="20"
                 height="20"
                 viewBox="0 0 24 24"
@@ -228,15 +231,15 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
-                <line x1="9" x2="9.01" y1="9" y2="9"/>
-                <line x1="15" x2="15.01" y1="9" y2="9"/>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
+                <line x1="9" x2="9.01" y1="9" y2="9" />
+                <line x1="15" x2="15.01" y1="9" y2="9" />
               </svg>
-              <span>Quit Primer</span>
+              <span>{t('sidebar.quitPrimer')}</span>
             </button>
-          </div> 
-         
+          </div>
+
         </nav>
       </div>
     </aside>

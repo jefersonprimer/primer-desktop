@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import CheckIcon from "../ui/icons/CheckIcon";
 import CloseIcon from "../ui/icons/CloseIcon";
 import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
@@ -16,16 +17,17 @@ interface Props {
 
 type PerformanceMode = "rapido" | "padrao" | "qualidade" | "personalizado";
 
-export default function GoogleTab({ 
-  apiKey, 
-  setApiKey, 
-  model, 
+export default function GoogleTab({
+  apiKey,
+  setApiKey,
+  model,
   setModel,
-  savedKey, 
+  savedKey,
   onSave
 }: Props) {
-  const { 
-    activeProvider, 
+  const { t } = useTranslation();
+  const {
+    activeProvider,
     setActiveProvider,
     getTranscriptionModelForProvider,
     setTranscriptionModelForProvider,
@@ -34,7 +36,7 @@ export default function GoogleTab({
   } = useAi();
 
   const transcriptionModel = getTranscriptionModelForProvider("Google");
-  
+
   // Track specific whisper model selection
   const [activeWhisperModel, setActiveWhisperModel] = useState<string>(() => localStorage.getItem("whisper_model") || "tiny");
   const [showWhisperConfig, setShowWhisperConfig] = useState(transcriptionModel === "whisper_cpp");
@@ -52,11 +54,11 @@ export default function GoogleTab({
 
   // Modelos principais do Gemini (Atualizado para a solicitação)
   const analysisModels = [
-    { id: "gemini-3-pro-preview", label: "Gemini 3 Pro Preview", description: "O modelo de próxima geração do Gemini, com capacidades avançadas e multimodais." },
-    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Modelo poderoso para raciocínio complexo e tarefas multimodais." },
-    { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Modelo otimizado para velocidade e eficiência de custo." },
-    { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite", description: "Versão ultra-leve e econômica do Flash." },
-    { id: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash-Lite", description: "Modelo leve focado em velocidade." }
+    { id: "gemini-3-pro-preview", label: "Gemini 3 Pro Preview", description: t("google.models.gemini3pro.description") },
+    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", description: t("google.models.gemini25pro.description") },
+    { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: t("google.models.gemini25flash.description") },
+    { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite", description: t("google.models.gemini25flashlite.description") },
+    { id: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash-Lite", description: t("google.models.gemini20flashlite.description") }
   ];
 
   // Modelos de transcrição (Atualizado)
@@ -76,10 +78,10 @@ export default function GoogleTab({
   ];
 
   const performanceModes = {
-    rapido: { model: "gemini-2.5-flash-lite", label: "Rápido" },
-    padrao: { model: "gemini-2.5-flash", label: "Padrão" },
-    qualidade: { model: "gemini-2.5-pro", label: "Qualidade" }, // gemini-3-pro-preview is a preview, so keep 2.5-pro for stable "qualidade"
-    personalizado: { model: model, label: "Personalizado" }
+    rapido: { model: "gemini-2.5-flash-lite", label: t("google.performance.fast") },
+    padrao: { model: "gemini-2.5-flash", label: t("google.performance.standard") },
+    qualidade: { model: "gemini-2.5-pro", label: t("google.performance.quality") }, // gemini-3-pro-preview is a preview, so keep 2.5-pro for stable "qualidade"
+    personalizado: { model: model, label: t("google.performance.custom") }
   };
 
   const getInitialPerformanceMode = (currentModel: string): PerformanceMode => {
@@ -116,20 +118,20 @@ export default function GoogleTab({
       <div className="flex justify-between items-center bg-neutral-100 dark:bg-[#242425] px-4 py-3 rounded-xl">
         <div>
           <h2 className="text-neutral-900 dark:text-white text-base font-semibold">Google</h2>
-          <p className="text-neutral-500 dark:text-gray-400 text-sm">Gemini 3 Pro, Gemini 2.5 e outros modelos</p>
+          <p className="text-neutral-500 dark:text-gray-400 text-sm">{t("google.subtitle")}</p>
         </div>
         <div className="flex items-center">
           {activeProvider === "Google" ? (
             <span className="flex items-center gap-2 text-green-500 bg-green-500/10 px-3 py-1.5 rounded-full text-sm font-medium border border-green-500/20">
-              <CheckIcon size={16} color="#22c55e"/>
-              Ativo
+              <CheckIcon size={16} color="#22c55e" />
+              {t("google.active")}
             </span>
           ) : (
-            <button 
+            <button
               onClick={() => setActiveProvider("Google")}
               className="text-sm bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white px-3 py-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 transition"
             >
-              Usar este modelo
+              {t("google.useThisModel")}
             </button>
           )}
         </div>
@@ -137,26 +139,24 @@ export default function GoogleTab({
 
       <label className="flex flex-col gap-1 my-6 relative bg-neutral-100 dark:bg-[#242425] py-2 px-4 rounded-lg">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-neutral-900 dark:text-white">Chave de API</span>
+          <span className="text-sm text-neutral-900 dark:text-white">{t("google.apiKey.label")}</span>
 
-          <button className={`flex items-center gap-2 rounded-lg text-sm border py-1 px-2 ${
-            currentStatus === "success" 
-              ? "border-green-500/50 dark:border-[#5BBF4B] bg-green-100 dark:bg-[#071C0B]" 
+          <button className={`flex items-center gap-2 rounded-lg text-sm border py-1 px-2 ${currentStatus === "success"
+              ? "border-green-500/50 dark:border-[#5BBF4B] bg-green-100 dark:bg-[#071C0B]"
               : "border-red-500/50 bg-red-100 dark:bg-red-500/10"
-          }`}>
-            <span className={`rounded-full p-0.5 ${
-              currentStatus === "success" 
-                ? "bg-green-500 dark:bg-[#5BBF4B] text-white dark:text-[#071C0B]" 
-                : "bg-red-500 text-white"
             }`}>
+            <span className={`rounded-full p-0.5 ${currentStatus === "success"
+                ? "bg-green-500 dark:bg-[#5BBF4B] text-white dark:text-[#071C0B]"
+                : "bg-red-500 text-white"
+              }`}>
               {currentStatus === "success" ? (
-                <CheckIcon size={12} color={currentStatus === "success" ? "#FFFFFF" : "#071C0B"}/>
+                <CheckIcon size={12} color={currentStatus === "success" ? "#FFFFFF" : "#071C0B"} />
               ) : (
-                <CloseIcon size={12} color="#FFFFFF"/>
+                <CloseIcon size={12} color="#FFFFFF" />
               )}
             </span>
             <span className={`${currentStatus === "success" ? "text-green-700 dark:text-green-500" : "text-red-600 dark:text-red-500"}`}>
-              {currentStatus === "success" ? "Pronto" : "Chave necessária"}
+              {currentStatus === "success" ? t("google.apiKey.ready") : t("google.apiKey.required")}
             </span>
           </button>
 
@@ -170,15 +170,15 @@ export default function GoogleTab({
         />
 
         <p className="text-neutral-500 dark:text-neutral-400 text-sm">
-          Sua chave de API e armazenada localmente, e nunca e enviada aos nossos servidores. 
+          {t("google.apiKey.description")}
         </p>
       </label>
 
       {/* Speech-to-Text Model Selection (Moved outside personalized) */}
       <div className="mb-8">
-        <h3 className="text-base font-semibold text-neutral-900 dark:text-white">Modelo de Transcrição</h3>
-        <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">Selecione o modelo usado para transcrição de voz</p>
-        
+        <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.transcription.title")}</h3>
+        <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("google.transcription.description")}</p>
+
         <select
           value={transcriptionModel}
           onChange={(e) => {
@@ -195,17 +195,17 @@ export default function GoogleTab({
             </option>
           ))}
         </select>
-        
+
         {/* Whisper Management Toggle Button */}
         {transcriptionModel === "whisper_cpp" && (
-          <button 
+          <button
             onClick={() => setShowWhisperConfig(!showWhisperConfig)}
             className="mt-3 flex items-center gap-2 text-sm font-medium text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors group"
           >
             <div className={`p-1.5 rounded-md bg-blue-500/10 group-hover:bg-blue-500/20 transition-transform ${showWhisperConfig ? 'rotate-180' : ''}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
             </div>
-            {showWhisperConfig ? 'Ocultar configurações locais' : 'Gerenciar Modelos Whisper (Local)'}
+            {showWhisperConfig ? t("google.whisper.hideConfig") : t("google.whisper.manageModels")}
           </button>
         )}
 
@@ -215,37 +215,36 @@ export default function GoogleTab({
             <div className="flex items-center justify-between mb-5 border-b border-neutral-200 dark:border-neutral-800 pb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-500 dark:text-blue-400 border border-blue-500/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Central de Modelos Locais</h4>
-                  <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-semibold">Status: <span className="text-blue-500 dark:text-blue-400">{activeWhisperModel} Ativo</span></p>
+                  <h4 className="text-sm font-bold text-neutral-900 dark:text-white">{t("google.whisper.localModelsCenter")}</h4>
+                  <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-semibold">{t("google.whisper.status")}: <span className="text-blue-500 dark:text-blue-400">{activeWhisperModel} {t("google.active")}</span></p>
                 </div>
               </div>
             </div>
-            
-            <WhisperManager 
-                activeModel={activeWhisperModel} 
-                onModelChange={handleSetWhisperModel} 
+
+            <WhisperManager
+              activeModel={activeWhisperModel}
+              onModelChange={handleSetWhisperModel}
             />
           </div>
         )}
       </div>
 
       {/* Desempenho */}
-      <h3 className="text-base font-semibold text-neutral-900 dark:text-white">Desempenho</h3>
+      <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.performance.title")}</h3>
       <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4">
-        Escolha o equilíbrio preferido entre velocidade e qualidade. Selecionaremos automaticamente os melhores modelos para você.
+        {t("google.performance.description")}
       </p>
 
       <div className="grid grid-cols-4 gap-3 mb-6">
         <button
           onClick={() => handlePerformanceChange("rapido")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${
-            performanceMode === "rapido"
+          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${performanceMode === "rapido"
               ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-700"
               : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-800"
-          }`}
+            }`}
         >
           {performanceMode === "rapido" && (
             <div className="absolute top-2 right-2">
@@ -255,17 +254,16 @@ export default function GoogleTab({
           <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
           </svg>
-          <span className="font-medium mb-1">Rápido</span>
-          <span className="font-medium text-xs">Respostas rápidas, respostas curtas</span>
+          <span className="font-medium mb-1">{t("google.performance.fast")}</span>
+          <span className="font-medium text-xs">{t("google.performance.fastDescription")}</span>
         </button>
 
         <button
           onClick={() => handlePerformanceChange("padrao")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${
-            performanceMode === "padrao"
+          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${performanceMode === "padrao"
               ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-700"
               : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-800"
-          }`}
+            }`}
         >
           {performanceMode === "padrao" && (
             <div className="absolute top-2 right-2">
@@ -276,19 +274,18 @@ export default function GoogleTab({
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="3" fill="currentColor" />
           </svg>
-          <span className="font-medium mb-1">Padrão</span>
-          <span className="font-medium text-xs">Boa combinação de velocidade e qualidade</span>
+          <span className="font-medium mb-1">{t("google.performance.standard")}</span>
+          <span className="font-medium text-xs">{t("google.performance.standardDescription")}</span>
         </button>
 
         <button
           onClick={() => handlePerformanceChange("qualidade")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${
-            performanceMode === "qualidade"
+          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${performanceMode === "qualidade"
               ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-700"
               : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-800"
-          }`}
+            }`}
         >
-           {performanceMode === "qualidade" && (
+          {performanceMode === "qualidade" && (
             <div className="absolute top-2 right-2">
               <CheckIcon size={16} color="#818cf8" />
             </div>
@@ -296,17 +293,16 @@ export default function GoogleTab({
           <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
-          <span className="font-medium mb-1">Qualidade</span>
-          <span className="font-medium text-xs">Respostas completas, respostas detalhadas</span>
+          <span className="font-medium mb-1">{t("google.performance.quality")}</span>
+          <span className="font-medium text-xs">{t("google.performance.qualityDescription")}</span>
         </button>
 
         <button
           onClick={() => handlePerformanceChange("personalizado")}
-          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${
-            performanceMode === "personalizado"
+          className={`flex flex-col items-center justify-center p-4 rounded-lg border transition relative ${performanceMode === "personalizado"
               ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-700"
               : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-800"
-          }`}
+            }`}
         >
           {performanceMode === "personalizado" && (
             <div className="absolute top-2 right-2">
@@ -316,15 +312,15 @@ export default function GoogleTab({
           <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.364 6.364l-2.121-2.121M8.757 8.757L6.636 6.636m12.728 0l-2.121 2.121m-9.9 9.9l-2.121 2.121" />
           </svg>
-          <span className="font-medium mb-1">Personalizado</span>
-          <span className="text-xs">Escolha seus próprios modelos</span>
+          <span className="font-medium mb-1">{t("google.performance.custom")}</span>
+          <span className="text-xs">{t("google.performance.customDescription")}</span>
         </button>
       </div>
 
       <div className="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 rounded-lg p-3 mb-6 flex items-start gap-2">
-        <CircleAlertIcon size={18}/>
+        <CircleAlertIcon size={18} />
         <p className="text-sm text-neutral-600 dark:text-neutral-300">
-          As seleções de modelo são otimizadas automaticamente com base na sua escolha de desempenho.
+          {t("google.performance.autoOptimize")}
         </p>
       </div>
 
@@ -333,9 +329,9 @@ export default function GoogleTab({
         <div className="space-y-6 mb-6">
           {/* Modelo de Análise */}
           <div>
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">Modelo de Análise</h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">Modelo usado para analisar imagens e conversas</p>
-            
+            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.analysisModel.title")}</h3>
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("google.analysisModel.description")}</p>
+
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
@@ -351,9 +347,9 @@ export default function GoogleTab({
 
           {/* Modelo de Geração de Imagem */}
           <div>
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">Modelo de Geração de Imagem</h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">Modelo usado para gerar imagens com Imagen</p>
-            
+            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.imageModel.title")}</h3>
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("google.imageModel.description")}</p>
+
             <select
               value={imageModel}
               onChange={(e) => setImageModel(e.target.value)}
@@ -370,24 +366,23 @@ export default function GoogleTab({
       )}
 
       <div className="flex items-center justify-between mt-4 mb-8">
-        <a 
-          href="https://ai.google.dev/gemini-api/docs/models" 
-          target="_blank" 
+        <a
+          href="https://ai.google.dev/gemini-api/docs/models"
+          target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 underline"
         >
-          Ver detalhes do modelo
+          {t("google.viewModelDetails")}
         </a>
 
         <button
           onClick={handleSave}
-          className={`px-6 py-2 font-semibold rounded-lg transition ${
-            isSaved 
-              ? "bg-green-600 text-white hover:bg-green-700" 
+          className={`px-6 py-2 font-semibold rounded-lg transition ${isSaved
+              ? "bg-green-600 text-white hover:bg-green-700"
               : "bg-neutral-900 dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200"
-          }`}
+            }`}
         >
-          {isSaved ? "Alterações Salvas" : "Salvar Alterações"}
+          {isSaved ? t("google.changesSaved") : t("google.saveChanges")}
         </button>
 
       </div>
