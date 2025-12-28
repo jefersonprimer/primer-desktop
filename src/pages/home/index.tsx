@@ -48,14 +48,14 @@ export default function HomePage() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
   const [historyMessages, setHistoryMessages] = useState<ChatMessage[]>([]);
-  
+
   const { userId } = useAuth();
-  const { 
-    activeProvider, 
-    activeModel, 
-    activePromptPreset, 
+  const {
+    activeProvider,
+    activeModel,
+    activePromptPreset,
     outputLanguage,
-    setLastUserMessage 
+    setLastUserMessage
   } = useAi();
 
   const fetchSessions = async () => {
@@ -83,9 +83,9 @@ export default function HomePage() {
         content: m.content,
         createdAt: m.created_at,
       }));
-      
+
       if (lastFollowUps && mapped.length > 0) {
-          mapped[mapped.length - 1].followUps = lastFollowUps;
+        mapped[mapped.length - 1].followUps = lastFollowUps;
       }
 
       setHistoryMessages(mapped);
@@ -105,15 +105,15 @@ export default function HomePage() {
       // If we already have messages (e.g. from submit), don't fetch immediately unless chatId changed
       // But here we might want to refresh.
       if (historyMessages.length === 0) {
-         fetchMessages(chatId);
+        fetchMessages(chatId);
       }
     }
   }, [activeModal, chatId]);
 
   const handleChatSubmit = async (text: string, image?: string) => {
     if (!userId) {
-        console.error("User not logged in");
-        return;
+      console.error("User not logged in");
+      return;
     }
 
     // Open AiModal with loading state
@@ -142,7 +142,7 @@ export default function HomePage() {
 
       // Map provider name for backend
       const providerName = activeProvider === "Google" ? "Gemini" : activeProvider;
-      
+
       // Send message
       const response = await invoke<SendMessageResponse>("send_message", {
         dto: {
@@ -150,7 +150,7 @@ export default function HomePage() {
           chat_id: currentChatId,
           provider_name: providerName,
           content: text,
-          model: activeModel || (activeProvider === "Google" ? "gemini-1.5-flash" : "gpt-4o"), 
+          model: activeModel || (activeProvider === "Google" ? "gemini-1.5-flash" : "gpt-4o"),
           temperature: 0.7,
           image: image, // Pass the image
           output_language: outputLanguage,
@@ -169,23 +169,21 @@ export default function HomePage() {
     }
   };
 
-  const handleEndSession = async (sendSummary?: boolean) => {
+  const handleEndSession = (sendSummary?: boolean) => {
+    // Fire-and-forget: send email in background, don't block UI
     if (sendSummary && chatId && userId) {
-      try {
-        await invoke("send_chat_summary", { 
-          dto: { 
-            user_id: userId, 
-            chat_id: chatId 
-          } 
-        });
-        // Optionally show success message (e.g. toast), but for now we just close.
-        console.log("Summary email sent successfully");
-      } catch (e) {
-        console.error("Failed to send summary email", e);
-        alert("Falha ao enviar email com resumo: " + e);
-      }
+      // No await - triggers email sending and immediately continues
+      invoke("send_chat_summary", {
+        dto: {
+          user_id: userId,
+          chat_id: chatId
+        }
+      })
+        .then(() => console.log("Summary email sent successfully"))
+        .catch((e) => console.error("Failed to send summary email", e));
     }
-    
+
+    // Close modal immediately - no waiting for email
     setChatId(null);
     setAiMessage("");
     setHistoryMessages([]);
@@ -197,13 +195,13 @@ export default function HomePage() {
     if (modal === "chat") {
       if (activeModal === "chat") {
         const hasContent = isLoading || historyMessages.length > 0 || aiMessage;
-        
+
         if (!hasContent) {
-            // If no content, simply close the modal
-            setActiveModal(null);
+          // If no content, simply close the modal
+          setActiveModal(null);
         } else {
-            // Toggle input visibility only, keep modal open
-            setShowAiInput((prev) => !prev);
+          // Toggle input visibility only, keep modal open
+          setShowAiInput((prev) => !prev);
         }
       } else {
         // Open/ensure visible and show input
@@ -216,12 +214,12 @@ export default function HomePage() {
   };
 
   return (
-  
+
     <div className="w-full max-w-[1440px] bg-transparent mx-auto h-screen relative">
 
       {/* AiModal */}
-      <AiModal 
-        isOpen={activeModal === "chat" || activeModal === "ai-response"} 
+      <AiModal
+        isOpen={activeModal === "chat" || activeModal === "ai-response"}
         onClose={() => setActiveModal(null)}
         message={aiMessage}
         messages={historyMessages}
@@ -233,10 +231,10 @@ export default function HomePage() {
       />
 
       {/* Settings Modal */}
-       <SettingsModal 
-        open={activeModal === "settings"} 
+      <SettingsModal
+        open={activeModal === "settings"}
         onClose={() => setActiveModal(null)}
-       />
+      />
 
       {/* History Modal */}
       <HistoryModal
@@ -248,35 +246,35 @@ export default function HomePage() {
         messages={historyMessages}
         onLoadMessages={fetchMessages}
         onDelete={async (sessionId) => {
-            try {
-                await invoke("delete_chat", { dto: { chat_id: sessionId } });
-                setSessions(prev => prev.filter(s => s.id !== sessionId));
-                if (selectedSession?.id === sessionId) {
-                    setSelectedSession(null);
-                    setHistoryMessages([]);
-                }
-            } catch (e) {
-                console.error("Failed to delete chat", e);
-                alert("Erro ao apagar conversa");
+          try {
+            await invoke("delete_chat", { dto: { chat_id: sessionId } });
+            setSessions(prev => prev.filter(s => s.id !== sessionId));
+            if (selectedSession?.id === sessionId) {
+              setSelectedSession(null);
+              setHistoryMessages([]);
             }
+          } catch (e) {
+            console.error("Failed to delete chat", e);
+            alert("Erro ao apagar conversa");
+          }
         }}
         onDeleteAll={async () => {
-             if (!userId) return;
-             try {
-                await invoke("delete_all_chats", { dto: { user_id: userId } });
-                setSessions([]);
-                setSelectedSession(null);
-                setHistoryMessages([]);
-            } catch (e) {
-                console.error("Failed to delete all chats", e);
-                alert("Erro ao limpar histórico");
-            }
+          if (!userId) return;
+          try {
+            await invoke("delete_all_chats", { dto: { user_id: userId } });
+            setSessions([]);
+            setSelectedSession(null);
+            setHistoryMessages([]);
+          } catch (e) {
+            console.error("Failed to delete all chats", e);
+            alert("Erro ao limpar histórico");
+          }
         }}
       />
 
       {/* Dock */}
-      <Dock 
-        onOpenModal={handleOpenModal} 
+      <Dock
+        onOpenModal={handleOpenModal}
         onClose={() => setActiveModal(null)}
         onActionSelected={(action) => handleChatSubmit(action)}
         aiModalOpen={activeModal === "chat" || activeModal === "ai-response"}
