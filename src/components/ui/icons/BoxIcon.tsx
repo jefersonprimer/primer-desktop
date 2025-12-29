@@ -2,7 +2,7 @@ interface Props {
   size: number;
 }
 
-export default function BoxIcon({ size }): Props {
+export default function BoxIcon({ size }: Props) {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg"
