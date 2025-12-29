@@ -2,23 +2,23 @@ import Draggable from "react-draggable";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 
-import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
-import StopIcon from "../ui/icons/StopIcon";
-import EnterIcon from "../ui/icons/EnterIcon";
-import EllipsisVerticalIcon from "../ui/icons/EllipsisVerticalIcon";
-
-import { useStealthMode } from '../../contexts/StealthModeContext';
-
-import LiveInsightsModal from "./LiveInsightsModal";
-import SelectAssistantModal from "./SelectAssistantModal";
-import AssistantsManagerModal from "../AssistantsManagerModal";
-import SettingsModal from "../settings/SettingsModal";
-
 import { useAi } from "../../contexts/AiContext";
 import { getPromptPresets } from "../../lib/tauri";
 import { invoke } from "@tauri-apps/api/core";
 import { useSpeechRecognition } from "../../hooks/useSpeechRecognition";
 import { generateActions } from "../../services/aiService";
+
+import { useStealthMode } from '../../contexts/StealthModeContext';
+
+import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
+import StopIcon from "../ui/icons/StopIcon";
+import EnterIcon from "../ui/icons/EnterIcon";
+import EllipsisVerticalIcon from "../ui/icons/EllipsisVerticalIcon";
+
+import LiveInsightsModal from "./LiveInsightsModal";
+import SelectAssistantModal from "./SelectAssistantModal";
+import AssistantsManagerModal from "../AssistantsManagerModal";
+import SettingsModal from "../settings/SettingsModal";
 
 interface DockProps {
   onOpenModal: (modal: string) => void;
@@ -219,7 +219,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
         <div ref={dockRef} className="absolute top-6 left-0 right-0 mx-auto w-fit flex flex-col items-center gap-3 z-[9999]">
           <div className="dock-handle cursor-move relative flex items-center gap-8 bg-[#4E4D4F] backdrop-blur-xl px-2 py-1.5 rounded-full border border-white/10 shadow-lg">
             <button
-              className={`flex items-center gap-2 py-2 px-4 rounded-full transition text-white group cursor-pointer ${isListening ? 'bg-red-500/20 text-red-100' : 'bg-[#707071] hover:bg-white/10'}`}
+              className={`flex items-center gap-2 py-2 px-4 rounded-full transition text-white group ${isListening ? 'bg-red-500/20 text-red-100' : 'bg-[#707071] hover:bg-white/10'}`}
               onClick={handleListenClick}
               onMouseDown={(e) => e.stopPropagation()}
             >
@@ -235,7 +235,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
 
             <div className="flex items-center gap-2">
               <button
-                className="flex items-center gap-2 py-1 px-4 rounded-full hover:bg-white/10 transition text-white group cursor-pointer"
+                className="flex items-center gap-2 py-1 px-4 rounded-full hover:bg-white/10 transition text-white group"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => {
                   onOpenModal("chat");
@@ -250,7 +250,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
               </button>
 
               <button
-                className="flex items-center gap-2 px-4 py-1 rounded-full hover:bg-white/10 transition text-white group cursor-pointer"
+                className="flex items-center gap-2 px-4 py-1 rounded-full hover:bg-white/10 transition text-white group "
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => invoke("toggle_minimize_window")}
               >
@@ -270,7 +270,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                 flex flex-col items-center justify-center
                 p-2 rounded-full
                 transition
-                cursor-pointer
+                
                 ${active || showMenu ? "bg-white/20" : "hover:bg-white/10"}
               `}
               >
@@ -284,15 +284,11 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                 className="absolute top-full right-0 mt-6 p-4 w-64 bg-[#121213] backdrop-blur-xl rounded-lg shadow-2xl overflow-visible flex flex-col animate-in fade-in zoom-in-95 duration-200 cursor-default"
                 onMouseDown={(e) => e.stopPropagation()}
               >
-              {/* Header */}
               <div className="pb-3">
                 <h3 className="text-white font-semibold text-sm">Primer</h3>
               </div>
 
-              {/* Menu Items */}
               <div className="space-y-2">
-
-                {/* Prompt Section */}
                 <div className="relative py-4 border-t border-b border-white/10">
                   <div className=" text-white text-sm font-medium">
                     Prompt
@@ -332,13 +328,11 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                 </div>
 
                 <div className="space-y-0">
-                  {/* Account Section */}
                   <div className="flex px-3 py-2 gap-1 text-white font-medium items-center">
                     <span className="text-sm">Account: </span>
                     <span className="flex-1 text-xs overflow-hidden text-ellipsis whitespace-nowrap min-w-0">{userEmail}</span>
                   </div>
 
-                  {/* Actions */}
                   <button className="w-full px-3 py-2 text-left text-white text-sm hover:bg-white/5 rounded-lg transition flex items-center justify-between">
                     <span>Scroll Response</span>
                     <div className="flex items-center gap-2">
@@ -372,10 +366,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                   </button>
                 </div>
 
-                {/* Divider */}
-                <div className="my-3 border-t border-white/10"></div>
-
-                {/* Stealth Mode */}
+                <div className="my-3 border-t border-white/10"/>
                 <button className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition">
                   <span className="text-sm">{isStealth ? 'Disable Invisibility' : 'Enable Invisibility'}</span>
                 </button>
@@ -410,7 +401,6 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                   History
                 </button> 
 
-                {/* Bottom Actions */}
                 <div className="flex gap-2">
                   <button
                     onClick={logout}

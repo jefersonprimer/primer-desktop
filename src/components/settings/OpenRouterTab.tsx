@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+
+import { useAi } from "../../contexts/AiContext";
+
 import CheckIcon from "../ui/icons/CheckIcon";
 import CloseIcon from "../ui/icons/CloseIcon";
-import { useAi } from "../../contexts/AiContext";
+
 import WhisperManager from "./WhisperManager";
 
 interface Props {
@@ -221,7 +224,6 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         </p>
       </label>
 
-      {/* Speech-to-Text Model Selection */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">{t("openrouter.transcription.title")}</h3>
         <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("openrouter.transcription.description")}</p>
@@ -234,7 +236,7 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
               setShowWhisperConfig(true);
             }
           }}
-          className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+          className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none "
         >
           {transcriptionModels.map((m) => (
             <option key={m.id} value={m.id}>
@@ -243,7 +245,6 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
           ))}
         </select>
 
-        {/* Whisper Management Toggle Button */}
         {transcriptionModel === "whisper_cpp" && (
           <button
             onClick={() => setShowWhisperConfig(!showWhisperConfig)}
@@ -256,7 +257,6 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
           </button>
         )}
 
-        {/* Whisper Model Manager Section */}
         {transcriptionModel === "whisper_cpp" && showWhisperConfig && (
           <div className="mt-4 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center justify-between mb-5 border-b border-neutral-200 dark:border-neutral-800 pb-4">
@@ -279,7 +279,6 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         )}
       </div>
 
-      {/* Modelo LLM */}
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">{t("openrouter.model.title")}</h3>
         <button
@@ -319,7 +318,6 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
           onChange={(e) => setModel(e.target.value)}
           className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none"
         >
-          {/* Fallback option for saved model */}
           {model && !displayedModels.find(m => m.id === model) && (
             <option key={model} value={model}>
               {model} ({t("openrouter.model.saved")})
@@ -343,7 +341,6 @@ export default function OpenRouterTab({ apiKey, setApiKey, model, setModel, save
         </p>
       </div>
 
-      {/* Informações do modelo selecionado */}
       {selectedModelInfo && (
         <div className="p-4 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg">
           <div className="flex items-center justify-between mb-2">

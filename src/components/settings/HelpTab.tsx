@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+
+import { openLogFolder, readLogContent, getLogPath } from "../../lib/tauri";
+
 import CircleQuestionMarkIcon from "../ui/icons/CircleQuestionMarkIcon";
 import MessagesSquareIcon from "../ui/icons/MessagesSquareIcon";
 import RotateCcwIcon from "../ui/icons/RotateCcwIcon";
 import FolderIcon from "../ui/icons/FolderIcon";
 import CopyIcon from "../ui/icons/CopyIcon";
-import { openLogFolder, readLogContent, getLogPath } from "../../lib/tauri";
 
 export default function HelpTab() {
   const { t } = useTranslation();
@@ -81,7 +83,6 @@ export default function HelpTab() {
           </div>
         </div>
 
-        {/* Primeiros Passos */}
         <div className="my-4">
           <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t("help.gettingStarted.title")}</h3>
           <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{t("help.gettingStarted.description")}</p>
@@ -91,7 +92,6 @@ export default function HelpTab() {
           </button>
         </div>
 
-        {/* Logs de Depuração */}
         <div>
           <h3 className="text-base font-semibold mb-3 text-gray-900 dark:text-white">{t("help.debugLogs.title")}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 font-mono bg-gray-100 dark:bg-[#242425] p-2 rounded overflow-x-auto transition-colors">

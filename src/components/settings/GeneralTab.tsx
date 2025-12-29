@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useStealthMode } from '../../contexts/StealthModeContext';
+import { useTheme } from '../../contexts/ThemeContext';
+
 import EyeIcon from "../ui/icons/EyeIcon";
 import HatGlassesIcon from "../ui/icons/HatGlassesIcon";
 import PaletteIcon from "../ui/icons/PaletteIcon";
@@ -11,9 +14,6 @@ import SunIcon from "../ui/icons/SunIcon";
 import MoonIcon from "../ui/icons/MoonIcon";
 import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
 import HeadsetIcon from "../ui/icons/HeadsetIcon";
-
-import { useStealthMode } from '../../contexts/StealthModeContext';
-import { useTheme } from '../../contexts/ThemeContext';
 
 export default function GeneralTab() {
   const { t } = useTranslation();
@@ -181,7 +181,7 @@ export default function GeneralTab() {
 
       <div className="pb-4">
         <div
-          className="flex items-center justify-between cursor-pointer"
+          className="flex items-center justify-between "
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
         >
           <h3 className="font-semibold text-gray-900 dark:text-white">{t('general.advanced')}</h3>

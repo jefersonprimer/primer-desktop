@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-
 import CalendarIcon from "../ui/icons/CalendarIcon";
 
 export default function CalendarTab() {

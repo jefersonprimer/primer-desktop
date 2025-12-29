@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
+import { useAi } from "../../contexts/AiContext";
+
 import CheckIcon from "../ui/icons/CheckIcon";
 import CloseIcon from "../ui/icons/CloseIcon";
-import { useAi } from "../../contexts/AiContext";
+
 import WhisperManager from "./WhisperManager";
 
 interface Props {
@@ -173,7 +175,7 @@ export default function CustomTab({
         <select
           value={model}
           onChange={(e) => setModel(e.target.value)}
-          className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+          className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none "
           disabled={loadingOllama || ollamaModels.length === 0}
         >
           {ollamaModels.length === 0 ? (
@@ -192,7 +194,6 @@ export default function CustomTab({
         </p>
       </label>
 
-      {/* Whisper Section */}
       <div className="bg-neutral-100 dark:bg-[#242425] py-2 px-4 rounded-lg">
         <h3 className="text-base text-neutral-900 dark:text-white font-semibold">{t("custom.speech.title")}</h3>
         <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
@@ -208,7 +209,7 @@ export default function CustomTab({
                 setShowWhisperConfig(true);
               }
             }}
-            className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+            className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none "
           >
             {sttStrategies.map((m) => (
               <option key={m.id} value={m.id}>
@@ -217,7 +218,6 @@ export default function CustomTab({
             ))}
           </select>
 
-          {/* Whisper Management Toggle Button */}
           {transcriptionModel === "whisper_cpp" && (
             <button
               onClick={() => setShowWhisperConfig(!showWhisperConfig)}
@@ -231,7 +231,6 @@ export default function CustomTab({
           )}
         </div>
 
-        {/* Whisper Model Manager Section */}
         {transcriptionModel === "whisper_cpp" && showWhisperConfig && (
           <div className="mt-4 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center justify-between mb-5 border-b border-neutral-200 dark:border-neutral-800 pb-4">

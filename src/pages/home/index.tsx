@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+
+import { useAuth } from "@/contexts/AuthContext";
+import { useAi } from "@/contexts/AiContext";
+
 import Dock from "../../components/Dock/Dock";
 
 import AiModal from "@/components/AiModal";
 import SettingsModal from "@/components/settings/SettingsModal";
 import HistoryModal from "@/components/HistoryModal";
-
-import { useAuth } from "@/contexts/AuthContext";
-import { useAi } from "@/contexts/AiContext";
 
 interface CreateChatResponse {
   chat_id: string;
@@ -214,10 +215,8 @@ export default function HomePage() {
   };
 
   return (
-
     <div className="w-full max-w-[1440px] bg-transparent mx-auto h-screen relative">
 
-      {/* AiModal */}
       <AiModal
         isOpen={activeModal === "chat" || activeModal === "ai-response"}
         onClose={() => setActiveModal(null)}
@@ -230,13 +229,11 @@ export default function HomePage() {
         showInput={showAiInput}
       />
 
-      {/* Settings Modal */}
       <SettingsModal
         open={activeModal === "settings"}
         onClose={() => setActiveModal(null)}
       />
 
-      {/* History Modal */}
       <HistoryModal
         isOpen={activeModal === "history"}
         onClose={() => setActiveModal(null)}
@@ -272,7 +269,6 @@ export default function HomePage() {
         }}
       />
 
-      {/* Dock */}
       <Dock
         onOpenModal={handleOpenModal}
         onClose={() => setActiveModal(null)}

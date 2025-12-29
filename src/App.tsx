@@ -1,16 +1,18 @@
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { getAppConfig } from "./lib/tauri";
 import { HashRouter } from "react-router-dom";
+
 import { AuthProvider } from "./contexts/AuthContext";
 import { StealthModeProvider } from "./contexts/StealthModeContext";
 import { AiProvider } from "./contexts/AiContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import NotificationContainer from "./components/ui/NotificationContainer";
+
 import AppRoutes from "./routes";
 import StealthMirror from "./components/StealthMirror";
-import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { getAppConfig } from "./lib/tauri";
 
+import NotificationContainer from "./components/ui/NotificationContainer";
 
 function App() {
   const { i18n } = useTranslation();

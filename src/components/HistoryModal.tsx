@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+
 import ChatHistory from "./ChatHistory";
 import CloseIcon from "./ui/icons/CloseIcon";
 
@@ -62,7 +63,6 @@ export default function HistoryModal({
     <div className="fixed inset-0 bg-transparent flex items-center justify-center z-[9999]">
       <div className="relative w-full max-w-[900px] bg-[#1D1D1F] text-neutral-300 rounded-xl shadow-xl flex h-[80vh] overflow-hidden">
 
-        {/* Custom Confirmation Modal Overlay */}
         {confirmState && (
           <div className="absolute inset-0 z-50 bg-black/50 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl p-6 w-full max-w-xs transform transition-all scale-100 animate-in zoom-in-95 duration-200">
@@ -180,9 +180,7 @@ export default function HistoryModal({
           </div>
         </aside>
 
-        {/* Área direita */}
         <main className="flex-1 p-6 text-neutral-300 overflow-y-auto flex flex-col">
-
           {!selected && (
             <div className="flex-1 flex items-center justify-center text-neutral-500 text-center">
               <div>
@@ -198,7 +196,6 @@ export default function HistoryModal({
                 <span>{selected.title}</span>
               </h3>
 
-              {/* Container do chat */}
               <div className="flex-1  overflow-y-auto">
                 <ChatHistory messages={messages} />
               </div>

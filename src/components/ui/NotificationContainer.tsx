@@ -1,4 +1,5 @@
 import { useNotification } from '../../contexts/NotificationContext';
+
 import NotificationToast from './NotificationToast';
 
 export default function NotificationContainer() {

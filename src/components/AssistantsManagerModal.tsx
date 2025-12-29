@@ -124,7 +124,6 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
       <div className="relative bg-neutral-900 text-white rounded-xl shadow-xl w-[900px] h-[600px] overflow-hidden border border-neutral-700">
         <div className="flex h-[600px]">
 
-          {/* Sidebar */}
           <aside className="w-72 bg-[#181719] border-r border-neutral-700 p-2 overflow-y-auto">
              <div className="flex items-center justify-between px-1 py-3 shrink-0">
               <button
@@ -139,7 +138,7 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
               <div
                 key={a.id}
                 onClick={() => setSelected(a)}
-                className={`p-3 rounded-lg cursor-pointer transition mb-1 ${selected?.id === a.id ? "bg-white/10" : "hover:bg-white/5"}`}
+                className={`p-3 rounded-lg  transition mb-1 ${selected?.id === a.id ? "bg-white/10" : "hover:bg-white/5"}`}
               >
                 <p className="text-white text-sm font-medium">{a.name || t('assistantsManager.untitled')}</p>
                 <p className="text-xs text-white/40">{a.is_built_in ? t('assistantsManager.builtin') : t('assistantsManager.custom')}</p>
@@ -154,12 +153,8 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
             </button>
           </aside>
 
-          {/* Content */}
           <div className="flex-1 bg-[#1D1D1F] p-8 overflow-y-auto flex flex-col">
-            
-            {/* Editor Area */}
             <div className="flex-1 flex flex-col gap-2">
-                {/* Title Input */}
                 <input 
                     ref={titleInputRef}
                     value={editName}
@@ -175,7 +170,6 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                     className="text-base font-bold text-white bg-transparent border-none focus:outline-none placeholder:text-neutral-600 w-full"
                 />
 
-                {/* Content Textarea */}
                 <textarea
                     ref={promptInputRef}
                     className="flex-1 w-full bg-transparent text-white text-sm focus:outline-none resize-none font-mono leading-relaxed placeholder:text-neutral-600 mt-2"
@@ -192,7 +186,6 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                 />
             </div>
             
-            {/* Footer / Info */}
             {selected?.is_built_in && (
                 <p className="text-xs text-white/40 mt-4 border-t border-white/5 pt-4">{t('assistantsManager.builtinWarning')}</p>
             )}
@@ -206,21 +199,21 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                     {t('assistantsManager.saveChanges')}
                     </button>
                     {selected?.id !== 'new' && (
-                        <button 
-                            onClick={async () => {
-                                if (confirm(t('assistantsManager.deleteConfirm'))) {
-                                    if (selected) {
-                                        await deletePromptPreset(selected.id);
-                                        // Reset to first available or empty
-                                        setSelected(null);
-                                        await loadPresets();
-                                    }
-                                }
-                            }}
-                            className="px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-500 rounded-lg text-sm transition-colors"
-                        >
-                        {t('assistantsManager.delete')}
-                        </button>
+                      <button 
+                        onClick={async () => {
+                          if (confirm(t('assistantsManager.deleteConfirm'))) {
+                            if (selected) {
+                                await deletePromptPreset(selected.id);
+                                // Reset to first available or empty
+                                setSelected(null);
+                                await loadPresets();
+                            }
+                          }
+                        }}
+                        className="px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-500 rounded-lg text-sm transition-colors"
+                      >
+                      {t('assistantsManager.delete')}
+                      </button>
                     )}
                 </div>
             )}

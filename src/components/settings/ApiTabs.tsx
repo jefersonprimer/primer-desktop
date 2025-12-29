@@ -1,5 +1,5 @@
-import CheckIcon from "../ui/icons/CheckIcon";
 import { useAi, type ProviderType } from "../../contexts/AiContext";
+import CheckIcon from "../ui/icons/CheckIcon";
 
 const tabs: ProviderType[] = ["OpenAI", "Google", "OpenRouter", "Custom"];
 
@@ -16,13 +16,12 @@ export default function ApiTabs({ active, onTabChange }: Props) {
       {tabs.map((tab) => (
         <div 
           key={tab}
-          className={`relative group flex items-center rounded-lg transition cursor-pointer border
+          className={`relative group flex items-center rounded-lg transition  border
             ${active === tab 
               ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white border-neutral-300 dark:border-neutral-700" 
               : "border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 text-neutral-500 dark:text-neutral-400"}
           `}
         >
-          {/* Tab Button */}
           <button
             onClick={() => onTabChange(tab)}
             className={`px-4 py-2 flex items-center gap-2 ${

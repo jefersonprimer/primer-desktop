@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useTranslation } from "react-i18next";
+
 import CloseIcon from "../ui/icons/CloseIcon";
 import SettingsIcon from "../ui/icons/SettingsIcon";
 import CalendarIcon from "../ui/icons/CalendarIcon";

@@ -1,8 +1,9 @@
+import { invoke } from "@tauri-apps/api/core";
+
 import { useRef, useEffect, useState } from "react";
 import Draggable from "react-draggable";
-import { invoke } from "@tauri-apps/api/core";
 import { useNotification } from "@/contexts/NotificationContext";
-// Removed SettingsIcon as it was unused
+
 import ZapIcon from "./ui/icons/ZapIcon";
 import CheckIcon from "./ui/icons/CheckIcon";
 import CopyIcon from "./ui/icons/CopyIcon";
@@ -38,12 +39,10 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
   const [terminationStep, setTerminationStep] = useState<'none' | 'confirm_end' | 'confirm_email'>('none');
   const [isCopied, setIsCopied] = useState(false);
 
-  // Input state
   const [input, setInput] = useState("");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   
-  // Auto focus preference
   const [autoFocusEnabled, setAutoFocusEnabled] = useState(() => {
     return localStorage.getItem("ai_modal_autofocus") === "true";
   });
@@ -108,22 +107,21 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
     } catch (error) {
       console.error("Failed to capture screen:", error);
       addNotification({
-            title: 'Screenshot Failed',
-            message: 'Could not capture screen. Please check your screen recording permissions.',
-            type: 'error',
-            actions: [
-                {
-                    label: 'Open Settings',
-                    onClick: () => invoke('open_system_settings', { settingType: 'screen' }),
-                    variant: 'primary'
-                }
-            ]
+        title: 'Screenshot Failed',
+        message: 'Could not capture screen. Please check your screen recording permissions.',
+        type: 'error',
+        actions: [
+          {
+            label: 'Open Settings',
+            onClick: () => invoke('open_system_settings', { settingType: 'screen' }),
+            variant: 'primary'
+          }
+        ]
       });
       return null;
     }
   };
 
-  // Shortcut for Screenshot (Ctrl + E)
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
         if (isOpen && (e.ctrlKey || e.metaKey) && (e.key === "e" || e.key === "E")) {
@@ -136,7 +134,6 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, [isOpen]);
 
-  // Shortcut for Scrolling (Ctrl + ArrowUp/ArrowDown)
   useEffect(() => {
     const handleScrollShortcut = (e: KeyboardEvent) => {
       if (isOpen && (e.ctrlKey || e.metaKey)) {
@@ -159,7 +156,6 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
 
     let imageToSend = capturedImage;
 
-    // Check for triggers to auto-capture screen
     const lowerInput = input.trim().toLowerCase();
     const triggers = [
         "tela", "vendo", "mostrando", "vê", "ve", "resolva", "analise", "print", "screenshot",
@@ -200,13 +196,11 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
     <div className="fixed inset-0 flex items-start justify-center z-50 pt-24">
 
       <Draggable nodeRef={nodeRef} handle=".drag-handle">
-        {/* Modal */}
         <div 
           ref={nodeRef} 
           className={`relative w-[600px] bg-[#4E4D4F] text-white rounded-xl p-2 shadow-xl flex flex-col gap-4 transition-all duration-300 ${isCompact ? 'h-auto' : ''}`}
         >
 
-          {/* Header - Only show if not compact */}
           {!isCompact && (
             <div className="drag-handle flex items-center justify-between cursor-move px-2 pt-1">
                 <div className="flex items-center overflow-hidden gap-2">
@@ -262,7 +256,6 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
             </div>
           )}
 
-          {/* Corpo da mensagem - Only show if not compact */}
           {!isCompact && (
             <div ref={scrollContainerRef} className="px-4 max-h-96 overflow-y-auto flex flex-col gap-4">
                 
@@ -319,7 +312,6 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                      </div>
                  )}
 
-                 {/* Loading Animation */}
                  {isLoading && (
                     <div className="flex justify-start">
                         <div className="py-2 rounded-lg flex items-center gap-1.5">
@@ -334,7 +326,6 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
             </div>
           )}
 
-          {/* Termination Flow UI */}
           {terminationStep !== 'none' && (
              <div className=" border-t border-white/10 p-3 animate-in fade-in slide-in-from-top-2">
                {terminationStep === 'confirm_end' && (
@@ -413,8 +404,8 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                         onBlur={() => setIsFocused(false)}
                         disabled={isLoading}
                         className={`flex-1 rounded-xl bg-transparent px-4 py-2
-                                text-white placeholder-white/40 focus:outline-none focus:ring-0 border-none outline-none text-sm transition-all
-                                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          text-white placeholder-white/40 focus:outline-none focus:ring-0 border-none outline-none text-sm transition-all
+                          ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         placeholder="Ask anything..."
                     />
                     

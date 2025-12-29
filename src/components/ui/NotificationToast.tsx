@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { type Notification, useNotification } from '../../contexts/NotificationContext';
+
 import CheckIcon from './icons/CheckIcon';
 import CircleAlertIcon from './icons/CircleAlertIcon';
 import CloseIcon from './icons/CloseIcon';

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
 import EyeOffIcon from "../ui/icons/EyeOffIcon";
 import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
 import CopyIcon from "../ui/icons/CopyIcon";
@@ -53,7 +54,6 @@ export default function LiveInsightsModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          {/* Modal */}
           <motion.div
             onClick={(e) => e.stopPropagation()}
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -63,7 +63,6 @@ export default function LiveInsightsModal({
             className="absolute top-24 rounded-lg bg-[#4E4D4F] backdrop-blur-md shadow-xl border border-white/10 w-[500px]"
             style={{ left: anchorX - 250 }}
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-4 py-2 text-xs text-white/60">
               <span className="text-sm font-medium text-white">Live Insights</span>
               
@@ -94,7 +93,6 @@ export default function LiveInsightsModal({
               </div>
             </div>
 
-            {/* Content Area */}
             <div className="p-4 h-auto flex flex-col justify-center">
                {view === 'summary' ? (
                  <>

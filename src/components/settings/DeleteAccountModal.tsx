@@ -51,14 +51,14 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirm, isLoadi
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition font-medium cursor-pointer"
+              className="flex-1 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition font-medium "
               disabled={isLoading}
             >
               {t("account.deleteAccount.cancelButton")}
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 text-red-600 dark:text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 transition font-medium flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 px-4 py-2 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 text-red-600 dark:text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 transition font-medium flex items-center justify-center gap-2 "
               disabled={isLoading}
             >
               {isLoading && (

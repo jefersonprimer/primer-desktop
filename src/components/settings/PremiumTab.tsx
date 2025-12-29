@@ -9,7 +9,6 @@ export default function PremiumTab() {
 
       <div className="bg-[#141414] border border-neutral-700 rounded-2xl w-full max-w-3xl">
         <div className="p-6">
-          {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-[#F9F9F9] text-base font-semibold">
               Plano Grátis
@@ -23,7 +22,6 @@ export default function PremiumTab() {
             Assine para desbloquear todos os recursos premium.
           </p>
 
-          {/* Features */}
           <div className="grid grid-cols-2 gap-3 text-gray-300 text-sm my-4">
             <div className="flex items-center gap-2">
               <LockKeyHoleIcon size={18} />
@@ -43,7 +41,6 @@ export default function PremiumTab() {
             </div>
           </div>
 
-          {/* button */}
           <button className="w-full bg-[#262626] hover:bg-[#262626]/40 border border-neutral-700 rounded-xl py-5 text-base">
             Ver Planos
           </button>

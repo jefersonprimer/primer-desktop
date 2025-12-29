@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+
+import { useAi } from "../../contexts/AiContext";
+
 import CheckIcon from "../ui/icons/CheckIcon";
 import CloseIcon from "../ui/icons/CloseIcon";
 import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
-import { useAi } from "../../contexts/AiContext";
+
 import WhisperManager from "./WhisperManager";
 
 interface Props {
@@ -174,7 +177,6 @@ export default function GoogleTab({
         </p>
       </label>
 
-      {/* Speech-to-Text Model Selection (Moved outside personalized) */}
       <div className="mb-8">
         <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.transcription.title")}</h3>
         <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("google.transcription.description")}</p>
@@ -187,7 +189,7 @@ export default function GoogleTab({
               setShowWhisperConfig(true);
             }
           }}
-          className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+          className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none "
         >
           {transcriptionModels.map((m) => (
             <option key={m.id} value={m.id}>
@@ -196,7 +198,6 @@ export default function GoogleTab({
           ))}
         </select>
 
-        {/* Whisper Management Toggle Button */}
         {transcriptionModel === "whisper_cpp" && (
           <button
             onClick={() => setShowWhisperConfig(!showWhisperConfig)}
@@ -209,7 +210,6 @@ export default function GoogleTab({
           </button>
         )}
 
-        {/* Whisper Model Manager Section */}
         {transcriptionModel === "whisper_cpp" && showWhisperConfig && (
           <div className="mt-4 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center justify-between mb-5 border-b border-neutral-200 dark:border-neutral-800 pb-4">
@@ -232,7 +232,6 @@ export default function GoogleTab({
         )}
       </div>
 
-      {/* Desempenho */}
       <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.performance.title")}</h3>
       <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4">
         {t("google.performance.description")}
@@ -324,10 +323,8 @@ export default function GoogleTab({
         </p>
       </div>
 
-      {/* Seleção de Modelo Personalizado */}
       {performanceMode === "personalizado" && (
         <div className="space-y-6 mb-6">
-          {/* Modelo de Análise */}
           <div>
             <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.analysisModel.title")}</h3>
             <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("google.analysisModel.description")}</p>
@@ -335,7 +332,7 @@ export default function GoogleTab({
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+              className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none "
             >
               {analysisModels.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -345,7 +342,6 @@ export default function GoogleTab({
             </select>
           </div>
 
-          {/* Modelo de Geração de Imagem */}
           <div>
             <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.imageModel.title")}</h3>
             <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("google.imageModel.description")}</p>
@@ -353,7 +349,7 @@ export default function GoogleTab({
             <select
               value={imageModel}
               onChange={(e) => setImageModel(e.target.value)}
-              className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+              className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none "
             >
               {imageModels.map((m) => (
                 <option key={m.id} value={m.id}>

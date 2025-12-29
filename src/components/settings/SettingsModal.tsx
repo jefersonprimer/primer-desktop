@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
+import { useAuth } from "../../contexts/AuthContext";
+import { useAi } from "../../contexts/AiContext";
+
 import Sidebar from "./SideBar";
 import GeneralTab from "./GeneralTab";
 import CalendarTab from "./CalendarTab";
@@ -16,8 +19,6 @@ import AccountTab from "./AccountTab";
 import PremiumTab from "./PremiumTab";
 import ChangelogTab from "./ChangelogTab";
 import HelpTab from "./HelpTab";
-import { useAuth } from "../../contexts/AuthContext";
-import { useAi } from "../../contexts/AiContext";
 
 interface Props {
   open: boolean;
@@ -210,15 +211,11 @@ export default function SettingsModal({ open, onClose }: Props) {
       <div className="relative bg-neutral-900 text-white rounded-xl shadow-xl w-[900px] h-[700px] overflow-hidden border border-neutral-700 flex flex-col">
         <div className="flex-1 min-h-0 relative w-full">
           <div className="flex h-full">
-
-            {/* sidebar */}
             <Sidebar activeItem={activeItem} onSelectItem={setActiveItem} onClose={onClose} />
 
-            {/* conteúdo */}
             <div className="flex-1 flex flex-col bg-neutral-900 overflow-y-auto">
               {renderContent()}
             </div>
-
           </div>
         </div>
       </div>

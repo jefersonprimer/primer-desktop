@@ -136,7 +136,7 @@ export default function AccountTab() {
 
           <button 
             onClick={logout}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition text-sm cursor-pointer text-gray-700 dark:text-white"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition text-sm  text-gray-700 dark:text-white"
           >
             {t("account.signOut")}
           </button>
@@ -154,7 +154,7 @@ export default function AccountTab() {
         <div className="relative w-fit">
           <button
             onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-            className="flex items-center justify-between text-gray-900 dark:text-white bg-gray-50 dark:bg-[#242425] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 gap-3 text-sm focus:outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+            className="flex items-center justify-between text-gray-900 dark:text-white bg-gray-50 dark:bg-[#242425] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 gap-3 text-sm focus:outline-none  hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
           >
             <span>{currentLangLabel}</span>
             <div className="text-gray-400 dark:text-neutral-400">
@@ -215,7 +215,7 @@ export default function AccountTab() {
         <button 
           onClick={handleClearAllDataClick}
           disabled={isClearingData}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition text-sm cursor-pointer text-gray-700 dark:text-white ${isClearingData ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition text-sm  text-gray-700 dark:text-white ${isClearingData ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isClearingData ? "..." : t("account.dataManagement.clearAll")}
         </button>
@@ -229,7 +229,7 @@ export default function AccountTab() {
         
         <button 
           onClick={() => setIsDeleteModalOpen(true)}
-          className="flex items-center justify-center gap-2 px-4 py-2 border border-red-200 dark:border-red-900 rounded-xl text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-500/20 transition text-sm cursor-pointer"
+          className="flex items-center justify-center gap-2 px-4 py-2 border border-red-200 dark:border-red-900 rounded-xl text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-500/20 transition text-sm "
         >
           {t("account.deleteAccount.button")}
         </button>
