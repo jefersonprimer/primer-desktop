@@ -1,5 +1,5 @@
-import { useAi, type ProviderType } from "../../contexts/AiContext";
-import CheckIcon from "../ui/icons/CheckIcon";
+import { useAi, type ProviderType } from "../../../contexts/AiContext";
+import CheckIcon from "@/components/ui/icons/CheckIcon";
 
 const tabs: ProviderType[] = ["OpenAI", "Google", "OpenRouter", "Custom"];
 

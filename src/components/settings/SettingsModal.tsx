@@ -1,24 +1,24 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-import { useAuth } from "../../contexts/AuthContext";
-import { useAi } from "../../contexts/AiContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAi } from "@/contexts/AiContext";
 
-import Sidebar from "../settings/Sidebar";
-import GeneralTab from "../settings/GeneralTab";
-import CalendarTab from "../settings/CalendarTab";
-import ApiTabs from "../settings/ApiTabs";
-import GoogleTab from "../settings/GoogleTab";
-import OpenAiTab from "../settings/OpenAiTab";
-import OpenRouterTab from "../settings/OpenRouterTab";
-import CustomTab from "../settings/CustomTab";
-import LanguagesTab from "../settings/LanguagesTab";
-import ResourcesTab from "../settings/ResourcesTab";
-import ShortcutsTab from "../settings/ShortcutsTab";
-import AccountTab from "../settings/AccountTab";
-import PremiumTab from "../settings/PremiumTab";
-import ChangelogTab from "../settings/ChangelogTab";
-import HelpTab from "../settings/HelpTab";
+import Sidebar from "./Sidebar";
+import GeneralTab from "./tabs/GeneralTab";
+import CalendarTab from "./tabs/CalendarTab";
+import ApiTabs from "./tabs/ApiTabs";
+import GoogleTab from "./tabs/GoogleTab";
+import OpenAiTab from "./tabs/OpenAiTab";
+import OpenRouterTab from "./tabs/OpenRouterTab";
+import CustomTab from "./tabs/CustomTab";
+import LanguagesTab from "./tabs/LanguagesTab";
+import ResourcesTab from "./tabs/ResourcesTab";
+import ShortcutsTab from "./tabs/ShortcutsTab";
+import AccountTab from "./tabs/AccountTab";
+import PremiumTab from "./tabs/PremiumTab";
+import ChangelogTab from "./tabs/ChangelogTab";
+import HelpTab from "./tabs/HelpTab";
 
 interface Props {
   open: boolean;

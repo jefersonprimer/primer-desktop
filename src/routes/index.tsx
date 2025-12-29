@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
-import WelcomeModal from "@/components/modals/WelcomoModal";
+
+import { useAuth } from "../contexts/AuthContext";
+import WelcomeModal from "@/components/modals/WelcomeModal";
 import ProtectedRoute from "../components/ProtectedRoute";
 import LoginPage from "../pages/login";
 import RegisterPage from "../pages/register";
@@ -9,7 +11,6 @@ import ForgotPassword from "../pages/forgot-password";
 import ResetPassword from "../pages/reset-password";
 import HomePage from "../pages/home";
 import GoogleCallback from "../pages/auth/Callback";
-import { useAuth } from "../contexts/AuthContext";
 
 function SplashHandler() {
   const { isLoading } = useAuth();

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAi } from '../../contexts/AiContext';
+import { useAi } from '../../../contexts/AiContext';
 
-import LanguagesIcon from "../ui/icons/LanguagesIcon";
-import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
-import CheckIcon from "../ui/icons/CheckIcon";
+import LanguagesIcon from "@/components/ui/icons/LanguagesIcon";
+import ChevronDownIcon from "@/components/ui/icons/ChevronDownIcon";
+import CheckIcon from "@/components/ui/icons/CheckIcon";
 
 export default function LanguagesTab() {
   const { t } = useTranslation();

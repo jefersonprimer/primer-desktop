@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import { openLogFolder, readLogContent, getLogPath } from "../../lib/tauri";
+import { openLogFolder, readLogContent, getLogPath } from "../../../lib/tauri";
 
-import CircleQuestionMarkIcon from "../ui/icons/CircleQuestionMarkIcon";
-import MessagesSquareIcon from "../ui/icons/MessagesSquareIcon";
-import RotateCcwIcon from "../ui/icons/RotateCcwIcon";
-import FolderIcon from "../ui/icons/FolderIcon";
-import CopyIcon from "../ui/icons/CopyIcon";
+import CircleQuestionMarkIcon from "@/components/ui/icons/CircleQuestionMarkIcon";
+import MessagesSquareIcon from "@/components/ui/icons/MessagesSquareIcon";
+import RotateCcwIcon from "@/components/ui/icons/RotateCcwIcon";
+import FolderIcon from "@/components/ui/icons/FolderIcon";
+import CopyIcon from "@/components/ui/icons/CopyIcon";
 
 export default function HelpTab() {
   const { t } = useTranslation();

@@ -19,7 +19,7 @@ import EllipsisVerticalIcon from "./ui/icons/EllipsisVerticalIcon";
 import LiveInsightsModal from "./modals/LiveInsightsModal";
 import SelectAssistantModal from "./modals/SelectAssistantModal";
 import AssistantsManagerModal from "./modals/AssistantsManagerModal";
-import SettingsModal from "./modals/SettingsModal";
+import SettingsModal from "./settings/SettingsModal";
 
 interface DockProps {
   onOpenModal: (modal: string) => void;

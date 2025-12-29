@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
-import CheckIcon from "../ui/icons/CheckIcon";
+import CheckIcon from "@/components/ui/icons/CheckIcon";
 
 interface WhisperManagerProps {
   activeModel: string;

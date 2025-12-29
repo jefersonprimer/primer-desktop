@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useStealthMode } from '../../contexts/StealthModeContext';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useStealthMode } from '../../../contexts/StealthModeContext';
+import { useTheme } from '../../../contexts/ThemeContext';
 
-import EyeIcon from "../ui/icons/EyeIcon";
-import HatGlassesIcon from "../ui/icons/HatGlassesIcon";
-import PaletteIcon from "../ui/icons/PaletteIcon";
-import BadgeCheckIcon from "../ui/icons/BadgeCheckIcon";
-import PowerIcon from "../ui/icons/PowerIcon";
-import MonitorIcon from "../ui/icons/MonitorIcon";
-import SunIcon from "../ui/icons/SunIcon";
-import MoonIcon from "../ui/icons/MoonIcon";
-import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
-import HeadsetIcon from "../ui/icons/HeadsetIcon";
+import EyeIcon from "@/components/ui/icons/EyeIcon";
+import HatGlassesIcon from "@/components/ui/icons/HatGlassesIcon";
+import PaletteIcon from "@/components/ui/icons/PaletteIcon";
+import BadgeCheckIcon from "@/components/ui/icons/BadgeCheckIcon";
+import PowerIcon from "@/components/ui/icons/PowerIcon";
+import MonitorIcon from "@/components/ui/icons/MonitorIcon";
+import SunIcon from "@/components/ui/icons/SunIcon";
+import MoonIcon from "@/components/ui/icons/MoonIcon";
+import ChevronDownIcon from "@/components/ui/icons/ChevronDownIcon";
+import HeadsetIcon from "@/components/ui/icons/HeadsetIcon";
 
 export default function GeneralTab() {
   const { t } = useTranslation();

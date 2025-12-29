@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useAi } from "../../contexts/AiContext";
+import { useAi } from "../../../contexts/AiContext";
 
-import CheckIcon from "../ui/icons/CheckIcon";
-import CloseIcon from "../ui/icons/CloseIcon";
+import CheckIcon from "@/components/ui/icons/CheckIcon";
+import CloseIcon from "@/components/ui/icons/CloseIcon";
 
 import WhisperManager from "./WhisperManager";
 

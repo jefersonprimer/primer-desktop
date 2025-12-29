@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { setAppLanguage } from "../../lib/tauri";
-import { useAuth } from "../../contexts/AuthContext";
+import { setAppLanguage } from "../../../lib/tauri";
 import { invoke } from "@tauri-apps/api/core";
-import { useNotification } from "../../contexts/NotificationContext";
 
-import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
-import ChevronUpIcon from "../ui/icons/ChevronUpIcon";
-import DeleteAccountModal from "../modals/DeleteAccountModal";
-import ClearLocalAccountDataModal from "../modals/ClearLocalAccountDataModal";
+import { useAuth } from "../../../contexts/AuthContext";
+import { useNotification } from "../../../contexts/NotificationContext";
+
+import ChevronDownIcon from "@/components/ui/icons/ChevronDownIcon";
+import ChevronUpIcon from "@/components/ui/icons/ChevronUpIcon";
+import DeleteAccountModal from "@/components/modals/DeleteAccountModal";
+import ClearLocalAccountDataModal from "@/components/modals/ClearLocalAccountDataModal";
 
 export default function AccountTab() {
   const { t, i18n } = useTranslation();

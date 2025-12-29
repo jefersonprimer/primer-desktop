@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useAi } from "../../contexts/AiContext";
+import { useAi } from "../../../contexts/AiContext";
 
-import CheckIcon from "../ui/icons/CheckIcon";
-import ZapIcon from "../ui/icons/ZapIcon";
-import BoxIcon from "../ui/icons/BoxIcon";
-import SparklesIcon from "../ui/icons/SparklesIcon";
-import WrenchIcon from "../ui/icons/WrenchIcon";
+import CheckIcon from "@/components/ui/icons/CheckIcon";
+import ZapIcon from "@/components/ui/icons/ZapIcon";
+import BoxIcon from "@/components/ui/icons/BoxIcon";
+import SparklesIcon from "@/components/ui/icons/SparklesIcon";
+import WrenchIcon from "@/components/ui/icons/WrenchIcon";
 
-import CloseIcon from "../ui/icons/CloseIcon";
-import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
+import CloseIcon from "@/components/ui/icons/CloseIcon";
+import CircleAlertIcon from "@/components/ui/icons/CircleAlertIcon";
 
 import WhisperManager from "./WhisperManager";
 

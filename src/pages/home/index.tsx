@@ -7,7 +7,7 @@ import { useAi } from "@/contexts/AiContext";
 import Dock from "@/components/Dock";
 
 import AiModal from "@/components/modals/AiModal";
-import SettingsModal from "@/components/modals/SettingsModal";
+import SettingsModal from "@/components/settings/SettingsModal";
 import HistoryModal from "@/components/modals/HistoryModal";
 
 interface CreateChatResponse {

@@ -1,4 +1,4 @@
-import LockKeyHoleIcon from "../ui/icons/LockKeyHoleIcon";
+import LockKeyHoleIcon from "@/components/ui/icons/LockKeyHoleIcon";
 
 export default function PremiumTab() {
   return (

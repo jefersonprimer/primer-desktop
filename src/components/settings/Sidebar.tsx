@@ -1,16 +1,16 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useTranslation } from "react-i18next";
 
-import CloseIcon from "../ui/icons/CloseIcon";
-import SettingsIcon from "../ui/icons/SettingsIcon";
-import CalendarIcon from "../ui/icons/CalendarIcon";
-import NetworkIcon from "../ui/icons/NetworkIcon";
-import BoxesIcon from "../ui/icons/BoxesIcon";
-import KeyboardIcon from "../ui/icons/KeyboardIcon";
-import LanguagesIcon from "../ui/icons/LanguagesIcon";
-import CircleUserIcon from "../ui/icons/CircleUserIcon";
-import CreditCardIcon from "../ui/icons/CreditCardIcon";
-import CircleQuestionMarkIcon from "../ui/icons/CircleQuestionMarkIcon";
+import CloseIcon from "@/components/ui/icons/CloseIcon";
+import SettingsIcon from "@/components/ui/icons/SettingsIcon";
+import CalendarIcon from "@/components/ui/icons/CalendarIcon";
+import NetworkIcon from "@/components/ui/icons/NetworkIcon";
+import BoxesIcon from "@/components/ui/icons/BoxesIcon";
+import KeyboardIcon from "@/components/ui/icons/KeyboardIcon";
+import LanguagesIcon from "@/components/ui/icons/LanguagesIcon";
+import CircleUserIcon from "@/components/ui/icons/CircleUserIcon";
+import CreditCardIcon from "@/components/ui/icons/CreditCardIcon";
+import CircleQuestionMarkIcon from "@/components/ui/icons/CircleQuestionMarkIcon";
 
 interface Props {
   activeItem: string;

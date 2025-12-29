@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getChangelogs, type Changelog } from '../../lib/tauri';
+import { getChangelogs, type Changelog } from '../../../lib/tauri';
 
 export default function ChangelogTab() {
   const [changelogs, setChangelogs] = useState<Changelog[]>([]);

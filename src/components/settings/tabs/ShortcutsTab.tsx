@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 
-import HatGlassesIcon from "../ui/icons/HatGlassesIcon"
-import EnterIcon from "../ui/icons/EnterIcon";
-import MonitorIcon from "../ui/icons/MonitorIcon";
-import MicIcon from "../ui/icons/MicIcon";
+import HatGlassesIcon from "@/components/ui/icons/HatGlassesIcon"
+import EnterIcon from "@/components/ui/icons/EnterIcon";
+import MonitorIcon from "@/components/ui/icons/MonitorIcon";
+import MicIcon from "@/components/ui/icons/MicIcon";
 
 export default function ShortcutsTab() {
   const { t } = useTranslation();
