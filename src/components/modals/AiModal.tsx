@@ -2,12 +2,12 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { useRef, useEffect, useState } from "react";
 import Draggable from "react-draggable";
-import { useNotification } from "@/contexts/NotificationContext";
+import { useNotification } from "../../contexts/NotificationContext";
 
-import ZapIcon from "./ui/icons/ZapIcon";
-import CheckIcon from "./ui/icons/CheckIcon";
-import CopyIcon from "./ui/icons/CopyIcon";
-import CloseIcon from "./ui/icons/CloseIcon";
+import ZapIcon from "../ui/icons/ZapIcon";
+import CheckIcon from "../ui/icons/CheckIcon";
+import CopyIcon from "../ui/icons/CopyIcon";
+import CloseIcon from "../ui/icons/CloseIcon";
 
 interface ChatMessage {
   id: string;

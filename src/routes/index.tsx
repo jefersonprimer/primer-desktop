@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
-import WelcomeModal from "../components/WelcomoModal.tsx";
+import WelcomeModal from "@/components/modals/WelcomoModal";
 import ProtectedRoute from "../components/ProtectedRoute";
 import LoginPage from "../pages/login";
 import RegisterPage from "../pages/register";

@@ -1,24 +1,25 @@
 import Draggable from "react-draggable";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useAuth } from "../../contexts/AuthContext";
 
-import { useAi } from "../../contexts/AiContext";
-import { getPromptPresets } from "../../lib/tauri";
+import { useAuth } from "../contexts/AuthContext";
+import { useAi } from "../contexts/AiContext";
+import { useStealthMode } from '../contexts/StealthModeContext';
+
+import { getPromptPresets } from "../lib/tauri";
 import { invoke } from "@tauri-apps/api/core";
-import { useSpeechRecognition } from "../../hooks/useSpeechRecognition";
-import { generateActions } from "../../services/aiService";
+import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
+import { generateActions } from "../services/aiService";
 
-import { useStealthMode } from '../../contexts/StealthModeContext';
 
-import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
-import StopIcon from "../ui/icons/StopIcon";
-import EnterIcon from "../ui/icons/EnterIcon";
-import EllipsisVerticalIcon from "../ui/icons/EllipsisVerticalIcon";
+import AudioLinesIcon from "./ui/icons/AudioLinesIcon";
+import StopIcon from "./ui/icons/StopIcon";
+import EnterIcon from "./ui/icons/EnterIcon";
+import EllipsisVerticalIcon from "./ui/icons/EllipsisVerticalIcon";
 
-import LiveInsightsModal from "./LiveInsightsModal";
-import SelectAssistantModal from "./SelectAssistantModal";
-import AssistantsManagerModal from "../AssistantsManagerModal";
-import SettingsModal from "../settings/SettingsModal";
+import LiveInsightsModal from "./modals/LiveInsightsModal";
+import SelectAssistantModal from "./modals/SelectAssistantModal";
+import AssistantsManagerModal from "./modals/AssistantsManagerModal";
+import SettingsModal from "./modals/SettingsModal";
 
 interface DockProps {
   onOpenModal: (modal: string) => void;

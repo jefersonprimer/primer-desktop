@@ -4,6 +4,11 @@ import { useTranslation } from "react-i18next";
 import { useAi } from "../../contexts/AiContext";
 
 import CheckIcon from "../ui/icons/CheckIcon";
+import ZapIcon from "../ui/icons/ZapIcon";
+import BoxIcon from "../ui/icons/BoxIcon";
+import SparklesIcon from "../ui/icons/SparklesIcon";
+import WrenchIcon from "../ui/icons/WrenchIcon";
+
 import CloseIcon from "../ui/icons/CloseIcon";
 import CircleAlertIcon from "../ui/icons/CircleAlertIcon";
 
@@ -250,9 +255,7 @@ export default function GoogleTab({
               <CheckIcon size={16} color="#818cf8" />
             </div>
           )}
-          <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-          </svg>
+          <ZapIcon size={32}/> 
           <span className="font-medium mb-1">{t("google.performance.fast")}</span>
           <span className="font-medium text-xs">{t("google.performance.fastDescription")}</span>
         </button>
@@ -269,10 +272,7 @@ export default function GoogleTab({
               <CheckIcon size={16} color="#818cf8" />
             </div>
           )}
-          <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="3" fill="currentColor" />
-          </svg>
+          <BoxIcon size={32}/> 
           <span className="font-medium mb-1">{t("google.performance.standard")}</span>
           <span className="font-medium text-xs">{t("google.performance.standardDescription")}</span>
         </button>
@@ -289,9 +289,7 @@ export default function GoogleTab({
               <CheckIcon size={16} color="#818cf8" />
             </div>
           )}
-          <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
+          <SparklesIcon size={32}/> 
           <span className="font-medium mb-1">{t("google.performance.quality")}</span>
           <span className="font-medium text-xs">{t("google.performance.qualityDescription")}</span>
         </button>
@@ -308,9 +306,7 @@ export default function GoogleTab({
               <CheckIcon size={16} color="#818cf8" />
             </div>
           )}
-          <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.364 6.364l-2.121-2.121M8.757 8.757L6.636 6.636m12.728 0l-2.121 2.121m-9.9 9.9l-2.121 2.121" />
-          </svg>
+          <WrenchIcon size={32}/> 
           <span className="font-medium mb-1">{t("google.performance.custom")}</span>
           <span className="text-xs">{t("google.performance.customDescription")}</span>
         </button>

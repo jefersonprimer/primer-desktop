@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { setAppLanguage } from "../lib/tauri";
+import { setAppLanguage } from "@/lib/tauri";
 
 const WelcomeModal: React.FC = () => {
   const navigate = useNavigate();

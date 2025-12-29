@@ -7,9 +7,9 @@ import {
   updatePromptPreset, 
   deletePromptPreset, 
   type PromptPreset 
-} from "../lib/tauri";
+} from "../../lib/tauri";
 
-import CloseIcon from "./ui/icons/CloseIcon";
+import CloseIcon from "../ui/icons/CloseIcon";
 
 export default function AssistantsManagerModal({ onClose }: { onClose: () => void; open?: boolean }) {
   const { t } = useTranslation();

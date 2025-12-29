@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import ChatHistory from "./ChatHistory";
-import CloseIcon from "./ui/icons/CloseIcon";
+import ChatHistory from "../ChatHistory";
+import CloseIcon from "../ui/icons/CloseIcon";
 
 interface ChatSession {
   id: string;

@@ -4,21 +4,21 @@ import { invoke } from "@tauri-apps/api/core";
 import { useAuth } from "../../contexts/AuthContext";
 import { useAi } from "../../contexts/AiContext";
 
-import Sidebar from "./SideBar";
-import GeneralTab from "./GeneralTab";
-import CalendarTab from "./CalendarTab";
-import ApiTabs from "./ApiTabs";
-import GoogleTab from "./GoogleTab";
-import OpenAiTab from "./OpenAiTab";
-import OpenRouterTab from "./OpenRouterTab";
-import CustomTab from "./CustomTab";
-import LanguagesTab from "./LanguagesTab";
-import ResourcesTab from "./ResourcesTab";
-import ShortcutsTab from "./ShortcutsTab";
-import AccountTab from "./AccountTab";
-import PremiumTab from "./PremiumTab";
-import ChangelogTab from "./ChangelogTab";
-import HelpTab from "./HelpTab";
+import Sidebar from "../settings/Sidebar";
+import GeneralTab from "../settings/GeneralTab";
+import CalendarTab from "../settings/CalendarTab";
+import ApiTabs from "../settings/ApiTabs";
+import GoogleTab from "../settings/GoogleTab";
+import OpenAiTab from "../settings/OpenAiTab";
+import OpenRouterTab from "../settings/OpenRouterTab";
+import CustomTab from "../settings/CustomTab";
+import LanguagesTab from "../settings/LanguagesTab";
+import ResourcesTab from "../settings/ResourcesTab";
+import ShortcutsTab from "../settings/ShortcutsTab";
+import AccountTab from "../settings/AccountTab";
+import PremiumTab from "../settings/PremiumTab";
+import ChangelogTab from "../settings/ChangelogTab";
+import HelpTab from "../settings/HelpTab";
 
 interface Props {
   open: boolean;
@@ -38,6 +38,11 @@ interface GetApiKeysResponse {
   api_keys: ApiKeyDto[];
 }
 
+interface TabState {
+  apiKey: string;
+  model: string;
+}
+
 export default function SettingsModal({ open, onClose }: Props) {
   const { userId } = useAuth();
   const { refreshConfig, activeProvider } = useAi();
@@ -45,9 +50,8 @@ export default function SettingsModal({ open, onClose }: Props) {
   const [activeApiTab, setActiveApiTab] = useState("Google");
   const [apiKeys, setApiKeys] = useState<ApiKeyDto[]>([]);
 
-  // Form State
-  const [activeApiKey, setActiveApiKey] = useState("");
-  const [activeModel, setActiveModel] = useState("");
+  // Independent state for each tab to prevent shared state issues
+  const [drafts, setDrafts] = useState<Record<string, TabState>>({});
 
   useEffect(() => {
     if (open && userId) {
@@ -56,19 +60,23 @@ export default function SettingsModal({ open, onClose }: Props) {
     }
   }, [open, userId]);
 
-  // Sync state when tab or keys change
+  // Sync state when keys are loaded
   useEffect(() => {
-    const provider = getProviderFromTab(activeApiTab);
-    const keyData = apiKeys.find((k) => k.provider === provider);
+    const newDrafts: Record<string, TabState> = {};
+    const tabs = ["Google", "OpenAI", "OpenRouter", "Custom"];
+
+    tabs.forEach((tab) => {
+      const provider = getProviderFromTab(tab);
+      const keyData = apiKeys.find((k) => k.provider === provider);
+      
+      newDrafts[tab] = {
+        apiKey: keyData?.api_key || "",
+        model: keyData?.selected_model || getDefaultModel(tab),
+      };
+    });
     
-    if (keyData) {
-      setActiveApiKey(keyData.api_key);
-      setActiveModel(keyData.selected_model || getDefaultModel(activeApiTab));
-    } else {
-      setActiveApiKey("");
-      setActiveModel(getDefaultModel(activeApiTab));
-    }
-  }, [activeApiTab, apiKeys]);
+    setDrafts(newDrafts);
+  }, [apiKeys]);
 
   const fetchApiKeys = async () => {
     try {
@@ -94,12 +102,22 @@ export default function SettingsModal({ open, onClose }: Props) {
 
   const getDefaultModel = (tab: string) => {
     switch (tab) {
-      case "Google": return "flash";
+      case "Google": return "gemini-2.5-flash";
       case "OpenAI": return "gpt-4o";
       case "OpenRouter": return "mistralai/mistral-7b-instruct";
       case "Custom": return "llama3";
       default: return "";
     }
+  };
+
+  const handleUpdateDraft = (tab: string, field: keyof TabState, value: string) => {
+    setDrafts((prev) => ({
+      ...prev,
+      [tab]: {
+        ...prev[tab],
+        [field]: value,
+      },
+    }));
   };
 
   const handleSaveCurrentApiTab = async () => {
@@ -108,13 +126,16 @@ export default function SettingsModal({ open, onClose }: Props) {
     const provider = getProviderFromTab(activeApiTab);
     if (!provider) return;
 
+    const currentDraft = drafts[activeApiTab];
+    if (!currentDraft) return;
+
     try {
       await invoke("add_api_key", {
         dto: {
           user_id: userId,
           provider,
-          api_key: activeApiKey,
-          selected_model: activeModel,
+          api_key: currentDraft.apiKey,
+          selected_model: currentDraft.model,
         },
       });
       // Refresh keys to ensure UI is in sync with backend
@@ -128,6 +149,12 @@ export default function SettingsModal({ open, onClose }: Props) {
   const renderContent = () => {
     switch (activeItem) {
       case "API e Modelos":
+        // Ensure we always have a valid draft object, even if state is initializing
+        const currentDraft = drafts[activeApiTab] || { 
+          apiKey: "", 
+          model: getDefaultModel(activeApiTab) 
+        };
+
         return (
           <>
             <ApiTabs 
@@ -136,40 +163,40 @@ export default function SettingsModal({ open, onClose }: Props) {
             />
             {activeApiTab === "Google" && (
               <GoogleTab 
-                apiKey={activeApiKey}
-                setApiKey={setActiveApiKey}
-                model={activeModel}
-                setModel={setActiveModel}
+                apiKey={currentDraft.apiKey}
+                setApiKey={(val) => handleUpdateDraft("Google", "apiKey", val)}
+                model={currentDraft.model}
+                setModel={(val) => handleUpdateDraft("Google", "model", val)}
                 savedKey={apiKeys.find((k) => k.provider === "gemini")?.api_key}
                 onSave={handleSaveCurrentApiTab}
               />
             )}
             {activeApiTab === "OpenAI" && (
               <OpenAiTab 
-                apiKey={activeApiKey}
-                setApiKey={setActiveApiKey}
-                model={activeModel}
-                setModel={setActiveModel}
+                apiKey={currentDraft.apiKey}
+                setApiKey={(val) => handleUpdateDraft("OpenAI", "apiKey", val)}
+                model={currentDraft.model}
+                setModel={(val) => handleUpdateDraft("OpenAI", "model", val)}
                 savedKey={apiKeys.find((k) => k.provider === "openai")?.api_key}
                 onSave={handleSaveCurrentApiTab}
               />
             )}
             {activeApiTab === "OpenRouter" && (
               <OpenRouterTab
-                apiKey={activeApiKey}
-                setApiKey={setActiveApiKey}
-                model={activeModel}
-                setModel={setActiveModel}
+                apiKey={currentDraft.apiKey}
+                setApiKey={(val) => handleUpdateDraft("OpenRouter", "apiKey", val)}
+                model={currentDraft.model}
+                setModel={(val) => handleUpdateDraft("OpenRouter", "model", val)}
                 savedKey={apiKeys.find((k) => k.provider === "openrouter")?.api_key}
                 onSave={handleSaveCurrentApiTab}
               />
             )}
             {activeApiTab === "Custom" && (
               <CustomTab
-                apiKey={activeApiKey}
-                setApiKey={setActiveApiKey}
-                model={activeModel}
-                setModel={setActiveModel}
+                apiKey={currentDraft.apiKey}
+                setApiKey={(val) => handleUpdateDraft("Custom", "apiKey", val)}
+                model={currentDraft.model}
+                setModel={(val) => handleUpdateDraft("Custom", "model", val)}
                 savedKey={apiKeys.find((k) => k.provider === "ollama")?.api_key}
                 savedModel={apiKeys.find((k) => k.provider === "ollama")?.selected_model}
                 onSave={handleSaveCurrentApiTab}
@@ -222,4 +249,3 @@ export default function SettingsModal({ open, onClose }: Props) {
     </div>
   );
 }
-

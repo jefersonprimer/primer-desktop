@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 
-import AssistantsManagerModal from "../AssistantsManagerModal";
-import CheckIcon from "../ui/icons/CheckIcon";
+import AssistantsManagerModal from "./AssistantsManagerModal";
+import CheckIcon from "@/components/ui/icons/CheckIcon";
 
-import { getPromptPresets, type PromptPreset } from "../../lib/tauri";
+import { getPromptPresets, type PromptPreset } from "@/lib/tauri";
 
 interface Props {
   value: string;

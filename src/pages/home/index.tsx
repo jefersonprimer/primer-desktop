@@ -4,11 +4,11 @@ import { invoke } from "@tauri-apps/api/core";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAi } from "@/contexts/AiContext";
 
-import Dock from "../../components/Dock/Dock";
+import Dock from "@/components/Dock";
 
-import AiModal from "@/components/AiModal";
-import SettingsModal from "@/components/settings/SettingsModal";
-import HistoryModal from "@/components/HistoryModal";
+import AiModal from "@/components/modals/AiModal";
+import SettingsModal from "@/components/modals/SettingsModal";
+import HistoryModal from "@/components/modals/HistoryModal";
 
 interface CreateChatResponse {
   chat_id: string;
@@ -242,7 +242,7 @@ export default function HomePage() {
         onSelect={setSelectedSession}
         messages={historyMessages}
         onLoadMessages={fetchMessages}
-        onDelete={async (sessionId) => {
+        onDelete={async (sessionId: string) => {
           try {
             await invoke("delete_chat", { dto: { chat_id: sessionId } });
             setSessions(prev => prev.filter(s => s.id !== sessionId));
@@ -272,7 +272,7 @@ export default function HomePage() {
       <Dock
         onOpenModal={handleOpenModal}
         onClose={() => setActiveModal(null)}
-        onActionSelected={(action) => handleChatSubmit(action)}
+        onActionSelected={(action: string) => handleChatSubmit(action)}
         aiModalOpen={activeModal === "chat" || activeModal === "ai-response"}
         isInputVisible={showAiInput}
       />
