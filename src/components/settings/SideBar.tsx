@@ -25,7 +25,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
   };
 
   const itemClass = (isActive: boolean) => `
-    relative flex items-center gap-3 p-2 w-full text-sm rounded-lg transition
+    group relative flex items-center gap-3 p-2 w-full text-sm rounded-lg transition
     ${isActive
       ? "bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white"
       : "text-gray-600 dark:text-neutral-400 hover:bg-gray-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white"
@@ -90,7 +90,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Profile")}
               className={itemClass(activeItem === "Profile")}
             >
-              <CircleUserIcon size={20} className={activeItem === "Profile" ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-[#9D9DA3]"} />
+              <CircleUserIcon size={20} className={activeItem === "Profile" ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-[#9D9DA3] group-hover:text-black dark:group-hover:text-white"} />
               <span>
                 {t('sidebar.profile')}
               </span>
@@ -143,7 +143,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Help Center")}
               className={itemClass(activeItem === "Help Center")}
             >
-              <CircleQuestionMarkIcon size={20} className={activeItem === "Help Center" ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-[#9D9DA3]"} />
+              <CircleQuestionMarkIcon size={20} className={activeItem === "Help Center" ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-[#9D9DA3] group-hover:text-black dark:group-hover:text-white"} />
               <span className="font-medium">
                 {t('sidebar.helpCenter')}
               </span>
