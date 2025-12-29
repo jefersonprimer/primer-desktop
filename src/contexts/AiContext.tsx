@@ -15,10 +15,10 @@ interface AiContextType {
   setActiveProvider: (provider: ProviderType) => void;
   activeModel: string;
   setActiveModel: (model: string) => void;
-  
+
   transcriptionModel: string;
   setTranscriptionModel: (model: string) => void;
-  
+
   transcriptionLanguage: string;
   setTranscriptionLanguage: (lang: string) => void;
 
@@ -37,6 +37,9 @@ interface AiContextType {
   activePromptPreset: string;
   setActivePromptPreset: (id: string) => void;
 
+  activeSummaryPreset: string;
+  setActiveSummaryPreset: (id: string) => void;
+
   lastUserMessage: string;
   setLastUserMessage: (message: string) => void;
 
@@ -51,7 +54,7 @@ const AiContext = createContext<AiContextType | undefined>(undefined);
 
 export function AiProvider({ children }: { children: ReactNode }) {
   const { userId } = useAuth();
-  
+
   // Load initial state from localStorage or default
   const [activeProvider, setActiveProviderState] = useState<ProviderType>(() => {
     return (localStorage.getItem("ai_active_provider") as ProviderType) || "Google";
@@ -94,6 +97,10 @@ export function AiProvider({ children }: { children: ReactNode }) {
     return localStorage.getItem("ai_active_prompt_preset") || "general";
   });
 
+  const [activeSummaryPreset, setActiveSummaryPresetState] = useState<string>(() => {
+    return localStorage.getItem("ai_active_summary_preset") || "email_summary_default";
+  });
+
   const [lastUserMessage, setLastUserMessage] = useState<string>("");
 
   const [apiKeys, setApiKeys] = useState<ApiKeyDto[]>([]);
@@ -107,11 +114,11 @@ export function AiProvider({ children }: { children: ReactNode }) {
   // When active provider changes, try to switch active model to that provider's saved model
   useEffect(() => {
     localStorage.setItem("ai_active_provider", activeProvider);
-    
+
     // Find saved model for this provider
     const providerKey = activeProvider === "Google" ? "gemini" : activeProvider.toLowerCase();
     const keyData = apiKeys.find(k => k.provider === providerKey);
-    
+
     if (keyData?.selected_model) {
       setActiveModel(keyData.selected_model);
     } else {
@@ -125,11 +132,11 @@ export function AiProvider({ children }: { children: ReactNode }) {
   const refreshConfig = async () => {
     if (!userId) return;
     try {
-      const res = await invoke<{ api_keys: ApiKeyDto[] }>("get_api_keys", { 
-        dto: { user_id: userId } 
+      const res = await invoke<{ api_keys: ApiKeyDto[] }>("get_api_keys", {
+        dto: { user_id: userId }
       });
       setApiKeys(res.api_keys);
-      
+
       // Update current model if needed
       const providerKey = activeProvider === "Google" ? "gemini" : activeProvider.toLowerCase();
       const currentKey = res.api_keys.find(k => k.provider === providerKey);
@@ -149,7 +156,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
     setActiveModelState(model);
     localStorage.setItem("ai_active_model", model);
   };
-  
+
   // Wrapper to handle internal vs external call if needed, but here we just implement the logic
   const updateTranscriptionModelForProvider = (provider: string | ProviderType, model: string) => {
     const targetProvider = provider === "active" ? activeProvider : provider;
@@ -187,16 +194,21 @@ export function AiProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("ai_active_prompt_preset", id);
   };
 
+  const setActiveSummaryPreset = (id: string) => {
+    setActiveSummaryPresetState(id);
+    localStorage.setItem("ai_active_summary_preset", id);
+  };
+
   const getModelForProvider = (provider: ProviderType) => {
-     const providerKey = provider === "Google" ? "gemini" : provider.toLowerCase();
-     return apiKeys.find(k => k.provider === providerKey)?.selected_model;
+    const providerKey = provider === "Google" ? "gemini" : provider.toLowerCase();
+    return apiKeys.find(k => k.provider === providerKey)?.selected_model;
   }
 
   const getApiKeyForProvider = (provider: ProviderType) => {
-     const providerKey = provider === "Google" ? "gemini" : provider.toLowerCase();
-     return apiKeys.find(k => k.provider === providerKey)?.api_key;
+    const providerKey = provider === "Google" ? "gemini" : provider.toLowerCase();
+    return apiKeys.find(k => k.provider === providerKey)?.api_key;
   }
-  
+
   const getTranscriptionModelForProvider = (provider: ProviderType) => {
     return transcriptionModels[provider] || "whisper.cpp";
   }
@@ -205,10 +217,10 @@ export function AiProvider({ children }: { children: ReactNode }) {
   const transcriptionModel = transcriptionModels[activeProvider] || "whisper.cpp";
 
   return (
-    <AiContext.Provider value={{ 
-      activeProvider, 
-      setActiveProvider, 
-      activeModel, 
+    <AiContext.Provider value={{
+      activeProvider,
+      setActiveProvider,
+      activeModel,
       setActiveModel,
       transcriptionModel,
       setTranscriptionModel: (model) => updateTranscriptionModelForProvider(activeProvider, model),
@@ -224,6 +236,8 @@ export function AiProvider({ children }: { children: ReactNode }) {
       setOutputDeviceId,
       activePromptPreset,
       setActivePromptPreset,
+      activeSummaryPreset,
+      setActiveSummaryPreset,
       lastUserMessage,
       setLastUserMessage,
       refreshConfig,

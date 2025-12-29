@@ -10,6 +10,12 @@ pub struct CreatePromptPresetDto {
     pub name: String,
     pub description: Option<String>,
     pub prompt: String,
+    #[serde(default = "default_preset_type")]
+    pub preset_type: Option<String>,
+}
+
+fn default_preset_type() -> Option<String> {
+    Some("assistant".to_string())
 }
 
 #[derive(Debug, Deserialize)]
@@ -22,7 +28,14 @@ pub struct UpdatePromptPresetDto {
 
 #[tauri::command]
 pub async fn get_prompt_presets(state: State<'_, AppState>) -> Result<Vec<PromptPreset>, String> {
-    state.prompt_preset_repo.find_all()
+    state.prompt_preset_repo.find_by_type("assistant")
+        .await
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn get_summary_presets(state: State<'_, AppState>) -> Result<Vec<PromptPreset>, String> {
+    state.prompt_preset_repo.find_by_type("summary")
         .await
         .map_err(|e| e.to_string())
 }
@@ -35,6 +48,7 @@ pub async fn create_prompt_preset(dto: CreatePromptPresetDto, state: State<'_, A
         description: dto.description,
         prompt: dto.prompt,
         is_built_in: false,
+        preset_type: dto.preset_type,
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };

@@ -32,6 +32,8 @@ pub async fn send_chat_summary(dto: SendChatSummaryEmailDto, state: State<'_, Ap
         state.sqlite_chat_repo.clone(),
         state.sqlite_message_repo.clone(),
         state.user_repo.clone(),
+        state.prompt_preset_repo.clone(),
+        state.user_api_key_repo.clone(),
     );
 
     let user_id = Uuid::parse_str(&dto.user_id)
@@ -39,7 +41,7 @@ pub async fn send_chat_summary(dto: SendChatSummaryEmailDto, state: State<'_, Ap
     let chat_id = Uuid::parse_str(&dto.chat_id)
         .map_err(|e| format!("Invalid chat_id format: {}", e))?;
 
-    send_chat_summary_usecase.execute(user_id, chat_id)
+    send_chat_summary_usecase.execute(user_id, chat_id, dto.summary_preset_id)
         .await
         .map(|_| SendChatSummaryEmailResponse { message: "Chat summary sent successfully".to_string() })
         .map_err(|e| e.to_string())

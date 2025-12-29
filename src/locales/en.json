@@ -364,5 +364,19 @@
     },
     "saveChanges": "Save Changes",
     "changesSaved": "Changes Saved"
+  },
+  "assistantsManager": {
+    "title": "Assistants Manager",
+    "untitled": "Untitled",
+    "builtin": "Built-in",
+    "custom": "Custom",
+    "createNew": "+ Create New",
+    "newPresetPlaceholder": "My new assistant behavior...",
+    "instructionsPlaceholder": "Enter system instructions here... (e.g. \"You are a helpful coding assistant...\")",
+    "builtinWarning": "This is a built-in preset and cannot be modified directly. Create a new one to customize.",
+    "saveChanges": "Save changes",
+    "deleteConfirm": "Are you sure you want to delete this preset?",
+    "delete": "Delete Preset",
+    "defaultName": "New Assistant"
   }
 }

@@ -55,6 +55,7 @@ export default function HomePage() {
     activeProvider,
     activeModel,
     activePromptPreset,
+    activeSummaryPreset,
     outputLanguage,
     setLastUserMessage
   } = useAi();
@@ -177,7 +178,8 @@ export default function HomePage() {
       invoke("send_chat_summary", {
         dto: {
           user_id: userId,
-          chat_id: chatId
+          chat_id: chatId,
+          summary_preset_id: activeSummaryPreset
         }
       })
         .then(() => console.log("Summary email sent successfully"))

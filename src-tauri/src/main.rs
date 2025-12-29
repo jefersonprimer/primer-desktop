@@ -240,6 +240,7 @@ async fn main() {
             config_commands::open_system_settings,
             // prompt preset commands
             prompt_preset_commands::get_prompt_presets,
+            prompt_preset_commands::get_summary_presets,
             prompt_preset_commands::create_prompt_preset,
             prompt_preset_commands::update_prompt_preset,
             prompt_preset_commands::delete_prompt_preset,

@@ -17,6 +17,7 @@ pub struct SendEmailResponse {
 pub struct SendChatSummaryEmailDto {
     pub user_id: String,
     pub chat_id: String,
+    pub summary_preset_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

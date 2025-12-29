@@ -72,6 +72,7 @@ export interface PromptPreset {
   description?: string;
   prompt: string;
   is_built_in: boolean;
+  preset_type?: 'assistant' | 'summary';
   created_at: string;
   updated_at: string;
 }
@@ -80,6 +81,7 @@ export interface CreatePromptPresetDto {
   name: string;
   description?: string;
   prompt: string;
+  preset_type?: 'assistant' | 'summary';
 }
 
 export interface UpdatePromptPresetDto {
@@ -91,6 +93,10 @@ export interface UpdatePromptPresetDto {
 
 export async function getPromptPresets(): Promise<PromptPreset[]> {
   return await invoke('get_prompt_presets');
+}
+
+export async function getSummaryPresets(): Promise<PromptPreset[]> {
+  return await invoke('get_summary_presets');
 }
 
 export async function createPromptPreset(dto: CreatePromptPresetDto): Promise<PromptPreset> {
