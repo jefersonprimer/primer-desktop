@@ -377,5 +377,73 @@
     },
     "saveChanges": "Salvar Alterações",
     "changesSaved": "Alterações Salvas"
+  },
+  "premium": {
+    "title": "Assinatura",
+    "upgrade": "Atualizar",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "popular": "Popular",
+    "teams": {
+      "interest": "Interessado no Primer para Equipes?",
+      "link": "Fale com vendas"
+    },
+    "features_prefix": "Tudo no plano Grátis, e:",
+    "free_plan": {
+      "title": "Plano Gratuito",
+      "price": "$0",
+      "features": [
+        "Respostas de IA limitadas por dia",
+        "Reuniões gratuitas limitadas",
+        "Pergunte à IA sobre reuniões passadas",
+        "Personalize instruções da IA"
+      ]
+    },
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "originalPrice": "Grátis",
+        "price": {
+          "monthly": "Grátis",
+          "yearly": "Grátis"
+        },
+        "description": "Todos os recursos essenciais.",
+        "features": [
+          "Respostas de IA limitadas",
+          "Anotações de reunião limitadas",
+          "Instruções personalizadas e upload de arquivos",
+          "Pergunte à IA sobre todas as suas reuniões anteriores"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "originalPrice": "$15",
+        "price": {
+          "monthly": "$15",
+          "yearly": "$10"
+        },
+        "description": "Acesso ilimitado",
+        "features": [
+          "Tudo no Starter, mais...",
+          "Respostas de IA ilimitadas",
+          "Anotações de reunião ilimitadas",
+          "Acesso ilimitado aos modelos de IA mais recentes",
+          "Suporte prioritário"
+        ]
+      },
+      "proPlus": {
+        "name": "Pro +",
+        "originalPrice": "$30",
+        "price": {
+          "monthly": "$30",
+          "yearly": "$20"
+        },
+        "description": "Indetectável durante compartilhamento de tela.",
+        "features": [
+          "Tudo no Pro, mais...",
+          "Completamente oculto para softwares de compartilhamento de tela"
+        ]
+      }
+    }
   }
 }

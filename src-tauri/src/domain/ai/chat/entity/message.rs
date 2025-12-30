@@ -9,4 +9,7 @@ pub struct Message {
     pub role: String,
     pub content: String,
     pub created_at: DateTime<Utc>,
+    pub summary: Option<String>,
+    pub message_type: String,
+    pub importance: i32,
 }

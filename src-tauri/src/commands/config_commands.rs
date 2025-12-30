@@ -18,6 +18,13 @@ pub async fn set_language(language: String, state: State<'_, AppState>) -> Resul
 }
 
 #[tauri::command]
+pub async fn set_enable_smart_rag(enabled: bool, state: State<'_, AppState>) -> Result<(), String> {
+    state.config_repo.set_enable_smart_rag(enabled)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub async fn open_system_settings(setting_type: String) -> Result<(), String> {
     #[cfg(target_os = "macos")]
     {

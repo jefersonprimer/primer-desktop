@@ -38,6 +38,7 @@ export async function showInTaskbar(): Promise<void> {
 
 export interface AppConfig {
   language: string;
+  enable_smart_rag: boolean;
 }
 
 export async function getAppConfig(): Promise<AppConfig> {
@@ -46,6 +47,10 @@ export async function getAppConfig(): Promise<AppConfig> {
 
 export async function setAppLanguage(language: string): Promise<void> {
   return await invoke('set_language', { language });
+}
+
+export async function setEnableSmartRag(enabled: boolean): Promise<void> {
+  return await invoke('set_enable_smart_rag', { enabled });
 }
 
 export async function openLogFolder(): Promise<void> {

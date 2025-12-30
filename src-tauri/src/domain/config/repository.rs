@@ -6,4 +6,5 @@ use anyhow::Result;
 pub trait ConfigRepository: Send + Sync {
     async fn get(&self) -> Result<AppConfig>;
     async fn set_language(&self, language: &str) -> Result<()>;
+    async fn set_enable_smart_rag(&self, enabled: bool) -> Result<()>;
 }

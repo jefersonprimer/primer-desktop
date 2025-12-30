@@ -1,10 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { getAppConfig, setEnableSmartRag } from "../../../lib/tauri";
 
 export default function ResourcesTab() {
   const { t } = useTranslation();
   const [autoScroll, setAutoScroll] = useState(true);
   const [selectToPrompt, setSelectToPrompt] = useState(false);
+  const [smartRag, setSmartRag] = useState(false);
+
+  useEffect(() => {
+    getAppConfig().then(config => {
+      setSmartRag(config.enable_smart_rag);
+    });
+  }, []);
+
+  const handleSmartRagChange = (enabled: boolean) => {
+    setSmartRag(enabled);
+    setEnableSmartRag(enabled).catch(console.error);
+  };
 
   return (
     <div className="bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 h-full overflow-y-auto p-8">
@@ -13,6 +26,36 @@ export default function ResourcesTab() {
         <p className="text-sm mt-1 mb-6">
           {t("resources.description")}
         </p>
+
+        {/* Smart RAG Toggle */}
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Smart Context (RAG)</h2>
+        </div>
+
+        <div className="bg-gray-50 dark:bg-[#242425] rounded-lg p-4 mb-3">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-gray-900 dark:text-white flex items-center gap-2">
+              Memory & Context Intelligence
+               <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Beta</span>
+            </h3>
+            <button
+              onClick={() => handleSmartRagChange(!smartRag)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                smartRag ? 'bg-[#48CAE1]' : 'bg-gray-200 dark:bg-zinc-700'
+              }`}
+            >
+              <span
+                className={`${
+                  smartRag ? 'translate-x-6' : 'translate-x-1'
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </button>
+          </div>
+          <p className="text-sm leading-relaxed">
+            Automatically analyzes your recent chat history (last 50 chats) to provide relevant context for new conversations.
+            This helps the AI remember your decisions, code snippets, and preferences across different sessions.
+          </p>
+        </div>
 
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-base font-semibold text-gray-900 dark:text-white">{t("resources.autoScroll.title")}</h2>

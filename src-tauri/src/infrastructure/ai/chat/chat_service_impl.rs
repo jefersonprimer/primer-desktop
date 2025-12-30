@@ -16,13 +16,23 @@ use crate::domain::ai::chat::service::{
 };
 use crate::domain::user::repository::user_api_key_repository::UserApiKeyRepository;
 
+use crate::domain::config::repository::ConfigRepository;
+
 #[derive(Deserialize)]
 struct AiResponse {
     answer: String,
     follow_ups: Vec<String>,
 }
 
+#[derive(Deserialize, Debug)]
+struct MessageAnalysis {
+    summary: String,
+    importance: i32,
+    message_type: String,
+}
+
 pub struct ChatServiceImpl {
+    config_repo: Arc<dyn ConfigRepository>,
     user_api_key_repo: Arc<dyn UserApiKeyRepository>,
     message_repo: Arc<dyn MessageRepository>,
     chat_repo: Arc<dyn ChatRepository>,
@@ -34,6 +44,7 @@ pub struct ChatServiceImpl {
 
 impl ChatServiceImpl {
     pub fn new(
+        config_repo: Arc<dyn ConfigRepository>,
         user_api_key_repo: Arc<dyn UserApiKeyRepository>,
         message_repo: Arc<dyn MessageRepository>,
         chat_repo: Arc<dyn ChatRepository>,
@@ -43,6 +54,7 @@ impl ChatServiceImpl {
         openrouter_provider: Arc<dyn AiProvider>,
     ) -> Self {
         Self {
+            config_repo,
             user_api_key_repo,
             message_repo,
             chat_repo,
@@ -51,6 +63,182 @@ impl ChatServiceImpl {
             openai_provider,
             openrouter_provider,
         }
+    }
+
+    async fn analyze_message(
+        provider: Arc<dyn AiProvider>,
+        api_key: String,
+        model: String,
+        message: Message,
+        message_repo: Arc<dyn MessageRepository>
+    ) -> Result<()> {
+        // --- LAYER 1 & 2: Heuristic Filters (Cheap) ---
+        if !Self::should_analyze_message(&message) {
+            log::info!("Skipping analysis for message {} (filtered by heuristics)", message.id);
+            return Ok(());
+        }
+
+        // --- LAYER 3: AI Classification (Smart) ---
+        let system_prompt = r#"
+            You are a background analyzer for a developer's chat assistant.
+            Your goal is to identify if this message contains persistent value (decisions, preferences, project context).
+            
+            Analyze the message and return a JSON object:
+            
+            Rules for "importance" (0-100):
+            - 0: Trivial, chit-chat, general knowledge questions (e.g., "What is Rust?", "Hi"), greetings.
+            - 1-30: Temporary context, clarifications.
+            - 31-70: User preferences, specific project details, code explanations worth remembering.
+            - 71-100: Critical architectural decisions, permanent user instructions, "I will use X", "My stack is Y".
+
+            Return JSON:
+            1. "summary": A concise 1-sentence summary (max 20 words) in Portuguese. IF IMPORTANCE IS 0, RETURN EMPTY STRING "".
+            2. "importance": Integer 0-100.
+            3. "message_type": One of ['chat', 'decision', 'code', 'summary', 'meeting'].
+
+            Example JSON:
+            {
+                "summary": "Decisão de usar Rocket como framework web.",
+                "importance": 80,
+                "message_type": "decision"
+            }
+        "#;
+
+        let request = ChatCompletionRequest {
+            model,
+            messages: vec![
+                ChatMessage {
+                    role: "system".to_string(),
+                    content: system_prompt.to_string(),
+                    image: None,
+                },
+                ChatMessage {
+                    role: "user".to_string(),
+                    content: message.content.clone(),
+                    image: None,
+                }
+            ],
+            temperature: Some(0.1), // Lower temperature for classification
+            max_tokens: Some(500),
+        };
+
+        match provider.chat_completion(&api_key, request).await {
+            Ok(response) => {
+                 if let Some(choice) = response.choices.first() {
+                     let content = &choice.message.content;
+                     
+                     // Robust JSON extraction
+                     let clean_content = if let Some(start) = content.find('{') {
+                         if let Some(end) = content.rfind('}') {
+                             if start <= end {
+                                 &content[start..=end]
+                             } else {
+                                 content.trim()
+                             }
+                         } else {
+                             content.trim()
+                         }
+                     } else {
+                         content.trim()
+                     };
+
+                     log::debug!("Analysis raw content: {:?}", content);
+                     log::debug!("Analysis clean content: {:?}", clean_content);
+
+                     match serde_json::from_str::<MessageAnalysis>(clean_content) {
+                         Ok(analysis) => {
+                             // Only update if importance > 0 or it's not empty
+                             if analysis.importance > 0 && !analysis.summary.is_empty() {
+                                 let mut updated_message = message;
+                                 updated_message.summary = Some(analysis.summary.clone());
+                                 updated_message.importance = analysis.importance;
+                                 updated_message.message_type = analysis.message_type;
+                                 
+                                 if let Err(e) = message_repo.update(updated_message).await {
+                                     log::error!("Failed to update message analysis: {}", e);
+                                 } else {
+                                     log::info!("Message analyzed successfully: Importance {}, Summary: {:?}", analysis.importance, analysis.summary);
+                                 }
+                             }
+                         },
+                         Err(e) => log::error!("Failed to parse analysis JSON: {}. Content: {}", e, clean_content),
+                     }
+                 }
+            },
+            Err(e) => log::error!("Failed to call AI for analysis: {}", e),
+        }
+
+        Ok(())
+    }
+
+    fn should_analyze_message(message: &Message) -> bool {
+        let content = message.content.trim();
+        let content_lower = content.to_lowercase();
+        let len = content.chars().count();
+
+        // 1. Trivial Short Messages (Layer 1)
+        if len < 10 {
+            return false;
+        }
+
+        // 2. Role-specific Logic
+        // For 'assistant', we rely on the fact that if the user asked a 'bad' question,
+        // we probably skipped the user message. But here we check the assistant reply itself.
+        // We only want to index Assistant replies that look like explanations or code.
+        if message.role == "assistant" {
+            // If it's short, it's likely just "Okay" or "I can't do that"
+            if len < 50 { return false; }
+            // If it contains code blocks, it's likely valuable
+            if content.contains("```") { return true; }
+        }
+
+        // 3. Keyword Heuristics (Layer 2)
+        
+        // Indicators of MEMORY (Value)
+        let memory_indicators = [
+            // PT
+            "gosto", "prefiro", "decidi", "vamos usar", "meu projeto", "meu app", 
+            "minha aplicação", "importante", "lembre", "salvar", "contexto", 
+            "padrão", "stack", "tecnologia", "arquitetura", "agora",
+            // EN
+            "like", "prefer", "decided", "will use", "my project", "my app", 
+            "important", "remember", "save", "context", "rule", "pattern", 
+            "stack", "technology", "architecture", "now"
+        ];
+
+        // Indicators of TRIVIALITY/SEARCH (Trash)
+        let trash_indicators = [
+            // PT
+            "o que é", "quem é", "qual é", "explique", "significado", "traduz", 
+            "traduza", "como faz", "exemplo de", "bom dia", "ola", "olá", "tchau",
+            // EN
+            "what is", "who is", "explain", "meaning", "translate", "how to", 
+            "example of", "hello", "hi", "bye"
+        ];
+
+        // Check for Memory indicators first (Override trash)
+        // E.g. "What is the architecture of my project?" -> Contains "what is" but also "my project"
+        if memory_indicators.iter().any(|&s| content_lower.contains(s)) {
+            return true;
+        }
+
+        // Check for Trash indicators
+        if trash_indicators.iter().any(|&s| content_lower.contains(s)) {
+            return false;
+        }
+
+        // 4. Default Fallback
+        // If it's a User message, long enough, and passed trash filter -> Analyze (conservative)
+        if message.role == "user" && len > 30 {
+            return true;
+        }
+        
+        // If Assistant message, long enough -> Analyze
+        if message.role == "assistant" && len > 100 {
+            return true;
+        }
+
+        false
     }
 }
 
@@ -70,17 +258,46 @@ impl ChatService for ChatServiceImpl {
         
         let api_key = &api_key_entry.api_key;
 
-        // 2. Save user's message first
+        // 2. Select AI provider early (to use for analysis)
+        let ai_provider = match provider_type {
+            AIProviderType::Gemini => self.gemini_provider.clone(),
+            AIProviderType::OpenAI => self.openai_provider.clone(),
+            AIProviderType::OpenRouter => self.openrouter_provider.clone(),
+        };
+
+        // 3. Save user's message first
         let user_message = Message {
             id: Uuid::new_v4(),
             chat_id: request.chat_id,
             role: "user".to_string(),
             content: request.prompt.clone(),
             created_at: Utc::now(),
+            summary: None,
+            message_type: "chat".to_string(),
+            importance: 0,
         };
         self.message_repo.create(user_message.clone()).await?;
 
-        // Fetch chat and preset
+        // 4. Spawn Background Analysis Agent for User Message
+        let user_analysis_provider = ai_provider.clone();
+        let user_analysis_api_key = api_key.clone();
+        let user_analysis_model = request.model.clone();
+        let user_analysis_message = user_message.clone();
+        let user_analysis_repo = self.message_repo.clone();
+
+        tokio::spawn(async move {
+            if let Err(e) = Self::analyze_message(
+                user_analysis_provider,
+                user_analysis_api_key,
+                user_analysis_model,
+                user_analysis_message,
+                user_analysis_repo
+            ).await {
+                log::error!("User message background analysis failed: {}", e);
+            }
+        });
+
+        // 5. Fetch chat and preset
         let chat = self.chat_repo.find_by_id(request.chat_id).await?
             .ok_or_else(|| anyhow!("Chat not found"))?;
         
@@ -91,35 +308,45 @@ impl ChatService for ChatServiceImpl {
              }
         }
 
-        // 3. Fetch previous messages from the chat to provide context
+        // 6. Fetch previous messages and build smart context
         let previous_messages = self.message_repo.find_by_chat_id(request.chat_id).await?;
         
-        // Convert previous messages to ChatMessage format for the AI provider
+        // 6.1 Check if Smart RAG is enabled
+        let app_config = self.config_repo.get().await.unwrap_or_default();
+        
+        // 6.2 Fetch Global High-Importance Context (Last 50 chats, Top 6 items) ONLY if enabled
+        let global_summaries = if app_config.enable_smart_rag {
+            self.message_repo.find_high_importance_summaries(request.user_id, 50, 6).await
+                .unwrap_or_default()
+        } else {
+            Vec::new()
+        };
+        
         let mut chat_messages: Vec<ChatMessage> = Vec::new();
 
-        let history_messages: Vec<ChatMessage> = previous_messages
-            .iter()
-            .map(|msg| {
-                let image = if msg.id == user_message.id {
-                    request.image.clone()
-                } else {
-                    None
-                };
-                ChatMessage {
-                    role: msg.role.clone(),
-                    content: msg.content.clone(),
-                    image,
-                }
-            })
-            .collect();
-
+        // 6.3. Add System Prompt with JSON instructions and Global Context
         let lang_instruction = match &request.output_language {
             Some(lang) => format!("\n- Responda OBRIGATORIAMENTE no idioma: {}", lang),
             None => "".to_string(),
         };
 
+        // Build Global Context String
+        let mut global_context_str = String::new();
+        if !global_summaries.is_empty() {
+            global_context_str.push_str("\n\n### CONTEXTO DE OUTROS CHATS RECENTES (MEMÓRIA):\n");
+            for msg in global_summaries {
+                // Skip if it belongs to current chat (already covered by local context)
+                if msg.chat_id == request.chat_id { continue; }
+                
+                if let Some(s) = msg.summary {
+                     global_context_str.push_str(&format!("- [Importância {}] {}\n", msg.importance, s));
+                }
+            }
+        }
+
         let json_instruction = format!(
-            "\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas{}\n\nResponda em JSON no formato:\n{{\n  \"answer\": string,\n  \"follow_ups\": string[]\n}}",
+            "{}\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas{}\n\nResponda em JSON no formato:\n{{\n  \"answer\": string,\n  \"follow_ups\": string[]\n}}",
+            global_context_str,
             lang_instruction
         );
 
@@ -137,7 +364,64 @@ impl ChatService for ChatServiceImpl {
              });
         }
 
-        chat_messages.extend(history_messages);
+        // 6.3. Split messages into Recent (last 4) and Past
+        let recent_count = 4;
+        let mut all_msgs = previous_messages;
+        
+        let recent_msgs = if all_msgs.len() > recent_count {
+            all_msgs.split_off(all_msgs.len() - recent_count)
+        } else {
+            let m = all_msgs.clone();
+            all_msgs.clear();
+            m
+        };
+        let past_msgs = all_msgs;
+
+        // 6.3. Process Past Messages (Summaries + Importance)
+        if !past_msgs.is_empty() {
+            let mut highlights: Vec<_> = past_msgs.iter()
+                .filter(|m| m.summary.is_some() && m.importance > 10)
+                .collect();
+            
+            // Sort by importance DESC
+            highlights.sort_by(|a, b| b.importance.cmp(&a.importance));
+            
+            // Take top 5 or 10 depending on history size
+            let limit = if past_msgs.len() > 20 { 10 } else { 5 };
+            let top_highlights = highlights.into_iter().take(limit);
+            
+            let mut history_context = String::from("### CONTEXTO RELEVANTE DO HISTÓRICO (RESUMIDO):\n");
+            let mut found_any = false;
+
+            for h in top_highlights {
+                if let Some(s) = &h.summary {
+                    history_context.push_str(&format!("- [{}] {}\n", h.message_type, s));
+                    found_any = true;
+                }
+            }
+
+            if found_any {
+                chat_messages.push(ChatMessage {
+                    role: "system".to_string(),
+                    content: history_context,
+                    image: None,
+                });
+            }
+        }
+
+        // 6.4. Add Recent Messages (Full Text)
+        for msg in recent_msgs {
+            let image = if msg.id == user_message.id {
+                request.image.clone()
+            } else {
+                None
+            };
+            chat_messages.push(ChatMessage {
+                role: msg.role.clone(),
+                content: msg.content.clone(),
+                image,
+            });
+        }
 
         let chat_req = ChatCompletionRequest {
             model: request.model.clone(),
@@ -146,14 +430,10 @@ impl ChatService for ChatServiceImpl {
             max_tokens: request.max_tokens,
         };
 
-        // 4. Select and call AI provider
-        let ai_response = match provider_type {
-            AIProviderType::Gemini => self.gemini_provider.chat_completion(api_key, chat_req).await?,
-            AIProviderType::OpenAI => self.openai_provider.chat_completion(api_key, chat_req).await?,
-            AIProviderType::OpenRouter => self.openrouter_provider.chat_completion(api_key, chat_req).await?,
-        };
+        // 7. Call AI provider
+        let ai_response = ai_provider.chat_completion(api_key, chat_req).await?;
 
-        // 5. Extract AI response content
+        // 8. Extract AI response content
         let ai_response_message_content = ai_response.choices.first() 
             .map(|choice| choice.message.content.clone()) 
             .ok_or_else(|| anyhow!("No response from AI"))?;
@@ -183,16 +463,38 @@ impl ChatService for ChatServiceImpl {
             }
         };
 
-        // 6. Save AI response to message repository (only content)
+        // 9. Save AI response to message repository (only content)
         let ai_message = Message {
             id: Uuid::new_v4(),
             chat_id: request.chat_id,
             role: ai_response_message_role,
-            content: content,
+            content: content.clone(), // Clone here to use in spawn
             created_at: Utc::now(),
+            summary: None,
+            message_type: "chat".to_string(),
+            importance: 0,
         };
 
         self.message_repo.create(ai_message.clone()).await?;
+
+        // 10. Spawn Background Analysis Agent for AI Response
+        let analysis_provider = ai_provider.clone();
+        let analysis_api_key = api_key.clone();
+        let analysis_model = request.model.clone();
+        let analysis_message = ai_message.clone();
+        let analysis_repo = self.message_repo.clone();
+
+        tokio::spawn(async move {
+            if let Err(e) = Self::analyze_message(
+                analysis_provider,
+                analysis_api_key,
+                analysis_model,
+                analysis_message,
+                analysis_repo
+            ).await {
+                log::error!("AI response background analysis failed: {}", e);
+            }
+        });
 
         Ok((ai_message, follow_ups))
     }

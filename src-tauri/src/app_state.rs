@@ -161,6 +161,7 @@ impl AppState {
 
         // --- Chat service ---
         let chat_service_impl = ChatServiceImpl::new(
+            config_repo.clone(),
             user_api_key_repo.clone(),
             sqlite_message_repo.clone(),
             sqlite_chat_repo.clone(),

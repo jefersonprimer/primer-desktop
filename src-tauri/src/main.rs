@@ -237,6 +237,7 @@ async fn main() {
             // config commands
             config_commands::get_app_config,
             config_commands::set_language,
+            config_commands::set_enable_smart_rag,
             config_commands::open_system_settings,
             // prompt preset commands
             prompt_preset_commands::get_prompt_presets,
