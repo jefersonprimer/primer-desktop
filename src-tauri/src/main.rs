@@ -197,6 +197,7 @@ async fn main() {
             // user commands
             user_commands::login,
             user_commands::google_login,
+            user_commands::exchange_google_code,
             user_commands::get_google_auth_url,
             user_commands::register,
             user_commands::reset_password,

@@ -30,6 +30,8 @@ impl GoogleLoginUseCase {
         name: String,
         picture: Option<String>,
         google_access_token: Option<String>,
+        google_refresh_token: Option<String>,
+        google_token_expires_at: Option<i64>,
     ) -> Result<(String, String)> {
         // 1. Try to find user by google_id
         let user = if let Some(u) = self.user_repo.find_by_google_id(&google_id).await? {
@@ -78,6 +80,8 @@ impl GoogleLoginUseCase {
             refresh_token: None,
             expires_at,
             google_access_token,
+            google_refresh_token,
+            google_token_expires_at,
         };
         self.session_repo.save(session).await?;
 

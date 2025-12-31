@@ -45,11 +45,12 @@ pub async fn get_google_auth_url() -> Result<GoogleAuthUrlResponse, String> {
     
     let redirect_uri = "http://localhost:5173/auth/callback";
     let scope = "email profile openid https://www.googleapis.com/auth/calendar.events";
-    let response_type = "token"; // using implicit flow to get access token directly
+    let response_type = "code"; // Authorization Code Flow for refresh tokens
+    let access_type = "offline"; // Request refresh token
 
     let url = format!(
-        "https://accounts.google.com/o/oauth2/v2/auth?client_id={}&redirect_uri={}&response_type={}&scope={}&prompt=select_account",
-        client_id, redirect_uri, response_type, scope
+        "https://accounts.google.com/o/oauth2/v2/auth?client_id={}&redirect_uri={}&response_type={}&scope={}&access_type={}&prompt=consent",
+        client_id, redirect_uri, response_type, scope, access_type
     );
 
     Ok(GoogleAuthUrlResponse { url })
@@ -63,10 +64,80 @@ pub async fn google_login(dto: GoogleLoginDto, state: State<'_, AppState>) -> Re
         state.session_repo.clone(),
     );
 
-    google_login_usecase.execute(dto.email, dto.google_id, dto.name, dto.picture, dto.google_access_token)
+    google_login_usecase.execute(
+        dto.email, 
+        dto.google_id, 
+        dto.name, 
+        dto.picture, 
+        dto.google_access_token,
+        dto.google_refresh_token,
+        dto.google_token_expires_at,
+    )
         .await
         .map(|(token, user_id)| GoogleLoginResponse { token, user_id })
         .map_err(|e| e.to_string())
+}
+
+#[derive(serde::Deserialize)]
+pub struct ExchangeGoogleCodeDto {
+    pub code: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct ExchangeGoogleCodeResponse {
+    pub access_token: String,
+    pub refresh_token: Option<String>,
+    pub expires_in: i64,
+}
+
+#[tauri::command]
+pub async fn exchange_google_code(dto: ExchangeGoogleCodeDto) -> Result<ExchangeGoogleCodeResponse, String> {
+    use std::env;
+
+    let client_id = env::var("GOOGLE_CLIENT_ID")
+        .map_err(|_| "GOOGLE_CLIENT_ID not set in .env".to_string())?;
+    let client_secret = env::var("GOOGLE_CLIENT_SECRET")
+        .map_err(|_| "GOOGLE_CLIENT_SECRET not set in .env. Required for Authorization Code Flow.".to_string())?;
+    
+    let redirect_uri = "http://localhost:5173/auth/callback";
+
+    let client = reqwest::Client::new();
+    let params = [
+        ("client_id", client_id.as_str()),
+        ("client_secret", client_secret.as_str()),
+        ("code", dto.code.as_str()),
+        ("grant_type", "authorization_code"),
+        ("redirect_uri", redirect_uri),
+    ];
+
+    let res = client
+        .post("https://oauth2.googleapis.com/token")
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to exchange code: {}", e))?;
+
+    if !res.status().is_success() {
+        let error_text = res.text().await.unwrap_or_default();
+        return Err(format!("Google token exchange error: {}", error_text));
+    }
+
+    #[derive(serde::Deserialize)]
+    struct GoogleTokenResponse {
+        access_token: String,
+        refresh_token: Option<String>,
+        expires_in: i64,
+    }
+
+    let token_response: GoogleTokenResponse = res.json()
+        .await
+        .map_err(|e| format!("Failed to parse token response: {}", e))?;
+
+    Ok(ExchangeGoogleCodeResponse {
+        access_token: token_response.access_token,
+        refresh_token: token_response.refresh_token,
+        expires_in: token_response.expires_in,
+    })
 }
 
 #[tauri::command]

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import { useAuth } from "../../contexts/AuthContext";
@@ -8,37 +8,77 @@ interface GoogleLoginResponse {
   user_id: string;
 }
 
+interface ExchangeCodeResponse {
+  access_token: string;
+  refresh_token: string | null;
+  expires_in: number;
+}
+
 export default function GoogleCallback() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
-    const handleCallback = async () => {
-      invoke("log_frontend_message", { message: "GoogleCallback: Component mounted, processing callback..." });
-      // Extract access_token from location search params (preferred for HashRouter)
-      // or fall back to parsing the hash directly
-      let accessToken = new URLSearchParams(location.search).get("access_token");
+    // Skip if already processing or authenticated
+    if (isProcessingRef.current) {
+      return;
+    }
 
-      if (!accessToken) {
+    // If already authenticated, redirect to home
+    if (isAuthenticated) {
+      navigate("/home", { replace: true });
+      return;
+    }
+
+    const handleCallback = async () => {
+      // Prevent multiple executions
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true;
+
+      invoke("log_frontend_message", { message: "GoogleCallback: Component mounted, processing callback..." });
+
+      // Authorization Code Flow: Extract 'code' from URL params
+      let authCode = new URLSearchParams(location.search).get("code");
+
+      if (!authCode) {
+        // Try from hash (fallback)
         const hash = window.location.hash;
-        invoke("log_frontend_message", { message: `GoogleCallback: Checking hash for token: ${hash}` });
-        // Handle cases like #access_token=... or #/auth/callback#access_token=...
-        const params = new URLSearchParams(hash.replace(/^#\/?(auth\/callback)?/, ""));
-        accessToken = params.get("access_token");
+        invoke("log_frontend_message", { message: `GoogleCallback: Checking hash/search for code: ${hash}` });
+        const params = new URLSearchParams(hash.replace(/^#\/?(auth\/callback)?\??/, ""));
+        authCode = params.get("code");
       }
 
-      invoke("log_frontend_message", { message: `GoogleCallback: Access Token found: ${accessToken ? "Yes" : "No"}` });
+      invoke("log_frontend_message", { message: `GoogleCallback: Auth Code found: ${authCode ? "Yes" : "No"}` });
 
-      if (!accessToken) {
-        setError("No access token found in URL");
+      if (!authCode) {
+        setError("No authorization code found in URL. Please try logging in again.");
+        isProcessingRef.current = false;
         return;
       }
 
       try {
+        // Step 1: Exchange code for tokens via backend
+        invoke("log_frontend_message", { message: "GoogleCallback: Exchanging code for tokens..." });
+        const tokenResponse = await invoke<ExchangeCodeResponse>("exchange_google_code", {
+          dto: { code: authCode },
+        });
+
+        invoke("log_frontend_message", {
+          message: `GoogleCallback: Token exchange successful. Has refresh token: ${tokenResponse.refresh_token ? "Yes" : "No"}`
+        });
+
+        const accessToken = tokenResponse.access_token;
+        const refreshToken = tokenResponse.refresh_token;
+        const expiresIn = tokenResponse.expires_in;
+
+        // Calculate expiration timestamp
+        const expiresAt = Math.floor(Date.now() / 1000) + expiresIn;
+
+        // Step 2: Fetch user info from Google using the access token
         invoke("log_frontend_message", { message: "GoogleCallback: Fetching user info from Google..." });
-        // Fetch user info from Google
         const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -52,7 +92,7 @@ export default function GoogleCallback() {
         const userInfo = await response.json();
         invoke("log_frontend_message", { message: `GoogleCallback: User info received: ${userInfo.email}` });
 
-        // Call backend to login/register
+        // Step 3: Call backend to login/register with all token info
         invoke("log_frontend_message", { message: "GoogleCallback: Invoking backend google_login..." });
         const loginResponse = await invoke<GoogleLoginResponse>("google_login", {
           dto: {
@@ -61,6 +101,8 @@ export default function GoogleCallback() {
             google_id: userInfo.sub,
             picture: userInfo.picture,
             google_access_token: accessToken,
+            google_refresh_token: refreshToken,
+            google_token_expires_at: expiresAt,
           },
         });
         invoke("log_frontend_message", { message: `GoogleCallback: Backend login successful. UserID: ${loginResponse.user_id}` });
@@ -69,20 +111,25 @@ export default function GoogleCallback() {
         login(loginResponse.token, loginResponse.user_id, userInfo.email, userInfo.name, userInfo.picture);
         invoke("log_frontend_message", { message: "GoogleCallback: AuthContext login called. Redirecting to /home..." });
 
-        // Redirect to home with a small delay to ensure state updates propagate
-        setTimeout(() => {
-          navigate("/home");
-        }, 100);
+        // Redirect to home immediately with replace to prevent back navigation
+        navigate("/home", { replace: true });
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : "Authentication failed";
+        const errorMsg = err instanceof Error ? err.message : String(err);
         invoke("log_frontend_message", { message: `GoogleCallback Error: ${errorMsg}` });
-        setError(errorMsg);
-        setTimeout(() => navigate("/login"), 3000);
+
+        // Only show error if it's not an "already used" code error when we're already authenticated
+        if (errorMsg.includes("invalid_grant")) {
+          // Code was already used, just redirect
+          navigate("/home", { replace: true });
+        } else {
+          setError(errorMsg);
+          setTimeout(() => navigate("/login", { replace: true }), 3000);
+        }
       }
     };
 
     handleCallback();
-  }, [navigate, login]);
+  }, [navigate, login, isAuthenticated, location.search]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white">

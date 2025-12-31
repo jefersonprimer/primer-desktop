@@ -44,6 +44,8 @@ impl LoginUseCase {
             access_token: token.clone(),
             refresh_token: None,
             google_access_token: None,
+            google_refresh_token: None,
+            google_token_expires_at: None,
             expires_at,
         };
         self.session_repo.save(session).await?;

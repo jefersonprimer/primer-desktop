@@ -34,13 +34,46 @@ impl CreateEventUseCase {
         source_chat_id: Option<Uuid>,
     ) -> Result<GoogleCalendarEvent> {
         // 1. Get Session for Token
-        let session = self.session_repo.get().await?
+        let mut session = self.session_repo.get().await?
             .ok_or_else(|| anyhow!("No active session found"))?;
         
-        let initial_access_token = session.google_access_token
+        let mut access_token = session.google_access_token.clone()
             .ok_or_else(|| anyhow!("User has not authorized Google Calendar access"))?;
 
-        // 2. Prepare Payload
+        // 2. Check if token is expired and refresh if needed
+        let now = Utc::now().timestamp();
+        let is_expired = session.google_token_expires_at
+            .map(|exp| exp <= now + 60) // Refresh if expires within 60 seconds
+            .unwrap_or(false);
+
+        if is_expired {
+            log::info!("Google access token expired, attempting refresh...");
+            
+            let refresh_token = session.google_refresh_token.clone()
+                .ok_or_else(|| anyhow!("Token expired and no refresh token available. Please re-connect Google Calendar."))?;
+            
+            let client_id = std::env::var("GOOGLE_CLIENT_ID")
+                .map_err(|_| anyhow!("GOOGLE_CLIENT_ID not set"))?;
+            let client_secret = std::env::var("GOOGLE_CLIENT_SECRET")
+                .map_err(|_| anyhow!("GOOGLE_CLIENT_SECRET not set"))?;
+            
+            let token_response = GoogleCalendarService::refresh_access_token(
+                &refresh_token, 
+                &client_id, 
+                &client_secret
+            ).await?;
+            
+            // Update session with new token
+            access_token = token_response.access_token.clone();
+            session.google_access_token = Some(token_response.access_token);
+            session.google_token_expires_at = Some(now + token_response.expires_in);
+            
+            // Save updated session
+            self.session_repo.save(session).await?;
+            log::info!("Google access token refreshed successfully");
+        }
+
+        // 3. Prepare Payload
         let payload = CreateEventPayload {
             summary: title.clone(),
             description: description.clone(),
@@ -54,12 +87,10 @@ impl CreateEventUseCase {
             },
         };
 
-        // 3. Call Google API
-        // Note: Simple implementation without refresh token logic for now. 
-        // If token expires, user must re-login or we implement refresh using refresh_token if available (not in current scope)
-        let google_event = GoogleCalendarService::create_event(&initial_access_token, payload).await?;
+        // 4. Call Google API
+        let google_event = GoogleCalendarService::create_event(&access_token, payload).await?;
 
-        // 4. Create Entity
+        // 5. Create Entity
         let event = GoogleCalendarEvent {
             id: Uuid::new_v4(),
             user_id,
@@ -77,7 +108,7 @@ impl CreateEventUseCase {
             updated_at: Some(Utc::now()),
         };
 
-        // 5. Save to DB
+        // 6. Save to DB
         let saved_event = self.calendar_repo.save(event).await?;
         Ok(saved_event)
     }

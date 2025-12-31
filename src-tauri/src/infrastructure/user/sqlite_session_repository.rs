@@ -23,8 +23,8 @@ impl SessionRepository for SqliteSessionRepository {
         // SQLite uses positional parameters (?1, ?2, ...) rather than $1-style.
         sqlx::query(
             r#"
-            INSERT OR REPLACE INTO session (id, user_id, access_token, refresh_token, expires_at, google_access_token)
-            VALUES (1, ?1, ?2, ?3, ?4, ?5)
+            INSERT OR REPLACE INTO session (id, user_id, access_token, refresh_token, expires_at, google_access_token, google_refresh_token, google_token_expires_at)
+            VALUES (1, ?1, ?2, ?3, ?4, ?5, ?6, ?7)
             "#
         )
         .bind(session.user_id.to_string())
@@ -32,6 +32,8 @@ impl SessionRepository for SqliteSessionRepository {
         .bind(session.refresh_token.clone())
         .bind(session.expires_at)
         .bind(session.google_access_token.clone())
+        .bind(session.google_refresh_token.clone())
+        .bind(session.google_token_expires_at)
         .execute(&self.pool)
         .await
         .map_err(|e| anyhow!("Failed to save session: {}", e))?;
@@ -42,7 +44,7 @@ impl SessionRepository for SqliteSessionRepository {
     async fn get(&self) -> Result<Option<Session>> {
         let record = sqlx::query(
             r#"
-            SELECT id, user_id, access_token, refresh_token, expires_at, google_access_token
+            SELECT id, user_id, access_token, refresh_token, expires_at, google_access_token, google_refresh_token, google_token_expires_at
             FROM session
             WHERE id = 1
             "#
@@ -57,6 +59,8 @@ impl SessionRepository for SqliteSessionRepository {
                 refresh_token: row.get("refresh_token"),
                 expires_at: row.get("expires_at"),
                 google_access_token: row.get("google_access_token"),
+                google_refresh_token: row.get("google_refresh_token"),
+                google_token_expires_at: row.get("google_token_expires_at"),
             })
         })
         .fetch_optional(&self.pool)

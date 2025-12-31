@@ -19,6 +19,8 @@ pub struct GoogleLoginDto {
     pub google_id: String,
     pub picture: Option<String>,
     pub google_access_token: Option<String>,
+    pub google_refresh_token: Option<String>,
+    pub google_token_expires_at: Option<i64>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
