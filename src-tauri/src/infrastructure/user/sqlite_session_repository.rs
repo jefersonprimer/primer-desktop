@@ -23,14 +23,15 @@ impl SessionRepository for SqliteSessionRepository {
         // SQLite uses positional parameters (?1, ?2, ...) rather than $1-style.
         sqlx::query(
             r#"
-            INSERT OR REPLACE INTO session (id, user_id, access_token, refresh_token, expires_at)
-            VALUES (1, ?1, ?2, ?3, ?4)
+            INSERT OR REPLACE INTO session (id, user_id, access_token, refresh_token, expires_at, google_access_token)
+            VALUES (1, ?1, ?2, ?3, ?4, ?5)
             "#
         )
         .bind(session.user_id.to_string())
         .bind(session.access_token.clone())
         .bind(session.refresh_token.clone())
         .bind(session.expires_at)
+        .bind(session.google_access_token.clone())
         .execute(&self.pool)
         .await
         .map_err(|e| anyhow!("Failed to save session: {}", e))?;
@@ -41,7 +42,7 @@ impl SessionRepository for SqliteSessionRepository {
     async fn get(&self) -> Result<Option<Session>> {
         let record = sqlx::query(
             r#"
-            SELECT id, user_id, access_token, refresh_token, expires_at
+            SELECT id, user_id, access_token, refresh_token, expires_at, google_access_token
             FROM session
             WHERE id = 1
             "#
@@ -55,6 +56,7 @@ impl SessionRepository for SqliteSessionRepository {
                 access_token: row.get("access_token"),
                 refresh_token: row.get("refresh_token"),
                 expires_at: row.get("expires_at"),
+                google_access_token: row.get("google_access_token"),
             })
         })
         .fetch_optional(&self.pool)

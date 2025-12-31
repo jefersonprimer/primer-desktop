@@ -6,6 +6,7 @@ interface SessionResponse {
   user_id: string;
   access_token: string;
   expires_at: number;
+  google_access_token?: string | null;
 }
 
 interface AuthContextType {
@@ -16,6 +17,7 @@ interface AuthContextType {
   userEmail: string | null;
   userName: string | null;
   userPicture: string | null;
+  googleAccessToken: string | null;
   login: (token: string, userId: string, email: string, name?: string, picture?: string) => void;
   logout: () => void;
   checkAuth: () => Promise<boolean>;
@@ -31,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userPicture, setUserPicture] = useState<string | null>(null);
+  const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(null);
 
   // Check authentication on mount - load from SQLite session
   useEffect(() => {
@@ -40,6 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session) {
           setToken(session.access_token);
           setUserId(session.user_id);
+          setGoogleAccessToken(session.google_access_token || null);
+          
           // Get user details from localStorage cache (stored during login)
           const storedEmail = localStorage.getItem("user_email");
           const storedName = localStorage.getItem("user_name");
@@ -72,6 +77,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserName(name || null);
     setUserPicture(picture || null);
     setIsAuthenticated(true);
+    
+    // Refresh session to get google token if it exists (e.g. from google login)
+    try {
+        const session = await invoke<SessionResponse | null>("get_session");
+        if (session) {
+            setGoogleAccessToken(session.google_access_token || null);
+        }
+    } catch (e) {
+        console.error("Failed to refresh session after login", e);
+    }
   };
 
   const logout = async () => {
@@ -89,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserEmail(null);
     setUserName(null);
     setUserPicture(null);
+    setGoogleAccessToken(null);
     setIsAuthenticated(false);
   };
 
@@ -96,10 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const session = await invoke<SessionResponse | null>("get_session");
       if (session) {
-        if (session.access_token !== token) {
+        if (session.access_token !== token || session.google_access_token !== googleAccessToken) {
           // Token was updated, sync state
           setToken(session.access_token);
           setUserId(session.user_id);
+          setGoogleAccessToken(session.google_access_token || null);
           
           const storedEmail = localStorage.getItem("user_email");
           const storedName = localStorage.getItem("user_name");
@@ -119,6 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUserEmail(null);
         setUserName(null);
         setUserPicture(null);
+        setGoogleAccessToken(null);
         setIsAuthenticated(false);
         return false;
       }
@@ -138,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userEmail,
         userName,
         userPicture,
+        googleAccessToken,
         login,
         logout,
         checkAuth,

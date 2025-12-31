@@ -60,6 +60,7 @@ export default function GoogleCallback() {
             name: userInfo.name,
             google_id: userInfo.sub,
             picture: userInfo.picture,
+            google_access_token: accessToken,
           },
         });
         invoke("log_frontend_message", { message: `GoogleCallback: Backend login successful. UserID: ${loginResponse.user_id}` });

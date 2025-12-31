@@ -53,6 +53,8 @@
     }
   },
   "history": {
+    "chats": "Chats",
+    "calendar": "Calendar",
     "clearHistory": "Clear History?",
     "deleteConversation": "Delete Conversation?",
     "clearHistoryWarning": "This action will permanently delete all conversations. This cannot be undone.",
@@ -63,6 +65,10 @@
     "noSessions": "No sessions found.",
     "selectSession": "Select a session to view details.",
     "deleteConversationTitle": "Delete conversation"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred"
   },
   "general": {
     "detectable": "Detectable",
@@ -95,7 +101,13 @@
     "description": "Upcoming meetings are synchronized from these calendars",
     "noCalendars": "No calendars",
     "getStarted": "Get started by connecting a Google account.",
-    "connectGoogle": "Connect Google"
+    "connectGoogle": "Connect Google",
+    "noEvents": "No upcoming events",
+    "scheduledEvents": "Scheduled Events",
+    "deleteEvent": "Delete Event",
+    "deleteEventWarning": "Are you sure you want to delete this event? This will remove it from Google Calendar as well.",
+    "info": "Here you can view and manage events scheduled by the AI Assistant.",
+    "askToCreate": "You don't have events scheduled. Ask the AI to create one for you."
   },
   "resources": {
     "title": "Resources",

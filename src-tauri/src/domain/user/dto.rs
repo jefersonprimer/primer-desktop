@@ -18,6 +18,7 @@ pub struct GoogleLoginDto {
     pub name: String,
     pub google_id: String,
     pub picture: Option<String>,
+    pub google_access_token: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -108,6 +109,7 @@ pub struct SessionResponse {
     pub user_id: String,
     pub access_token: String,
     pub expires_at: i64,
+    pub google_access_token: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

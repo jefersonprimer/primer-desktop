@@ -44,7 +44,7 @@ pub async fn get_google_auth_url() -> Result<GoogleAuthUrlResponse, String> {
         .map_err(|_| "GOOGLE_CLIENT_ID not set in .env".to_string())?;
     
     let redirect_uri = "http://localhost:5173/auth/callback";
-    let scope = "email profile openid";
+    let scope = "email profile openid https://www.googleapis.com/auth/calendar.events";
     let response_type = "token"; // using implicit flow to get access token directly
 
     let url = format!(
@@ -63,7 +63,7 @@ pub async fn google_login(dto: GoogleLoginDto, state: State<'_, AppState>) -> Re
         state.session_repo.clone(),
     );
 
-    google_login_usecase.execute(dto.email, dto.google_id, dto.name, dto.picture)
+    google_login_usecase.execute(dto.email, dto.google_id, dto.name, dto.picture, dto.google_access_token)
         .await
         .map(|(token, user_id)| GoogleLoginResponse { token, user_id })
         .map_err(|e| e.to_string())
@@ -202,6 +202,7 @@ pub async fn get_session(state: State<'_, AppState>) -> Result<Option<SessionRes
                 user_id: s.user_id.to_string(),
                 access_token: s.access_token,
                 expires_at: s.expires_at,
+                google_access_token: s.google_access_token,
             }))
         }
         None => Ok(None),

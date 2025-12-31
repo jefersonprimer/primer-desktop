@@ -10,3 +10,4 @@ pub mod audio_commands;
 pub mod whisper_commands;
 pub mod ollama_commands;
 pub mod changelog_commands;
+pub mod calendar_commands;

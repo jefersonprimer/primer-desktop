@@ -15,13 +15,23 @@ use crate::domain::ai::chat::service::{
     chat_service::{ChatService, ChatServiceRequest, AIProviderType},
 };
 use crate::domain::user::repository::user_api_key_repository::UserApiKeyRepository;
+use crate::domain::calendar::usecase::create_event::CreateEventUseCase;
 
 use crate::domain::config::repository::ConfigRepository;
+
+#[derive(Deserialize)]
+struct AiCalendarEvent {
+    summary: String,
+    description: Option<String>,
+    start_time: String,
+    end_time: String,
+}
 
 #[derive(Deserialize)]
 struct AiResponse {
     answer: String,
     follow_ups: Vec<String>,
+    calendar_event: Option<AiCalendarEvent>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -40,6 +50,7 @@ pub struct ChatServiceImpl {
     gemini_provider: Arc<dyn AiProvider>,
     openai_provider: Arc<dyn AiProvider>,
     openrouter_provider: Arc<dyn AiProvider>,
+    create_event_usecase: Arc<CreateEventUseCase>,
 }
 
 impl ChatServiceImpl {
@@ -52,6 +63,7 @@ impl ChatServiceImpl {
         gemini_provider: Arc<dyn AiProvider>,
         openai_provider: Arc<dyn AiProvider>,
         openrouter_provider: Arc<dyn AiProvider>,
+        create_event_usecase: Arc<CreateEventUseCase>,
     ) -> Self {
         Self {
             config_repo,
@@ -62,6 +74,7 @@ impl ChatServiceImpl {
             gemini_provider,
             openai_provider,
             openrouter_provider,
+            create_event_usecase,
         }
     }
 
@@ -344,9 +357,12 @@ impl ChatService for ChatServiceImpl {
             }
         }
 
+        let current_date = Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string();
+
         let json_instruction = format!(
-            "{}\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas{}\n\nResponda em JSON no formato:\n{{\n  \"answer\": string,\n  \"follow_ups\": string[]\n}}",
+            "{}\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas\n\nCALENDAR TOOL:\nSe o usuário pedir explicitamente para agendar/criar um evento, preencha o campo 'calendar_event'.\n- Use ISO 8601 para datas (Ex: 2024-12-30T15:00:00Z)\n- Converta termos relativos (amanhã, próxima terça) para datas absolutas baseadas em HOJE ({})\n- description é opcional\n\nResponda em JSON no formato:\n{{\n  \"answer\": string,\n  \"follow_ups\": string[],\n  \"calendar_event\": {{\n    \"summary\": string,\n    \"description\": string | null,\n    \"start_time\": string,\n    \"end_time\": string\n  }} | null\n}}\n{}",
             global_context_str,
+            current_date,
             lang_instruction
         );
 
@@ -443,8 +459,8 @@ impl ChatService for ChatServiceImpl {
             .unwrap_or_else(|| "assistant".to_string()); 
 
         // Parse JSON response
-        let (content, follow_ups) = match serde_json::from_str::<AiResponse>(&ai_response_message_content) {
-            Ok(parsed) => (parsed.answer, parsed.follow_ups),
+        let (mut answer, follow_ups, calendar_event) = match serde_json::from_str::<AiResponse>(&ai_response_message_content) {
+            Ok(parsed) => (parsed.answer, parsed.follow_ups, parsed.calendar_event),
             Err(_) => {
                     // Try to strip markdown code blocks if present ```json ... ```
                     let clean_content = ai_response_message_content.trim();
@@ -457,18 +473,50 @@ impl ChatService for ChatServiceImpl {
                     };
                     
                     match serde_json::from_str::<AiResponse>(clean_content) {
-                        Ok(parsed) => (parsed.answer, parsed.follow_ups),
-                        Err(_) => (ai_response_message_content.clone(), vec![]) // Fallback to original
+                        Ok(parsed) => (parsed.answer, parsed.follow_ups, parsed.calendar_event),
+                        Err(_) => (ai_response_message_content.clone(), vec![], None) // Fallback to original
                     }
             }
         };
+
+        // Execute Calendar Tool if present
+        if let Some(event) = calendar_event {
+            let start = chrono::DateTime::parse_from_rfc3339(&event.start_time)
+                .map(|dt| dt.with_timezone(&Utc));
+            let end = chrono::DateTime::parse_from_rfc3339(&event.end_time)
+                .map(|dt| dt.with_timezone(&Utc));
+
+            match (start, end) {
+                (Ok(s), Ok(e)) => {
+                    match self.create_event_usecase.execute(
+                        request.user_id, 
+                        event.summary, 
+                        event.description, 
+                        s, 
+                        e, 
+                        Some(request.chat_id)
+                    ).await {
+                        Ok(saved_event) => {
+                             answer.push_str(&format!("\n\n✅ Evento agendado: **{}** ({})", saved_event.title, saved_event.start_at.format("%d/%m %H:%M")));
+                        },
+                        Err(err) => {
+                             answer.push_str(&format!("\n\n❌ Falha ao agendar evento: {}", err));
+                             log::error!("Failed to create calendar event from AI: {}", err);
+                        }
+                    }
+                },
+                _ => {
+                    answer.push_str("\n\n❌ Falha ao agendar: Formato de data inválido gerado pela IA.");
+                }
+            }
+        }
 
         // 9. Save AI response to message repository (only content)
         let ai_message = Message {
             id: Uuid::new_v4(),
             chat_id: request.chat_id,
             role: ai_response_message_role,
-            content: content.clone(), // Clone here to use in spawn
+            content: answer.clone(), // Clone here to use in spawn
             created_at: Utc::now(),
             summary: None,
             message_type: "chat".to_string(),

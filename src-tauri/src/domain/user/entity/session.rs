@@ -8,4 +8,5 @@ pub struct Session {
     pub access_token: String,
     pub refresh_token: Option<String>,
     pub expires_at: i64,  // epoch timestamp
+    pub google_access_token: Option<String>,
 }

@@ -244,6 +244,7 @@ export default function HomePage() {
         onSelect={setSelectedSession}
         messages={historyMessages}
         onLoadMessages={fetchMessages}
+        userId={userId}
         onDelete={async (sessionId: string) => {
           try {
             await invoke("delete_chat", { dto: { chat_id: sessionId } });

@@ -35,6 +35,7 @@ use crate::{
         prompt_preset::repository::PromptPresetRepository,
         maintenance::repository::MaintenanceRepository,
         changelog::repository::ChangelogRepository,
+        calendar::repository::CalendarRepository,
     },
     infrastructure::{
         ai::{
@@ -70,6 +71,10 @@ use crate::{
             postgres_repository::PostgresChangelogRepository,
             noop_repository::NoOpChangelogRepository,
         },
+        calendar::{
+            postgres_calendar_repository::PostgresCalendarRepository,
+            noop_calendar_repository::NoOpCalendarRepository,
+        },
     },
 };
 
@@ -87,6 +92,7 @@ pub struct AppState {
     pub prompt_preset_repo: Arc<dyn PromptPresetRepository>,
     pub maintenance_repo: Arc<dyn MaintenanceRepository>,
     pub changelog_repo: Arc<dyn ChangelogRepository>,
+    pub calendar_repo: Arc<dyn CalendarRepository>,
 
     pub chat_service: Arc<dyn ChatService>,
 
@@ -128,7 +134,7 @@ impl AppState {
         let pg_url = &config.database.database_url;
         let pg_pool_result = connect_pg(pg_url).await;
 
-        let (user_repo, user_api_key_repo, postgres_chat_repo, postgres_message_repo, changelog_repo) = match pg_pool_result {
+        let (user_repo, user_api_key_repo, postgres_chat_repo, postgres_message_repo, changelog_repo, calendar_repo) = match pg_pool_result {
             Ok(pg_pool) => {
                 migrate_pg(&pg_pool).await?;
                 (
@@ -137,6 +143,7 @@ impl AppState {
                     Arc::new(PostgresChatRepository::new(pg_pool.clone())) as Arc<dyn ChatRepository>,
                     Arc::new(PostgresMessageRepository::new(pg_pool.clone())) as Arc<dyn MessageRepository>,
                     Arc::new(PostgresChangelogRepository::new(pg_pool.clone())) as Arc<dyn ChangelogRepository>,
+                    Arc::new(PostgresCalendarRepository::new(pg_pool.clone())) as Arc<dyn CalendarRepository>,
                 )
             },
             Err(e) => {
@@ -147,6 +154,7 @@ impl AppState {
                     Arc::new(SqliteChatRepository::new(sqlite_pool.clone())) as Arc<dyn ChatRepository>,
                     Arc::new(SqliteMessageRepository::new(sqlite_pool.clone())) as Arc<dyn MessageRepository>,
                     Arc::new(NoOpChangelogRepository::new()) as Arc<dyn ChangelogRepository>,
+                    Arc::new(NoOpCalendarRepository::new()) as Arc<dyn CalendarRepository>,
                 )
             }
         };
@@ -160,6 +168,11 @@ impl AppState {
             Arc::new(OpenRouterProvider::new());
 
         // --- Chat service ---
+        let create_event_usecase = Arc::new(crate::domain::calendar::usecase::create_event::CreateEventUseCase::new(
+            calendar_repo.clone(),
+            session_repo.clone(),
+        ));
+
         let chat_service_impl = ChatServiceImpl::new(
             config_repo.clone(),
             user_api_key_repo.clone(),
@@ -169,6 +182,7 @@ impl AppState {
             gemini_provider,
             openai_provider,
             openrouter_provider,
+            create_event_usecase,
         );
         let chat_service: Arc<dyn ChatService> = Arc::new(chat_service_impl);
 
@@ -206,6 +220,7 @@ impl AppState {
             prompt_preset_repo,
             maintenance_repo,
             changelog_repo,
+            calendar_repo,
             chat_service,
             password_hasher,
             token_generator,
