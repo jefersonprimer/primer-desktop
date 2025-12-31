@@ -2,7 +2,7 @@
 
 use app_lib::{
     app_state::AppState,
-    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands, audio_commands, whisper_commands, ollama_commands, changelog_commands, calendar_commands},
+    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands, audio_commands, whisper_commands, ollama_commands, changelog_commands, calendar_commands, notion_commands},
     config::Config,
     clickthrough,
     visibility,
@@ -276,6 +276,12 @@ async fn main() {
             calendar_commands::create_calendar_event,
             calendar_commands::get_calendar_events,
             calendar_commands::delete_calendar_event,
+            // Notion commands
+            notion_commands::get_notion_status,
+            notion_commands::get_notion_auth_url,
+            notion_commands::exchange_notion_code,
+            notion_commands::create_notion_page,
+            notion_commands::get_notion_pages,
         ])
         .setup(move |app| {
             let win = app.get_webview_window("main").unwrap();

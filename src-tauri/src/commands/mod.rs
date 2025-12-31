@@ -11,3 +11,4 @@ pub mod whisper_commands;
 pub mod ollama_commands;
 pub mod changelog_commands;
 pub mod calendar_commands;
+pub mod notion_commands;

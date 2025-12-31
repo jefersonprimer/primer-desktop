@@ -11,6 +11,7 @@ import ForgotPassword from "../pages/forgot-password";
 import ResetPassword from "../pages/reset-password";
 import HomePage from "../pages/home";
 import GoogleCallback from "../pages/auth/Callback";
+import NotionCallback from "../pages/auth/NotionCallback";
 
 function SplashHandler() {
   const { isLoading } = useAuth();
@@ -33,7 +34,7 @@ function AuthRedirectHandler() {
     if (isLoading) return; // Don't redirect while loading
 
     // Check authentication on route changes
-    const isPublicRoute = ["/", "/login", "/register", "/forgot-password", "/auth/callback"].includes(
+    const isPublicRoute = ["/", "/login", "/register", "/forgot-password", "/auth/callback", "/oauth/notion/callback"].includes(
       location.pathname
     ) || location.pathname.startsWith("/reset-password");
 
@@ -83,8 +84,9 @@ export default function AppRoutes() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />   
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/auth/callback" element={<GoogleCallback />} />
+          <Route path="/oauth/notion/callback" element={<NotionCallback />} />
         </Routes>
       )}
     </>

@@ -16,6 +16,7 @@ use crate::domain::ai::chat::service::{
 };
 use crate::domain::user::repository::user_api_key_repository::UserApiKeyRepository;
 use crate::domain::calendar::usecase::create_event::CreateEventUseCase;
+use crate::domain::notion::usecase::create_page::CreatePageUseCase;
 
 use crate::domain::config::repository::ConfigRepository;
 
@@ -28,10 +29,18 @@ struct AiCalendarEvent {
 }
 
 #[derive(Deserialize)]
+struct NotionPageRequest {
+    title: String,
+    content: String,
+    parent_id: Option<String>,
+}
+
+#[derive(Deserialize)]
 struct AiResponse {
     answer: String,
     follow_ups: Vec<String>,
     calendar_event: Option<AiCalendarEvent>,
+    notion_page: Option<NotionPageRequest>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -51,6 +60,7 @@ pub struct ChatServiceImpl {
     openai_provider: Arc<dyn AiProvider>,
     openrouter_provider: Arc<dyn AiProvider>,
     create_event_usecase: Arc<CreateEventUseCase>,
+    create_page_usecase: Arc<CreatePageUseCase>,
 }
 
 impl ChatServiceImpl {
@@ -64,6 +74,7 @@ impl ChatServiceImpl {
         openai_provider: Arc<dyn AiProvider>,
         openrouter_provider: Arc<dyn AiProvider>,
         create_event_usecase: Arc<CreateEventUseCase>,
+        create_page_usecase: Arc<CreatePageUseCase>,
     ) -> Self {
         Self {
             config_repo,
@@ -75,6 +86,7 @@ impl ChatServiceImpl {
             openai_provider,
             openrouter_provider,
             create_event_usecase,
+            create_page_usecase,
         }
     }
 
@@ -360,7 +372,7 @@ impl ChatService for ChatServiceImpl {
         let current_date = Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string();
 
         let json_instruction = format!(
-            "{}\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas\n\nCALENDAR TOOL:\nSe o usuário pedir explicitamente para agendar/criar um evento, preencha o campo 'calendar_event'.\n- Use ISO 8601 para datas (Ex: 2024-12-30T15:00:00Z)\n- Converta termos relativos (amanhã, próxima terça) para datas absolutas baseadas em HOJE ({})\n- description é opcional\n\nResponda em JSON no formato:\n{{\n  \"answer\": string,\n  \"follow_ups\": string[],\n  \"calendar_event\": {{\n    \"summary\": string,\n    \"description\": string | null,\n    \"start_time\": string,\n    \"end_time\": string\n  }} | null\n}}\n{}",
+            "{}\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas\n\nCALENDAR TOOL:\nSe o usuário pedir explicitamente para agendar/criar um evento, preencha o campo 'calendar_event'.\n- Use ISO 8601 para datas (Ex: 2024-12-30T15:00:00Z)\n- Converta termos relativos (amanhã, próxima terça) para datas absolutas baseadas em HOJE ({})\n- description é opcional\n\nNOTION TOOL:\nSe o usuário pedir para criar uma nota, página ou salvar algo no Notion, preencha o campo 'notion_page'.\n- 'title': Título da página.\n- 'content': Conteúdo da página (pode usar Markdown simples).\n- 'parent_id': Opcional. ID da página pai. Se não souber, deixe null (será usado o padrão).\n\nResponda em JSON no formato:\n{{\n  \"answer\": string,\n  \"follow_ups\": string[],\n  \"calendar_event\": {{\n    \"summary\": string,\n    \"description\": string | null,\n    \"start_time\": string,\n    \"end_time\": string\n  }} | null,\n  \"notion_page\": {{\n    \"title\": string,\n    \"content\": string,\n    \"parent_id\": string | null\n  }} | null\n}}\n{}",
             global_context_str,
             current_date,
             lang_instruction
@@ -459,8 +471,8 @@ impl ChatService for ChatServiceImpl {
             .unwrap_or_else(|| "assistant".to_string()); 
 
         // Parse JSON response
-        let (mut answer, follow_ups, calendar_event) = match serde_json::from_str::<AiResponse>(&ai_response_message_content) {
-            Ok(parsed) => (parsed.answer, parsed.follow_ups, parsed.calendar_event),
+        let (mut answer, follow_ups, calendar_event, notion_page) = match serde_json::from_str::<AiResponse>(&ai_response_message_content) {
+            Ok(parsed) => (parsed.answer, parsed.follow_ups, parsed.calendar_event, parsed.notion_page),
             Err(_) => {
                     // Try to strip markdown code blocks if present ```json ... ```
                     let clean_content = ai_response_message_content.trim();
@@ -473,8 +485,8 @@ impl ChatService for ChatServiceImpl {
                     };
                     
                     match serde_json::from_str::<AiResponse>(clean_content) {
-                        Ok(parsed) => (parsed.answer, parsed.follow_ups, parsed.calendar_event),
-                        Err(_) => (ai_response_message_content.clone(), vec![], None) // Fallback to original
+                        Ok(parsed) => (parsed.answer, parsed.follow_ups, parsed.calendar_event, parsed.notion_page),
+                        Err(_) => (ai_response_message_content.clone(), vec![], None, None) // Fallback to original
                     }
             }
         };
@@ -507,6 +519,25 @@ impl ChatService for ChatServiceImpl {
                 },
                 _ => {
                     answer.push_str("\n\n❌ Falha ao agendar: Formato de data inválido gerado pela IA.");
+                }
+            }
+        }
+
+        // Execute Notion Tool if present
+        if let Some(page) = notion_page {
+            match self.create_page_usecase.execute(
+                request.user_id,
+                page.title,
+                page.content,
+                page.parent_id
+            ).await {
+                Ok(page_id) => {
+                    // We don't have the URL easily unless we reconstruct it or fetch it, but usually ID is enough for confirmation
+                    answer.push_str(&format!("\n\n✅ Página criada no Notion! (ID: {})", page_id));
+                },
+                Err(err) => {
+                    answer.push_str(&format!("\n\n❌ Falha ao criar página no Notion: {}", err));
+                    log::error!("Failed to create Notion page from AI: {}", err);
                 }
             }
         }

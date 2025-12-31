@@ -243,6 +243,15 @@
     "saveChanges": "Save Changes",
     "changesSaved": "Changes Saved"
   },
+  "notion": {
+    "title": "Notion",
+    "subtitle": "Connect to your Notion workspace",
+    "active": "Connected",
+    "connect": "Connect to Notion",
+    "connected": "Connected to {{workspace}}",
+    "disconnect": "Disconnect",
+    "description": "Allow Primer to create notes in your Notion workspace."
+  },
   "google": {
     "subtitle": "Gemini 3 Pro, Gemini 2.5 and other models",
     "active": "Active",

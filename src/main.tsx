@@ -11,6 +11,13 @@ if (window.location.hash.startsWith("#access_token=")) {
   window.location.hash = `#/auth/callback?${params}`;
 }
 
+// Handle Notion OAuth redirect which comes as /oauth/notion/callback?code=...
+// We need to transform it to #/oauth/notion/callback?code=... for HashRouter
+if (window.location.pathname === "/oauth/notion/callback") {
+  const search = window.location.search;
+  window.location.replace(`/#/oauth/notion/callback${search}`);
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
