@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-shell";
 import CheckIcon from "@/components/ui/icons/CheckIcon";
 import { useAuth } from "../../../contexts/AuthContext";
 
@@ -94,8 +95,12 @@ export default function NotionTab() {
         }
     };
 
-    const openPage = (url: string) => {
-        window.open(url, '_blank');
+    const openPage = async (url: string) => {
+        try {
+            await open(url);
+        } catch (error) {
+            console.error("Failed to open URL:", error);
+        }
     };
 
     return (
