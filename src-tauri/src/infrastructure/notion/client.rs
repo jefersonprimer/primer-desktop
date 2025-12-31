@@ -192,4 +192,31 @@ impl NotionClient {
         
         Ok(page_id.to_string())
     }
+
+    pub async fn archive_page(
+        &self,
+        access_token: &str,
+        page_id: &str,
+    ) -> Result<()> {
+        let body = serde_json::json!({
+            "archived": true
+        });
+
+        let response = self
+            .client
+            .patch(format!("{}/pages/{}", self.base_url, page_id))
+            .header("Authorization", format!("Bearer {}", access_token))
+            .header("Notion-Version", "2022-06-28")
+            .header("Content-Type", "application/json")
+            .json(&body)
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            let error_text = response.text().await?;
+            return Err(anyhow!("Failed to archive Notion page: {}", error_text));
+        }
+
+        Ok(())
+    }
 }

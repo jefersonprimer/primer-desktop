@@ -199,3 +199,23 @@ pub async fn create_notion_page(
 
     Ok(page_id)
 }
+
+#[tauri::command]
+pub async fn delete_notion_page(
+    state: State<'_, AppState>,
+    user_id: String,
+    page_id: String,
+) -> Result<(), String> {
+    let uid = Uuid::parse_str(&user_id).map_err(|e| e.to_string())?;
+
+    let integration = state.notion_repo.find_by_user_id(uid)
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or("Notion not connected")?;
+
+    state.notion_client.archive_page(&integration.access_token, &page_id)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}

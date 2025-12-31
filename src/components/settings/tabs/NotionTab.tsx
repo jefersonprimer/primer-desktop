@@ -23,10 +23,19 @@ export default function NotionTab() {
     const [pages, setPages] = useState<NotionPage[]>([]);
     const [loading, setLoading] = useState(false);
     const [pagesLoading, setPagesLoading] = useState(false);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
     useEffect(() => {
         checkStatus();
+    }, [userId]);
 
+    useEffect(() => {
+        if (status.is_connected && userId) {
+            fetchPages();
+        }
+    }, [userId, status.is_connected]);
+
+    useEffect(() => {
         const handleFocus = () => {
             checkStatus();
             if (status.is_connected && userId) {
@@ -61,6 +70,18 @@ export default function NotionTab() {
         }
     };
 
+    const deletePage = async (pageId: string) => {
+        if (!userId) return;
+        try {
+            await invoke("delete_notion_page", { userId, pageId });
+            setPages(prev => prev.filter(p => p.id !== pageId));
+            setConfirmDeleteId(null);
+        } catch (error) {
+            console.error("Failed to delete Notion page:", error);
+            alert(t('common.error', 'An error occurred while deleting the note.'));
+        }
+    };
+
     const handleConnect = async () => {
         setLoading(true);
         try {
@@ -79,6 +100,35 @@ export default function NotionTab() {
 
     return (
         <div className="w-full h-full bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 p-8 relative overflow-y-auto">
+            {confirmDeleteId && (
+                <div className="absolute inset-0 z-50 bg-black/50 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200 rounded-xl">
+                    <div className="bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl p-6 w-full max-w-xs transform transition-all scale-100 animate-in zoom-in-95 duration-200">
+                        <div className="text-center mb-6">
+                            <h3 className="text-white font-semibold text-lg mb-2">
+                                {t('notion.deletePage', 'Delete Note')}
+                            </h3>
+                            <p className="text-neutral-400 text-sm leading-relaxed">
+                                {t('notion.deletePageWarning', 'Are you sure you want to delete this note? This action cannot be undone.')}
+                            </p>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={() => deletePage(confirmDeleteId)}
+                                className="w-full py-3 px-4 bg-red-500/90 hover:bg-red-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
+                            >
+                                {t('history.delete')}
+                            </button>
+                            <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                className="w-full py-3 px-4 bg-[#2c2c2e] hover:bg-[#3a3a3c] text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
+                            >
+                                {t('history.cancel')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h2 className="text-neutral-900 dark:text-white text-lg font-semibold">{t("notion.title")}</h2>
@@ -120,10 +170,9 @@ export default function NotionTab() {
                                 {pages.map((page) => (
                                     <div 
                                         key={page.id} 
-                                        onClick={() => openPage(page.url)}
                                         className="group relative p-4 bg-gray-50 dark:bg-[#242425] rounded-xl border border-gray-200 dark:border-transparent flex justify-between items-center transition-all hover:border-neutral-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#2a2a2c]"
                                     >
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-3 flex-1" onClick={() => openPage(page.url)}>
                                             <div className="p-2 bg-white dark:bg-[#1D1D1F] rounded-lg border border-gray-200 dark:border-neutral-800">
                                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-900 dark:text-white">
                                                     <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -140,12 +189,27 @@ export default function NotionTab() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
-                                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                                <polyline points="15 3 21 3 21 9"></polyline>
-                                                <line x1="10" y1="14" x2="21" y2="3"></line>
-                                            </svg>
+                                        <div className="flex items-center gap-2">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); openPage(page.url); }}
+                                                className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-gray-400 hover:text-white"
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(page.id); }}
+                                                className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-gray-400 hover:text-red-400"
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M3 6h18"></path>
+                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                                </svg>
+                                            </button>
                                         </div>
                                     </div>
                                 ))}

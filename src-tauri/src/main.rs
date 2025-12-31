@@ -282,6 +282,7 @@ async fn main() {
             notion_commands::exchange_notion_code,
             notion_commands::create_notion_page,
             notion_commands::get_notion_pages,
+            notion_commands::delete_notion_page,
         ])
         .setup(move |app| {
             let win = app.get_webview_window("main").unwrap();
