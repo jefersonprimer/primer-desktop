@@ -8,13 +8,15 @@ import type { CalendarEvent } from "@/services/calendarService";
 
 export default function CalendarTab() {
   const { t } = useTranslation();
-  const { userId, googleAccessToken } = useAuth();
+  const { userId, googleAccessToken, isLoading: isAuthLoading } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   useEffect(() => {
-    if (userId) {
+    if (userId && googleAccessToken) {
+      setIsLoading(true);
       calendarService.getEvents(userId)
         .then((data) => {
              const sortedEvents = [...data].sort((a, b) => 
@@ -25,9 +27,14 @@ export default function CalendarTab() {
         })
         .catch((err) => {
             console.error(err);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
+    } else {
+      setIsLoading(false);
     }
-  }, [userId]);
+  }, [userId, googleAccessToken]);
 
   const handleConnectGoogle = () => {
     invoke<{ url: string }>("get_google_auth_url")
@@ -113,12 +120,16 @@ export default function CalendarTab() {
         </p>
       </div>
 
-      <div className="bg-gray-50 dark:bg-[#242425] p-6 rounded-xl border border-gray-200 dark:border-transparent min-h-[300px]">
-
-        {events.length > 0 ? (
+      <div className="flex flex-col w-full h-auto overflow-y-auto">
+        {(isAuthLoading || isLoading) ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <div className="w-8 h-8 border-2 border-gray-200 dark:border-white/20 border-t-gray-800 dark:border-t-white rounded-full animate-spin" />
+            <p className="text-sm text-gray-500 dark:text-neutral-400">{t('common.loading', "Loading events...")}</p>
+          </div>
+        ) : events.length > 0 ? (
           <div className="space-y-4">
             {events.map((event) => (
-              <div key={event.id} className="group relative p-4 bg-white dark:bg-[#1D1D1F] rounded-xl border border-gray-200 dark:border-transparent flex justify-between items-center transition-all hover:border-neutral-700">
+              <div key={event.id} className="group relative p-4 bg-gray-50 dark:bg-[#242425] rounded-xl border border-gray-200 dark:border-transparent flex justify-between items-center transition-all hover:border-neutral-700">
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">{event.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-neutral-400">

@@ -301,10 +301,10 @@ export default function HistoryModal({
           {activeTab === 'chats' ? (
              !selected ? (
                 <div className="flex-1 flex items-center justify-center text-neutral-500 text-center">
-                <div>
-                    <div className="text-base mb-4">👉</div>
-                    <p>{t('history.selectSession')}</p>
-                </div>
+                  <div className="flex flex-col items-center">
+                      <div className="text-base mb-4">👉</div>
+                      <p>{t('history.selectSession')}</p>
+                  </div>
                 </div>
             ) : (
                 <div className="flex-1 flex flex-col">
@@ -319,12 +319,12 @@ export default function HistoryModal({
             )
           ) : (
               <div className="flex-1 flex items-center justify-center text-neutral-500 text-center">
-                  <div>
-                      <CalendarIcon size={48} />
-                      <p className="mt-4 max-w-xs mx-auto">
-                          {t('calendar.info', "Here you can view and manage events scheduled by the AI Assistant.")}
-                      </p>
-                  </div>
+                <div className="flex flex-col items-center">
+                  <CalendarIcon size={48} />
+                  <p className="mt-4 max-w-xs mx-auto">
+                      {t('calendar.info', "Here you can view and manage events scheduled by the AI Assistant.")}
+                  </p>
+                </div>
               </div>
           )}
         </main>
