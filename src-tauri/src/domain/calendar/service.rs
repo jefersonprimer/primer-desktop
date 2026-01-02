@@ -183,4 +183,31 @@ impl GoogleCalendarService {
 
         Ok(())
     }
+
+    pub async fn update_event(access_token: &str, calendar_id: &str, event_id: &str, payload: CreateEventPayload) -> Result<GoogleEventResponse> {
+        let client = reqwest::Client::new();
+        let url = format!("https://www.googleapis.com/calendar/v3/calendars/{}/events/{}", calendar_id, event_id);
+        
+        log::info!("Updating Google Event: URL={}", url);
+
+        let res = client
+            .patch(&url)
+            .header("Authorization", format!("Bearer {}", access_token))
+            .header("Content-Type", "application/json")
+            .json(&payload)
+            .send()
+            .await?;
+
+        let status = res.status();
+        log::info!("Google Update Response Status: {}", status);
+
+        if !status.is_success() {
+            let error_text = res.text().await?;
+            log::error!("Google API Error Body: {}", error_text);
+            return Err(anyhow!("Google Calendar API error: {} - {}", status, error_text));
+        }
+
+        let event = res.json::<GoogleEventResponse>().await?;
+        Ok(event)
+    }
 }

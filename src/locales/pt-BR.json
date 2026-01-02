@@ -109,6 +109,24 @@
     "info": "Aqui você pode visualizar e gerenciar eventos agendados pelo Assistente de IA.",
     "askToCreate": "Você não tem eventos agendados. Peça para a IA criar um para você."
   },
+  "calendarPreview": {
+    "previewTitle": "Agendar este evento?",
+    "editEvent": "Editar Evento",
+    "eventCreated": "Evento criado",
+    "creating": "Criando...",
+    "confirm": "Confirmar",
+    "edit": "Editar",
+    "cancel": "Cancelar",
+    "undo": "Desfazer",
+    "undoSuccess": "Evento cancelado",
+    "saveChanges": "Salvar Alterações",
+    "title": "Título",
+    "date": "Data",
+    "startTime": "Início",
+    "endTime": "Fim",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Adicionar descrição..."
+  },
   "resources": {
     "title": "Recursos",
     "description": "Gerencie recursos adicionais e configurações de recursos.",

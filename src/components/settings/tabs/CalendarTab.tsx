@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { calendarService } from "@/services/calendarService";
 import type { CalendarEvent } from "@/services/calendarService";
+import EditEventModal from "@/components/calendar/EditEventModal";
 
 export default function CalendarTab() {
   const { t } = useTranslation();
@@ -13,20 +14,28 @@ export default function CalendarTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isSessionExpired, setIsSessionExpired] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (userId && googleAccessToken) {
       setIsLoading(true);
       calendarService.getEvents(userId)
         .then((data) => {
-             const sortedEvents = [...data].sort((a, b) => 
-               new Date(a.start_at).getTime() - new Date(b.start_at).getTime()
-             );
-             setEvents(sortedEvents);
-             setIsSessionExpired(false);
+          const now = new Date();
+          // Filter out past events (events whose end_at is before current time)
+          const upcomingEvents = data.filter(event =>
+            new Date(event.end_at) > now
+          );
+          // Sort by start time
+          const sortedEvents = [...upcomingEvents].sort((a, b) =>
+            new Date(a.start_at).getTime() - new Date(b.start_at).getTime()
+          );
+          setEvents(sortedEvents);
+          setIsSessionExpired(false);
         })
         .catch((err) => {
-            console.error(err);
+          console.error(err);
         })
         .finally(() => {
           setIsLoading(false);
@@ -55,61 +64,95 @@ export default function CalendarTab() {
       console.error("Failed to delete event", error);
       const errorMsg = String(error);
       if (errorMsg.includes("401") || errorMsg.includes("Unauthorized") || errorMsg.includes("invalid authentication")) {
-          setIsSessionExpired(true);
+        setIsSessionExpired(true);
       } else {
-          alert(t('common.error'));
+        alert(t('common.error'));
       }
     }
   };
 
+  const handleUpdateEvent = async (eventId: string, data: {
+    title: string;
+    description?: string;
+    start_at: string;
+    end_at: string;
+  }) => {
+    if (!userId) return;
+    setIsSaving(true);
+    try {
+      const updatedEvent = await calendarService.updateEvent({
+        user_id: userId,
+        event_id: eventId,
+        title: data.title,
+        description: data.description,
+        start_at: data.start_at,
+        end_at: data.end_at,
+      });
+      // Update the event in the list
+      setEvents(prev => prev.map(e => e.id === eventId ? updatedEvent : e));
+      setEditingEvent(null);
+      setIsSessionExpired(false);
+    } catch (error: any) {
+      console.error("Failed to update event", error);
+      const errorMsg = String(error);
+      if (errorMsg.includes("401") || errorMsg.includes("Unauthorized") || errorMsg.includes("invalid authentication")) {
+        setIsSessionExpired(true);
+      } else {
+        alert(t('common.error'));
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
-    <div className="w-full h-full bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 p-8 relative">
+    <div className="w-full h-full overflow-y-auto bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400 p-8 relative">
       {isSessionExpired && (
         <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-500/20 rounded-lg text-red-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                </div>
-                <div>
-                    <h3 className="text-sm font-semibold text-red-500">Session Expired</h3>
-                    <p className="text-xs text-red-400/80">Your Google connection has expired. Please reconnect to manage events.</p>
-                </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-500/20 rounded-lg text-red-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></svg>
             </div>
-            <button 
-                onClick={handleConnectGoogle}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors"
-            >
-                Reconnect
-            </button>
+            <div>
+              <h3 className="text-sm font-semibold text-red-500">Session Expired</h3>
+              <p className="text-xs text-red-400/80">Your Google connection has expired. Please reconnect to manage events.</p>
+            </div>
+          </div>
+          <button
+            onClick={handleConnectGoogle}
+            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors"
+          >
+            Reconnect
+          </button>
         </div>
       )}
 
       {confirmDeleteId && (
         <div className="absolute inset-0 z-50 bg-black/50 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200 rounded-xl">
-            <div className="bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl p-6 w-full max-w-xs transform transition-all scale-100 animate-in zoom-in-95 duration-200">
-              <div className="text-center mb-6">
-                <h3 className="text-white font-semibold text-lg mb-2">
-                   {t('calendar.deleteEvent')}
-                </h3>
-                <p className="text-neutral-400 text-sm leading-relaxed">
-                   {t('calendar.deleteEventWarning')}
-                </p>
-              </div>
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={() => handleDeleteEvent(confirmDeleteId)}
-                  className="w-full py-3 px-4 bg-red-500/90 hover:bg-red-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
-                >
-                  {t('history.delete')}
-                </button>
-                <button
-                  onClick={() => setConfirmDeleteId(null)}
-                  className="w-full py-3 px-4 bg-[#2c2c2e] hover:bg-[#3a3a3c] text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
-                >
-                  {t('history.cancel')}
-                </button>
-              </div>
+          <div className="bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl p-6 w-full max-w-xs transform transition-all scale-100 animate-in zoom-in-95 duration-200">
+            <div className="text-center mb-6">
+              <h3 className="text-white font-semibold text-lg mb-2">
+                {t('calendar.deleteEvent')}
+              </h3>
+              <p className="text-neutral-400 text-sm leading-relaxed">
+                {t('calendar.deleteEventWarning')}
+              </p>
             </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleDeleteEvent(confirmDeleteId)}
+                className="w-full py-3 px-4 bg-red-500/90 hover:bg-red-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
+              >
+                {t('history.delete')}
+              </button>
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="w-full py-3 px-4 bg-[#2c2c2e] hover:bg-[#3a3a3c] text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
+              >
+                {t('history.cancel')}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -138,32 +181,56 @@ export default function CalendarTab() {
                   {event.description && <p className="text-sm text-gray-400 mt-1">{event.description}</p>}
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className={`px-2 py-1 rounded text-xs font-medium ${event.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800'}`}>
+                  <div className={`px-2 py-1 rounded text-xs font-medium ${event.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800'}`}>
                     {event.status}
-                    </div>
-                     {!event.id.startsWith('default-') && (
-                     <button
+                  </div>
+                  {!event.id.startsWith('default-') && (
+                    <>
+                      {/* Edit button */}
+                      <button
+                        onClick={() => setEditingEvent(event)}
+                        className="p-2 text-neutral-500 hover:text-blue-400 opacity-0 group-hover:opacity-100 transition"
+                        title={t('calendarPreview.edit', 'Edit')}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                          <path d="m15 5 4 4" />
+                        </svg>
+                      </button>
+                      {/* Delete button */}
+                      <button
                         onClick={() => setConfirmDeleteId(event.id)}
                         className="p-2 text-neutral-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"
                         title={t('calendar.deleteEvent')}
-                    >
+                      >
                         <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                         >
-                            <path d="M3 6h18" />
-                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                         </svg>
-                    </button>
-                    )}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
@@ -221,6 +288,15 @@ export default function CalendarTab() {
           </div>
         )}
       </div>
+
+      {/* Edit Event Modal */}
+      <EditEventModal
+        event={editingEvent}
+        isOpen={editingEvent !== null}
+        onClose={() => setEditingEvent(null)}
+        onSave={handleUpdateEvent}
+        isSaving={isSaving}
+      />
     </div>
   );
 }

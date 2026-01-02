@@ -75,6 +75,48 @@ impl CalendarRepository for PostgresCalendarRepository {
         .map_err(|e| anyhow!("Failed to save calendar event: {}", e))
     }
 
+    async fn update(&self, event: GoogleCalendarEvent) -> Result<GoogleCalendarEvent> {
+        sqlx::query(
+            r#"
+            UPDATE google_calendar_events SET
+                title = $2,
+                description = $3,
+                start_at = $4,
+                end_at = $5,
+                updated_at = $6
+            WHERE id = $1
+            RETURNING *
+            "#
+        )
+        .bind(event.id)
+        .bind(event.title)
+        .bind(event.description)
+        .bind(event.start_at)
+        .bind(event.end_at)
+        .bind(event.updated_at)
+        .map(|row: sqlx::postgres::PgRow| {
+             GoogleCalendarEvent {
+                id: row.get("id"),
+                user_id: row.get("user_id"),
+                google_event_id: row.get("google_event_id"),
+                calendar_id: row.get("calendar_id"),
+                title: row.get("title"),
+                description: row.get("description"),
+                start_at: row.get("start_at"),
+                end_at: row.get("end_at"),
+                timezone: row.get("timezone"),
+                created_by: row.get("created_by"),
+                source_chat_id: row.get("source_chat_id"),
+                status: row.get("status"),
+                created_at: row.get("created_at"),
+                updated_at: row.get("updated_at"),
+            }
+        })
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| anyhow!("Failed to update calendar event: {}", e))
+    }
+
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<GoogleCalendarEvent>> {
         let events = sqlx::query_as::<_, GoogleCalendarEvent>(
             r#"

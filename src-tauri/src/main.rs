@@ -277,6 +277,7 @@ async fn main() {
             calendar_commands::create_calendar_event,
             calendar_commands::get_calendar_events,
             calendar_commands::delete_calendar_event,
+            calendar_commands::update_calendar_event,
             // Notion commands
             notion_commands::get_notion_status,
             notion_commands::get_notion_auth_url,
@@ -284,6 +285,8 @@ async fn main() {
             notion_commands::create_notion_page,
             notion_commands::get_notion_pages,
             notion_commands::delete_notion_page,
+            notion_commands::update_notion_page,
+            notion_commands::get_notion_page_content,
         ])
         .setup(move |app| {
             let win = app.get_webview_window("main").unwrap();

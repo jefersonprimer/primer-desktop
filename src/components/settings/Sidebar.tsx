@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import CloseIcon from "@/components/ui/icons/CloseIcon";
 import SettingsIcon from "@/components/ui/icons/SettingsIcon";
 import CalendarIcon from "@/components/ui/icons/CalendarIcon";
+import NotionIcon from "@/components/ui/icons/NotionIcon";
 import NetworkIcon from "@/components/ui/icons/NetworkIcon";
 import BoxesIcon from "@/components/ui/icons/BoxesIcon";
 import KeyboardIcon from "@/components/ui/icons/KeyboardIcon";
@@ -11,7 +12,6 @@ import LanguagesIcon from "@/components/ui/icons/LanguagesIcon";
 import CircleUserIcon from "@/components/ui/icons/CircleUserIcon";
 import CreditCardIcon from "@/components/ui/icons/CreditCardIcon";
 import CircleQuestionMarkIcon from "@/components/ui/icons/CircleQuestionMarkIcon";
-import ZapIcon from "@/components/ui/icons/ZapIcon";
 
 interface Props {
   activeItem: string;
@@ -68,7 +68,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Notion")}
               className={itemClass(activeItem === "Notion")}
             >
-              <ZapIcon size={20} />
+              <NotionIcon size={20}/> 
               {t('notion.title')}
             </button>
 

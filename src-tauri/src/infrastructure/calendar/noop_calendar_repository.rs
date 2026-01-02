@@ -20,6 +20,10 @@ impl CalendarRepository for NoOpCalendarRepository {
         Err(anyhow!("Calendar functionality not available in this mode"))
     }
 
+    async fn update(&self, _event: GoogleCalendarEvent) -> Result<GoogleCalendarEvent> {
+        Err(anyhow!("Calendar functionality not available in this mode"))
+    }
+
     async fn find_by_user_id(&self, _user_id: Uuid) -> Result<Vec<GoogleCalendarEvent>> {
         Ok(vec![])
     }

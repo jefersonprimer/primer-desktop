@@ -165,12 +165,12 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
               e.stopPropagation();
               setActiveSummaryPreset(a.id);
             }}
-            className={`ml-2 p-1.5 rounded-full border transition-all ${activeSummaryPreset === a.id
+            className={`ml-2 w-6 h-6 flex items-center justify-center rounded-full border transition-all ${activeSummaryPreset === a.id
               ? "bg-green-500/20 border-green-500/50 text-green-400"
               : "border-white/10 text-white/20 hover:border-white/30 hover:text-white/40"}`}
             title="Use as active email summary"
           >
-            <CheckIcon size={14} />
+            {activeSummaryPreset === a.id && <CheckIcon size={14} />}
           </button>
         )}
       </div>
@@ -185,27 +185,21 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
         <div className="flex h-[600px]">
 
           <aside className="w-72 bg-[#181719] border-r border-neutral-700 flex flex-col">
-            <div className="p-3 border-b border-white/5 flex items-center justify-between">
-              <div className="flex gap-2 text-xs font-medium bg-neutral-800 p-1 rounded-lg">
+            <div className="p-3 border-b border-white/5 flex items-center">
+              <div className="flex gap-2 text-xs font-medium bg-neutral-800 p-1 rounded-lg w-full">
                 <button
                   onClick={() => { setMode('assistant'); setSelected(null); }}
-                  className={`px-3 py-1 rounded-md transition ${mode === 'assistant' ? 'bg-neutral-600 text-white' : 'text-neutral-400 hover:text-white'}`}
+                  className={`flex-1 px-3 py-1 rounded-md transition ${mode === 'assistant' ? 'bg-neutral-600 text-white' : 'text-neutral-400 hover:text-white'}`}
                 >
                   Chat
                 </button>
                 <button
                   onClick={() => { setMode('summary'); setSelected(null); }}
-                  className={`px-3 py-1 rounded-md transition ${mode === 'summary' ? 'bg-neutral-600 text-white' : 'text-neutral-400 hover:text-white'}`}
+                  className={`flex-1 px-3 py-1 rounded-md transition ${mode === 'summary' ? 'bg-neutral-600 text-white' : 'text-neutral-400 hover:text-white'}`}
                 >
                   Email
                 </button>
               </div>
-              <button
-                onClick={onClose}
-                className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
-              >
-                <CloseIcon size={20} />
-              </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-2">
@@ -222,33 +216,42 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
             </div>
           </aside>
 
-          <div className="flex-1 bg-[#1D1D1F] p-8 overflow-y-auto flex flex-col">
-            <div className="flex-1 flex flex-col gap-2">
-              <div className="flex justify-between items-start">
-                <input
-                  ref={titleInputRef}
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  placeholder={selected?.is_built_in ? "" : t('assistantsManager.newPresetPlaceholder')}
-                  disabled={selected?.is_built_in}
-                  className="text-base font-bold text-white bg-transparent border-none focus:outline-none placeholder:text-neutral-600 w-full"
-                />
-                {mode === 'summary' && selected && selected.id !== 'new' && (
-                  <div className="flex items-center gap-2 text-xs">
-                    {activeSummaryPreset === selected.id ? (
-                      <span className="text-green-400 font-medium px-2 py-1 bg-green-400/10 rounded">Active Summary Preset</span>
-                    ) : (
-                      <button
-                        onClick={() => setActiveSummaryPreset(selected.id)}
-                        className="text-neutral-400 hover:text-white px-2 py-1 hover:bg-white/5 rounded transition"
-                      >
-                        Set as Active
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+          <div className="flex-1 bg-[#1D1D1F] flex flex-col overflow-hidden">
+            <div className="w-full flex justify-end p-3 shrink-0 z-10">
+              <button
+                onClick={onClose}
+                className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
+              >
+                <CloseIcon size={20} />
+              </button>
 
+            </div>
+            <div className="flex items-center gap-3 px-4 pb-3 shrink-0">
+              <input
+                ref={titleInputRef}
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                placeholder={selected?.is_built_in ? "" : t('assistantsManager.newPresetPlaceholder')}
+                disabled={selected?.is_built_in}
+                className="text-base font-bold text-white bg-transparent border-none focus:outline-none placeholder:text-neutral-600 flex-1 min-w-0"
+              />
+              {mode === 'summary' && selected && selected.id !== 'new' && (
+                <div className="flex items-center shrink-0 whitespace-nowrap text-xs ml-3">
+                  {activeSummaryPreset === selected.id ? (
+                    <span className="text-green-400 font-medium px-2 py-1 bg-green-400/10 rounded">Active Summary Preset</span>
+                  ) : (
+                    <button
+                      onClick={() => setActiveSummaryPreset(selected.id)}
+                      className="text-neutral-400 hover:text-white px-2 py-1 bg-white/10 hover:bg-white/5 rounded transition"
+                    >
+                      Set as Active
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-8 pb-8 flex flex-col">
               <textarea
                 ref={promptInputRef}
                 className="flex-1 w-full bg-transparent text-white text-sm focus:outline-none resize-none font-mono leading-relaxed placeholder:text-neutral-600 mt-2"
@@ -257,38 +260,38 @@ export default function AssistantsManagerModal({ onClose }: { onClose: () => voi
                 onChange={(e) => setEditPrompt(e.target.value)}
                 disabled={selected?.is_built_in}
               />
-            </div>
 
-            {selected?.is_built_in && (
-              <p className="text-xs text-white/40 mt-4 border-t border-white/5 pt-4">{t('assistantsManager.builtinWarning')}</p>
-            )}
+              {selected?.is_built_in && (
+                <p className="text-xs text-white/40 mt-4 border-t border-white/5 pt-4">{t('assistantsManager.builtinWarning')}</p>
+              )}
 
-            {!selected?.is_built_in && (
-              <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/5">
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
-                >
-                  {t('assistantsManager.saveChanges')}
-                </button>
-                {selected?.id !== 'new' && (
+              {!selected?.is_built_in && (
+                <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/5">
                   <button
-                    onClick={async () => {
-                      if (confirm(t('assistantsManager.deleteConfirm'))) {
-                        if (selected) {
-                          await deletePromptPreset(selected.id);
-                          setSelected(null);
-                          await loadPresets();
-                        }
-                      }
-                    }}
-                    className="px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-500 rounded-lg text-sm transition-colors"
+                    onClick={handleSave}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
                   >
-                    {t('assistantsManager.delete')}
+                    {t('assistantsManager.saveChanges')}
                   </button>
-                )}
-              </div>
-            )}
+                  {selected?.id !== 'new' && (
+                    <button
+                      onClick={async () => {
+                        if (confirm(t('assistantsManager.deleteConfirm'))) {
+                          if (selected) {
+                            await deletePromptPreset(selected.id);
+                            setSelected(null);
+                            await loadPresets();
+                          }
+                        }
+                      }}
+                      className="px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-500 rounded-lg text-sm transition-colors"
+                    >
+                      {t('assistantsManager.delete')}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

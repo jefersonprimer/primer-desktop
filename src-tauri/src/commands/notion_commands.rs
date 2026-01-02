@@ -219,3 +219,53 @@ pub async fn delete_notion_page(
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn update_notion_page(
+    state: State<'_, AppState>,
+    user_id: String,
+    page_id: String,
+    title: String,
+    content: Option<String>,
+) -> Result<(), String> {
+    let uid = Uuid::parse_str(&user_id).map_err(|e| e.to_string())?;
+
+    let integration = state.notion_repo.find_by_user_id(uid)
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or("Notion not connected")?;
+
+    // Update title
+    state.notion_client.update_page(&integration.access_token, &page_id, &title)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // Update content if provided
+    if let Some(content_text) = content {
+        state.notion_client.update_page_content(&integration.access_token, &page_id, &content_text)
+            .await
+            .map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_notion_page_content(
+    state: State<'_, AppState>,
+    user_id: String,
+    page_id: String,
+) -> Result<String, String> {
+    let uid = Uuid::parse_str(&user_id).map_err(|e| e.to_string())?;
+
+    let integration = state.notion_repo.find_by_user_id(uid)
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or("Notion not connected")?;
+
+    let content = state.notion_client.get_page_content(&integration.access_token, &page_id)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(content)
+}

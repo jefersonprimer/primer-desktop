@@ -8,11 +8,14 @@ import { StealthModeProvider } from "./contexts/StealthModeContext";
 import { AiProvider } from "./contexts/AiContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { CalendarPreviewProvider } from "./contexts/CalendarPreviewContext";
 
 import AppRoutes from "./routes";
 import StealthMirror from "./components/StealthMirror";
 
 import NotificationContainer from "./components/ui/NotificationContainer";
+import EventCreatedToast from "./components/calendar/EventCreatedToast";
+import { EventRemindersProvider } from "./components/calendar/EventRemindersProvider";
 
 function App() {
   const { i18n } = useTranslation();
@@ -37,13 +40,18 @@ function App() {
         <AiProvider>
           <NotificationProvider>
             <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-              <HashRouter>
-                <StealthMirror />
-                <div className="w-full max-w-[1440px] mx-auto h-screen relative">
-                  <AppRoutes />
-                </div>
-                <NotificationContainer />
-              </HashRouter>
+              <CalendarPreviewProvider>
+                <EventRemindersProvider>
+                  <HashRouter>
+                    <StealthMirror />
+                    <div className="w-full max-w-[1440px] mx-auto h-screen relative">
+                      <AppRoutes />
+                    </div>
+                    <NotificationContainer />
+                    <EventCreatedToast />
+                  </HashRouter>
+                </EventRemindersProvider>
+              </CalendarPreviewProvider>
             </ThemeProvider>
           </NotificationProvider>
         </AiProvider>
@@ -53,4 +61,3 @@ function App() {
 }
 
 export default App;
-

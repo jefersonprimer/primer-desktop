@@ -109,6 +109,24 @@
     "info": "Here you can view and manage events scheduled by the AI Assistant.",
     "askToCreate": "You don't have events scheduled. Ask the AI to create one for you."
   },
+  "calendarPreview": {
+    "previewTitle": "Schedule this event?",
+    "editEvent": "Edit Event",
+    "eventCreated": "Event created",
+    "creating": "Creating...",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "undo": "Undo",
+    "undoSuccess": "Event cancelled",
+    "saveChanges": "Save Changes",
+    "title": "Title",
+    "date": "Date",
+    "startTime": "Start",
+    "endTime": "End",
+    "description": "Description",
+    "descriptionPlaceholder": "Add a description..."
+  },
   "resources": {
     "title": "Resources",
     "description": "Manage additional features and resource settings.",
@@ -250,7 +268,12 @@
     "connect": "Connect to Notion",
     "connected": "Connected to {{workspace}}",
     "disconnect": "Disconnect",
-    "description": "Allow Primer to create notes in your Notion workspace."
+    "description": "Allow Primer to create notes in your Notion workspace.",
+    "editNote": "Edit Note",
+    "noteTitle": "Title",
+    "enterTitle": "Enter note title...",
+    "noteContent": "Content",
+    "enterContent": "Enter note content..."
   },
   "google": {
     "subtitle": "Gemini 3 Pro, Gemini 2.5 and other models",
