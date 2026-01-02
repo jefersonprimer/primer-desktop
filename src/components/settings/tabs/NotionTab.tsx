@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-shell";
-import CheckIcon from "@/components/ui/icons/CheckIcon";
+
 import { useAuth } from "../../../contexts/AuthContext";
+
+import CheckIcon from "@/components/ui/icons/CheckIcon";
 import EditNoteModal from "@/components/notion/EditNoteModal";
 
 interface NotionStatus {
@@ -25,6 +28,7 @@ export default function NotionTab() {
     const [pages, setPages] = useState<NotionPage[]>([]);
     const [loading, setLoading] = useState(false);
     const [pagesLoading, setPagesLoading] = useState(false);
+    const [isCheckingStatus, setIsCheckingStatus] = useState(true);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     const [editingPage, setEditingPage] = useState<NotionPage | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -52,12 +56,20 @@ export default function NotionTab() {
     }, [userId, status.is_connected]);
 
     const checkStatus = async () => {
-        if (!userId) return;
+        if (!userId) {
+            setIsCheckingStatus(false);
+            return;
+        }
         try {
             const result = await invoke<NotionStatus>("get_notion_status", { userId });
             setStatus(result);
+            if (result.is_connected) {
+                setPagesLoading(true);
+            }
         } catch (error) {
             console.error("Failed to get Notion status:", error);
+        } finally {
+            setIsCheckingStatus(false);
         }
     };
 
@@ -169,7 +181,12 @@ export default function NotionTab() {
         </div>
 
         <div className="mt-6">
-            {!status.is_connected ? (
+            {isCheckingStatus ? (
+                <div className="flex flex-col items-center justify-center py-10 gap-4">
+                    <div className="w-6 h-6 border-2 border-gray-200 dark:border-white/20 border-t-gray-800 dark:border-t-white rounded-full animate-spin" />
+                    <p className="text-sm text-gray-500 dark:text-neutral-400">Loading...</p>
+                </div>
+            ) : !status.is_connected ? (
                 <div className="flex flex-col gap-4">
                     <p className="text-sm text-neutral-900 dark:text-white">
                         {t("notion.description")}
@@ -187,7 +204,7 @@ export default function NotionTab() {
                     {pagesLoading ? (
                         <div className="flex flex-col items-center justify-center py-10 gap-4">
                             <div className="w-6 h-6 border-2 border-gray-200 dark:border-white/20 border-t-gray-800 dark:border-t-white rounded-full animate-spin" />
-                            <p className="text-sm text-gray-500 dark:text-neutral-400">Loading pages...</p>
+                            <p className="text-sm text-gray-500 dark:text-neutral-400">Loading...</p>
                         </div>
                     ) : pages.length > 0 ? (
                         <div className="grid gap-3">
