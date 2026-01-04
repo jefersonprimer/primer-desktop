@@ -8,7 +8,7 @@ use app_lib::{
     visibility,
     stealth,
 };
-use tauri::{Manager, Emitter, PhysicalSize};
+use tauri::{Manager, Emitter, PhysicalSize, Listener};
 use tauri_plugin_global_shortcut::{Code, Modifiers, ShortcutState};
 
 #[tauri::command]
@@ -165,7 +165,12 @@ async fn main() {
         .manage(app_state)
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_log::Builder::default().build())
+        .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+            let _ = app.emit("tauri://deep-link", argv);
+        }))
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_shortcuts(["CommandOrControl+Shift+S", "CommandOrControl+Backslash"])
@@ -289,6 +294,11 @@ async fn main() {
             notion_commands::get_notion_page_content,
         ])
         .setup(move |app| {
+            let handle = app.handle().clone();
+            app.listen("tauri://deep-link", move |event| {
+                let _ = handle.emit("auth-callback", event.payload());
+            });
+
             let win = app.get_webview_window("main").unwrap();
 
             // 🧱 Limita a largura do conteúdo (não da janela fullscreen)

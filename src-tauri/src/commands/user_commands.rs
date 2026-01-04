@@ -43,7 +43,7 @@ pub async fn get_google_auth_url() -> Result<GoogleAuthUrlResponse, String> {
     let client_id = env::var("GOOGLE_CLIENT_ID")
         .map_err(|_| "GOOGLE_CLIENT_ID not set in .env".to_string())?;
     
-    let redirect_uri = "http://localhost:5173/auth/callback";
+    let redirect_uri = "http://localhost:3000/api/auth/callback/google";
     let scope = "email profile openid https://www.googleapis.com/auth/calendar.events";
     let response_type = "code"; // Authorization Code Flow for refresh tokens
     let access_type = "offline"; // Request refresh token
@@ -99,7 +99,7 @@ pub async fn exchange_google_code(dto: ExchangeGoogleCodeDto) -> Result<Exchange
     let client_secret = env::var("GOOGLE_CLIENT_SECRET")
         .map_err(|_| "GOOGLE_CLIENT_SECRET not set in .env. Required for Authorization Code Flow.".to_string())?;
     
-    let redirect_uri = "http://localhost:5173/auth/callback";
+    let redirect_uri = "http://localhost:3000/api/auth/callback/google";
 
     let client = reqwest::Client::new();
     let params = [

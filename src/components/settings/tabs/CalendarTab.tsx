@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import CalendarIcon from "@/components/ui/icons/CalendarIcon";
-import { invoke } from "@tauri-apps/api/core";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { calendarService } from "@/services/calendarService";
@@ -9,16 +8,17 @@ import EditEventModal from "@/components/calendar/EditEventModal";
 
 export default function CalendarTab() {
   const { t } = useTranslation();
-  const { userId, googleAccessToken, isLoading: isAuthLoading } = useAuth();
+  const { userId, isCalendarConnected, isLoading: isAuthLoading, connectGoogleCalendar, disconnectGoogleCalendar } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isSessionExpired, setIsSessionExpired] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
 
   useEffect(() => {
-    if (userId && googleAccessToken) {
+    if (userId && isCalendarConnected) {
       setIsLoading(true);
       calendarService.getEvents(userId)
         .then((data) => {
@@ -43,14 +43,16 @@ export default function CalendarTab() {
     } else {
       setIsLoading(false);
     }
-  }, [userId, googleAccessToken]);
+  }, [userId, isCalendarConnected]);
 
-  const handleConnectGoogle = () => {
-    invoke<{ url: string }>("get_google_auth_url")
-      .then((res) => {
-        window.location.href = res.url;
-      })
-      .catch(console.error);
+  const handleConnectGoogle = async () => {
+    await connectGoogleCalendar();
+  };
+
+  const handleDisconnect = async () => {
+    await disconnectGoogleCalendar();
+    setConfirmDisconnect(false);
+    setEvents([]);
   };
 
   const handleDeleteEvent = async (eventId: string) => {
@@ -156,11 +158,50 @@ export default function CalendarTab() {
         </div>
       )}
 
-      <div className="mb-4">
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{t('calendar.title')}</h1>
-        <p className="text-sm">
-          {t('calendar.description')}
-        </p>
+      {confirmDisconnect && (
+        <div className="absolute inset-0 z-50 bg-black/50 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200 rounded-xl">
+          <div className="bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl p-6 w-full max-w-xs transform transition-all scale-100 animate-in zoom-in-95 duration-200">
+            <div className="text-center mb-6">
+              <h3 className="text-white font-semibold text-lg mb-2">
+                {t('calendar.disconnect', 'Disconnect Google Calendar')}
+              </h3>
+              <p className="text-neutral-400 text-sm leading-relaxed">
+                {t('calendar.disconnectWarning', 'Are you sure you want to disconnect Google Calendar? You can reconnect at any time.')}
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleDisconnect}
+                className="w-full py-3 px-4 bg-red-500/90 hover:bg-red-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
+              >
+                {t('common.disconnect', 'Disconnect')}
+              </button>
+              <button
+                onClick={() => setConfirmDisconnect(false)}
+                className="w-full py-3 px-4 bg-[#2c2c2e] hover:bg-[#3a3a3c] text-white text-sm font-medium rounded-xl transition-all active:scale-[0.98]"
+              >
+                {t('history.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mb-4 flex justify-between items-center">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{t('calendar.title')}</h1>
+          <p className="text-sm">
+            {t('calendar.description')}
+          </p>
+        </div>
+        {isCalendarConnected && (
+          <button
+            onClick={() => setConfirmDisconnect(true)}
+            className="px-3 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 rounded-lg transition-colors"
+          >
+            {t('common.disconnect', 'Disconnect')}
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col w-full h-auto overflow-y-auto">
@@ -235,7 +276,7 @@ export default function CalendarTab() {
               </div>
             ))}
           </div>
-        ) : googleAccessToken ? (
+        ) : isCalendarConnected ? (
           <div className="flex flex-col gap-4">
             <div>
               <CalendarIcon size={20} />

@@ -43,6 +43,13 @@
   "plugins": {
     "shell": {
       "open": true
+    },
+    "deep-link": {
+      "desktop": {
+        "schemes": [
+          "primerai"
+        ]
+      }
     }
   },
   "bundle": {
