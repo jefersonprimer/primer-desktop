@@ -4,13 +4,8 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { useAuth } from "../contexts/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
-import LoginPage from "../pages/login";
-import RegisterPage from "../pages/register";
-import ForgotPassword from "../pages/forgot-password";
-import ResetPassword from "../pages/reset-password";
+import WelcomePage from "../pages/welcome";
 import HomePage from "../pages/home";
-import AuthCallback from "../pages/auth/Callback";
-import NotionCallback from "../pages/auth/NotionCallback";
 
 function SplashHandler() {
   const { isLoading } = useAuth();
@@ -32,19 +27,19 @@ function AuthRedirectHandler() {
   useEffect(() => {
     if (isLoading) return;
 
-    const isPublicRoute = ["/", "/login", "/register", "/forgot-password", "/auth/callback", "/oauth/notion/callback"].includes(
+    const isPublicRoute = ["/", "/welcome"].includes(
       location.pathname
-    ) || location.pathname.startsWith("/reset-password");
+    );
 
     const logMessage = `AuthRedirectHandler: pathname=${location.pathname}, isAuthenticated=${isAuthenticated}, isPublicRoute=${isPublicRoute}`;
     invoke("log_frontend_message", { message: logMessage }).catch(console.error);
 
-    if (isAuthenticated && (location.pathname === "/" || location.pathname === "/login")) {
+    if (isAuthenticated && (location.pathname === "/" || location.pathname === "/welcome")) {
       invoke("log_frontend_message", { message: "Redirecting to /home (Authenticated)" }).catch(console.error);
       navigate("/home", { replace: true });
     } else if (!isAuthenticated && !isPublicRoute) {
-      invoke("log_frontend_message", { message: "Redirecting to /login (Not authenticated)" }).catch(console.error);
-      navigate("/login", { replace: true });
+      invoke("log_frontend_message", { message: "Redirecting to /welcome (Not authenticated)" }).catch(console.error);
+      navigate("/welcome", { replace: true });
     }
   }, [location.pathname, isAuthenticated, isLoading, navigate]);
 
@@ -53,7 +48,7 @@ function AuthRedirectHandler() {
 
 function RootRoute() {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />;
+  return isAuthenticated ? <Navigate to="/home" replace /> : <Navigate to="/welcome" replace />;
 }
 
 export default function AppRoutes() {
@@ -74,12 +69,7 @@ export default function AppRoutes() {
               </ProtectedRoute>
             }
           />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/oauth/notion/callback" element={<NotionCallback />} />
+          <Route path="/welcome" element={<WelcomePage />} />
         </Routes>
       )}
     </>

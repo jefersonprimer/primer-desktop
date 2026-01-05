@@ -200,21 +200,13 @@ async fn main() {
         )
         .invoke_handler(tauri::generate_handler![
             // user commands
-            user_commands::login,
-            user_commands::google_login,
-            user_commands::exchange_google_code,
-            user_commands::get_google_auth_url,
-            user_commands::register,
-            user_commands::reset_password,
             user_commands::add_api_key,
             user_commands::get_api_keys,
             user_commands::delete_api_key,
             user_commands::delete_account,
-            user_commands::get_session,
             user_commands::get_current_user,
             user_commands::clear_session,
             user_commands::sync_session,
-            user_commands::get_shortcuts,
             user_commands::clear_all_data,
             user_commands::get_user_stats,
             // chat commands

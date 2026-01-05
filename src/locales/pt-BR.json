@@ -37,7 +37,13 @@
       "clearAll": "Limpar",
       "confirmClear": "Tem certeza que deseja limpar todos os dados? Isso não pode ser desfeito.",
       "successClear": "Todos os dados foram limpos com sucesso.",
-      "errorClear": "Falha ao limpar dados."
+      "errorClear": "Falha ao limpar dados.",
+      "clearModal": {
+        "title": "Limpar Todos os Dados",
+        "warning": "Tem certeza que deseja limpar todos os dados? Isso não pode ser desfeito.",
+        "confirmButton": "Limpar Tudo",
+        "cancelButton": "Cancelar"
+      }
     },
     "deleteAccount": {
       "title": "Excluir Conta",
@@ -46,6 +52,9 @@
       "modalTitle": "Tem certeza que deseja excluir sua conta?",
       "modalWarning": "Ao excluir sua conta, você perderá acesso a todos os seus dados, histórico e configurações. Esta ação não pode ser desfeita.",
       "passwordLabel": "Digite sua senha para confirmar",
+      "passwordPlaceholder": "Senha",
+      "confirmationText": "EXCLUIR MINHA CONTA",
+      "confirmLabel": "Para confirmar, digite EXCLUIR MINHA CONTA no campo abaixo",
       "confirmButton": "Excluir conta",
       "cancelButton": "Cancelar",
       "success": "Conta excluída com sucesso.",

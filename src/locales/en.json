@@ -37,7 +37,13 @@
       "clearAll": "Clear All Data",
       "confirmClear": "Are you sure you want to clear all data? This cannot be undone.",
       "successClear": "All data cleared successfully.",
-      "errorClear": "Failed to clear data."
+      "errorClear": "Failed to clear data.",
+      "clearModal": {
+        "title": "Clear All Data",
+        "warning": "Are you sure you want to clear all data? This cannot be undone.",
+        "confirmButton": "Clear All Data",
+        "cancelButton": "Cancel"
+      }
     },
     "deleteAccount": {
       "title": "Delete Account",
@@ -46,7 +52,10 @@
       "modalTitle": "Are you sure you want to delete your account?",
       "modalWarning": "By deleting your account, you will lose access to all your data, history, and settings. This action cannot be undone.",
       "passwordLabel": "Enter your password to confirm",
-      "confirmButton": "delete account",
+      "passwordPlaceholder": "Password",
+      "confirmationText": "DELETE MY ACCOUNT",
+      "confirmLabel": "To confirm, type DELETE MY ACCOUNT in the field below",
+      "confirmButton": "Delete account",
       "cancelButton": "Cancel",
       "success": "Account deleted successfully.",
       "error": "Error deleting account. Check your password."

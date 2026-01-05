@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use sqlx::SqlitePool;
+use sqlx::{SqlitePool, Row};
 use uuid::Uuid;
 use anyhow::{Result, anyhow};
 use crate::domain::user::{
@@ -59,7 +59,7 @@ impl UserApiKeyRepository for SqliteUserApiKeyRepository {
     }
 
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<UserApiKey>> {
-        let recs = sqlx::query_as::<_, UserApiKey>(
+        let rows = sqlx::query(
             r#"
             SELECT id, user_id, provider, api_key, selected_model, created_at
             FROM user_api_keys
@@ -71,10 +71,26 @@ impl UserApiKeyRepository for SqliteUserApiKeyRepository {
         .await
         .map_err(|e| anyhow!("Failed to find api keys: {}", e))?;
 
+        let mut recs = Vec::new();
+        for row in rows {
+            let id_str: String = row.try_get("id").map_err(|e| anyhow!("Failed to get id: {}", e))?;
+            let user_id_str: String = row.try_get("user_id").map_err(|e| anyhow!("Failed to get user_id: {}", e))?;
+            
+            recs.push(UserApiKey {
+                id: Uuid::parse_str(&id_str).map_err(|e| anyhow!("Failed to parse id: {}", e))?,
+                user_id: Uuid::parse_str(&user_id_str).map_err(|e| anyhow!("Failed to parse user_id: {}", e))?,
+                provider: row.try_get("provider").map_err(|e| anyhow!("Failed to get provider: {}", e))?,
+                api_key: row.try_get("api_key").map_err(|e| anyhow!("Failed to get api_key: {}", e))?,
+                selected_model: row.try_get("selected_model").map_err(|e| anyhow!("Failed to get selected_model: {}", e))?,
+                created_at: row.try_get("created_at").map_err(|e| anyhow!("Failed to get created_at: {}", e))?,
+            });
+        }
+
         Ok(recs)
     }
 
     async fn delete(&self, id: Uuid) -> Result<()> {
+
         sqlx::query(
             r#"
             DELETE FROM user_api_keys

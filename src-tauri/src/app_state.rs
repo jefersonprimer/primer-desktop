@@ -26,10 +26,6 @@ use crate::{
                 user_api_key_repository::UserApiKeyRepository,
                 session_repository::SessionRepository,
             },
-            service::{
-                password_hasher::PasswordHasher,
-                token_generator::TokenGenerator,
-            },
         },
         config::repository::ConfigRepository,
         prompt_preset::repository::PromptPresetRepository,
@@ -60,7 +56,6 @@ use crate::{
         notification::email::smtp_email_sender::SmtpEmailSender,
         user::{
             sql_user_repository::SqlUserRepository,
-            sql_user_api_key_repository::SqlUserApiKeyRepository,
             sqlite_session_repository::SqliteSessionRepository,
             sqlite_user_repository::SqliteUserRepository,
             sqlite_user_api_key_repository::SqliteUserApiKeyRepository,
@@ -104,9 +99,6 @@ pub struct AppState {
 
     pub chat_service: Arc<dyn ChatService>,
 
-    pub password_hasher: Arc<dyn PasswordHasher>,
-    pub token_generator: Arc<dyn TokenGenerator>,
-
     pub email_service: Arc<EmailService>,
 }
 
@@ -139,15 +131,18 @@ impl AppState {
         let maintenance_repo: Arc<dyn MaintenanceRepository> =
             Arc::new(SqliteMaintenanceRepository::new(sqlite_pool.clone()));
 
+        // ALWAYS use Sqlite for User Api Keys (Local Only)
+        let user_api_key_repo: Arc<dyn UserApiKeyRepository> =
+            Arc::new(SqliteUserApiKeyRepository::new(sqlite_pool.clone()));
+
         let pg_url = &config.database.database_url;
         let pg_pool_result = connect_pg(pg_url).await;
 
-        let (user_repo, user_api_key_repo, postgres_chat_repo, postgres_message_repo, changelog_repo, calendar_repo, notion_repo) = match pg_pool_result {
+        let (user_repo, postgres_chat_repo, postgres_message_repo, changelog_repo, calendar_repo, notion_repo) = match pg_pool_result {
             Ok(pg_pool) => {
                 migrate_pg(&pg_pool).await?;
                 (
                     Arc::new(SqlUserRepository::new(pg_pool.clone())) as Arc<dyn UserRepository>,
-                    Arc::new(SqlUserApiKeyRepository::new(pg_pool.clone())) as Arc<dyn UserApiKeyRepository>,
                     Arc::new(PostgresChatRepository::new(pg_pool.clone())) as Arc<dyn ChatRepository>,
                     Arc::new(PostgresMessageRepository::new(pg_pool.clone())) as Arc<dyn MessageRepository>,
                     Arc::new(PostgresChangelogRepository::new(pg_pool.clone())) as Arc<dyn ChangelogRepository>,
@@ -159,7 +154,6 @@ impl AppState {
                 eprintln!("WARNING: Failed to connect to Postgres. Falling back to Sqlite. Error: {}", e);
                 (
                     Arc::new(SqliteUserRepository::new(sqlite_pool.clone())) as Arc<dyn UserRepository>,
-                    Arc::new(SqliteUserApiKeyRepository::new(sqlite_pool.clone())) as Arc<dyn UserApiKeyRepository>,
                     Arc::new(SqliteChatRepository::new(sqlite_pool.clone())) as Arc<dyn ChatRepository>,
                     Arc::new(SqliteMessageRepository::new(sqlite_pool.clone())) as Arc<dyn MessageRepository>,
                     Arc::new(NoOpChangelogRepository::new()) as Arc<dyn ChangelogRepository>,
@@ -203,17 +197,6 @@ impl AppState {
         );
         let chat_service: Arc<dyn ChatService> = Arc::new(chat_service_impl);
 
-        // --- Security services ---
-        let password_hasher: Arc<dyn PasswordHasher> =
-            Arc::new(crate::domain::user::service::password_hasher::Argon2PasswordHasher::new());
-
-        let token_generator: Arc<dyn TokenGenerator> =
-            Arc::new(crate::domain::user::service::token_generator::JwtTokenGenerator::new(
-                config.jwt.jwt_secret.clone(),
-                config.jwt.refresh_token,
-                config.jwt.access_token,
-            ));
-
         // --- Email service ---
         let smtp_cfg = &config.smtp;
         let smtp_sender: Arc<dyn EmailSender> = Arc::new(SmtpEmailSender::new(
@@ -241,8 +224,6 @@ impl AppState {
             notion_repo,
             notion_client,
             chat_service,
-            password_hasher,
-            token_generator,
             email_service,
         })
     }
