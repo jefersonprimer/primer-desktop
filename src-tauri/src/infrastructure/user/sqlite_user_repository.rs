@@ -22,8 +22,8 @@ impl UserRepository for SqliteUserRepository {
     async fn create(&self, user: User) -> Result<User> {
         sqlx::query(
             r#"
-            INSERT INTO users (id, email, password_hash, google_id, full_name, profile_picture, created_at, updated_at)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+            INSERT INTO users (id, email, password_hash, google_id, full_name, profile_picture, plan, created_at, updated_at)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
             "#
         )
         .bind(user.id.to_string())
@@ -32,6 +32,7 @@ impl UserRepository for SqliteUserRepository {
         .bind(user.google_id.clone())
         .bind(user.full_name.clone())
         .bind(user.profile_picture.clone())
+        .bind(user.plan.clone())
         .bind(user.created_at)
         .bind(user.updated_at)
         .execute(&self.pool)
@@ -44,7 +45,7 @@ impl UserRepository for SqliteUserRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<User>> {
         let rec = sqlx::query_as::<_, User>(
             r#"
-            SELECT id, email, password_hash, google_id, full_name, profile_picture, created_at, updated_at
+            SELECT id, email, password_hash, google_id, full_name, profile_picture, plan, created_at, updated_at
             FROM users
             WHERE id = ?1
             "#
@@ -60,7 +61,7 @@ impl UserRepository for SqliteUserRepository {
     async fn find_by_email(&self, email: &str) -> Result<Option<User>> {
         let rec = sqlx::query_as::<_, User>(
             r#"
-            SELECT id, email, password_hash, google_id, full_name, profile_picture, created_at, updated_at
+            SELECT id, email, password_hash, google_id, full_name, profile_picture, plan, created_at, updated_at
             FROM users
             WHERE email = ?1
             "#
@@ -76,7 +77,7 @@ impl UserRepository for SqliteUserRepository {
     async fn find_by_google_id(&self, google_id: &str) -> Result<Option<User>> {
         let rec = sqlx::query_as::<_, User>(
             r#"
-            SELECT id, email, password_hash, google_id, full_name, profile_picture, created_at, updated_at
+            SELECT id, email, password_hash, google_id, full_name, profile_picture, plan, created_at, updated_at
             FROM users
             WHERE google_id = ?1
             "#
@@ -93,7 +94,7 @@ impl UserRepository for SqliteUserRepository {
         sqlx::query(
             r#"
             UPDATE users
-            SET email = ?2, password_hash = ?3, google_id = ?4, full_name = ?5, profile_picture = ?6, updated_at = ?7
+            SET email = ?2, password_hash = ?3, google_id = ?4, full_name = ?5, profile_picture = ?6, plan = ?7, updated_at = ?8
             WHERE id = ?1
             "#
         )
@@ -103,6 +104,7 @@ impl UserRepository for SqliteUserRepository {
         .bind(user.google_id.clone())
         .bind(user.full_name.clone())
         .bind(user.profile_picture.clone())
+        .bind(user.plan.clone())
         .bind(user.updated_at)
         .execute(&self.pool)
         .await

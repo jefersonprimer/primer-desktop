@@ -57,6 +57,7 @@ impl GoogleLoginUseCase {
                     google_id: Some(google_id),
                     full_name: Some(name),
                     profile_picture: picture,
+                    plan: "free".to_string(),
                     created_at: Utc::now(),
                     updated_at: Utc::now(),
                 };

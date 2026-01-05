@@ -6,6 +6,8 @@ import { calendarService } from "@/services/calendarService";
 import type { CalendarEvent } from "@/services/calendarService";
 import EditEventModal from "@/components/calendar/EditEventModal";
 
+type CalendarFilter = 'today' | 'next_7_days' | 'week' | 'month' | 'all';
+
 export default function CalendarTab() {
   const { t } = useTranslation();
   const { userId, isCalendarConnected, isLoading: isAuthLoading, connectGoogleCalendar, disconnectGoogleCalendar } = useAuth();
@@ -16,6 +18,7 @@ export default function CalendarTab() {
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [confirmDisconnect, setConfirmDisconnect] = useState(false);
+  const [filter, setFilter] = useState<CalendarFilter>('next_7_days');
 
   useEffect(() => {
     if (userId && isCalendarConnected) {
@@ -44,6 +47,43 @@ export default function CalendarTab() {
       setIsLoading(false);
     }
   }, [userId, isCalendarConnected]);
+
+  const filteredEvents = events.filter(event => {
+    const eventDate = new Date(event.start_at);
+    // We already filtered past events in useEffect, so we only check the upper bound here
+    
+    switch (filter) {
+      case 'today': {
+        const endOfToday = new Date();
+        endOfToday.setHours(23, 59, 59, 999);
+        return eventDate <= endOfToday;
+      }
+      case 'next_7_days': {
+        const sevenDaysLater = new Date();
+        sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
+        return eventDate <= sevenDaysLater;
+      }
+      case 'week': {
+        // End of current week (assuming Saturday is end)
+        const endOfWeek = new Date();
+        const dayOfWeek = endOfWeek.getDay(); // 0 (Sun) - 6 (Sat)
+        const daysUntilEndOfWeek = 6 - dayOfWeek;
+        endOfWeek.setDate(endOfWeek.getDate() + daysUntilEndOfWeek);
+        endOfWeek.setHours(23, 59, 59, 999);
+        return eventDate <= endOfWeek;
+      }
+      case 'month': {
+        const endOfMonth = new Date();
+        endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+        endOfMonth.setDate(0); // Last day of current month
+        endOfMonth.setHours(23, 59, 59, 999);
+        return eventDate <= endOfMonth;
+      }
+      case 'all':
+      default:
+        return true;
+    }
+  });
 
   const handleConnectGoogle = async () => {
     await connectGoogleCalendar();
@@ -194,14 +234,38 @@ export default function CalendarTab() {
             {t('calendar.description')}
           </p>
         </div>
-        {isCalendarConnected && (
-          <button
-            onClick={() => setConfirmDisconnect(true)}
-            className="px-3 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 rounded-lg transition-colors"
-          >
-            {t('common.disconnect', 'Disconnect')}
-          </button>
-        )}
+        
+        <div className="flex items-center gap-2">
+          {isCalendarConnected && events.length > 0 && (
+            <div className="relative">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as CalendarFilter)}
+                className="appearance-none bg-gray-50 dark:bg-[#2C2C2E] border border-gray-200 dark:border-transparent rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-neutral-300 outline-none focus:ring-2 focus:ring-blue-500/50 pr-8 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3A3A3C] transition-colors"
+              >
+                <option value="today">{t('calendar.filter.today', 'Today')}</option>
+                <option value="next_7_days">{t('calendar.filter.next7Days', 'Next 7 Days')}</option>
+                <option value="week">{t('calendar.filter.week', 'This Week')}</option>
+                <option value="month">{t('calendar.filter.month', 'This Month')}</option>
+                <option value="all">{t('calendar.filter.all', 'All Events')}</option>
+              </select>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-neutral-500">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </div>
+            </div>
+          )}
+          
+          {isCalendarConnected && (
+            <button
+              onClick={() => setConfirmDisconnect(true)}
+              className="px-3 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 rounded-lg transition-colors"
+            >
+              {t('common.disconnect', 'Disconnect')}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col w-full h-auto overflow-y-auto">
@@ -210,9 +274,9 @@ export default function CalendarTab() {
             <div className="w-8 h-8 border-2 border-gray-200 dark:border-white/20 border-t-gray-800 dark:border-t-white rounded-full animate-spin" />
             <p className="text-sm text-gray-500 dark:text-neutral-400">{t('common.loading', "Loading events...")}</p>
           </div>
-        ) : events.length > 0 ? (
+        ) : filteredEvents.length > 0 ? (
           <div className="space-y-4">
-            {events.map((event) => (
+            {filteredEvents.map((event) => (
               <div key={event.id} className="group relative p-4 bg-gray-50 dark:bg-[#242425] rounded-xl border border-gray-200 dark:border-transparent flex justify-between items-center transition-all hover:border-neutral-700">
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">{event.title}</h3>
@@ -280,9 +344,11 @@ export default function CalendarTab() {
           <div className="flex flex-col gap-4">
             <div>
               <CalendarIcon size={20} />
-              <h2 className="text-sm font-semibold text-gray-900 dark:text-white mt-2">{t('calendar.noEvents')}</h2>
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white mt-2">
+                 {events.length > 0 ? t('calendar.noEventsInFilter', 'No events in this period') : t('calendar.noEvents')}
+              </h2>
               <p className="text-sm">
-                {t('calendar.askToCreate')}
+                {events.length > 0 ? t('calendar.tryChangingFilter', 'Try changing the filter to see more events.') : t('calendar.askToCreate')}
               </p>
             </div>
           </div>
@@ -341,4 +407,3 @@ export default function CalendarTab() {
     </div>
   );
 }
-

@@ -10,6 +10,7 @@ pub struct User {
     pub google_id: Option<String>,
     pub full_name: Option<String>,
     pub profile_picture: Option<String>,
+    pub plan: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

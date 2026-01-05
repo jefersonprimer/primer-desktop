@@ -1,31 +1,72 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { open } from "@tauri-apps/plugin-shell";
 import CheckIcon from "@/components/ui/icons/CheckIcon";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function PremiumTab() {
   const { t } = useTranslation();
+  const { isAuthenticated, login, userId } = useAuth();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
-  
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const baseUrl = import.meta.env.PROD
+    ? "https://primerai.vercel.app"
+    : "http://localhost:3000";
+
   const plans = [
     {
-      id: "starter",
-      key: "premium.plans.starter",
-      popular: false,
-      gradient: "from-gray-700 to-gray-800"
+      id: "plus",
+      key: "premium.plans.plus",
+      popular: true,
+      gradient: "from-blue-600 to-blue-700",
+      priceId: {
+        monthly: "plus-monthly",
+        yearly: "plus-yearly",
+      },
     },
     {
       id: "pro",
       key: "premium.plans.pro",
-      popular: true,
-      gradient: "from-blue-600 to-blue-700"
+      popular: false,
+      gradient: "from-purple-600 to-purple-700",
+      priceId: {
+        monthly: "pro-monthly",
+        yearly: "pro-yearly",
+      },
     },
     {
-      id: "proPlus",
-      key: "premium.plans.proPlus",
+      id: "free",
+      key: "premium.plans.free",
       popular: false,
-      gradient: "from-purple-600 to-purple-700"
-    }
+      gradient: "",
+      priceId: null, // Free plan, no checkout
+    },
   ];
+
+  const handleSubscribe = async (priceId: string) => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      if (!isAuthenticated) {
+        // User needs to login first, then redirect to pricing
+        localStorage.setItem('pendingPriceId', priceId);
+        await login();
+        return;
+      }
+
+      // Redirect to website checkout with proper parameters
+      const checkoutUrl = `${baseUrl}/pricing?plan=${priceId}&source=desktop&user_id=${userId}`;
+      console.log("Opening checkout URL:", checkoutUrl);
+      await open(checkoutUrl);
+    } catch (error) {
+      console.error("Subscribe error:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="p-8 w-full h-full bg-white dark:bg-[#1D1D1F] text-gray-500 dark:text-neutral-400">
@@ -88,7 +129,7 @@ export default function PremiumTab() {
               </div>
               
               <div className="flex items-baseline gap-2">
-                {billingCycle === 'yearly' && (
+                {billingCycle === 'yearly' && plan.priceId && (
                   <span className="text-gray-300 line-through text-lg">
                     {t(`${plan.key}.originalPrice`)}
                   </span>
@@ -99,10 +140,10 @@ export default function PremiumTab() {
               </div>
             </div>
 
-            <div className="relative py-4 border-t border-b border-white/10"/>
+            <div className="relative py-4"/>
             <div className="flex-1 space-y-3 mb-6">
               <p className="text-sm font-semibold text-gray-200 mb-3">
-                {t('premium.features_prefix')}
+                {t(`${plan.key}.features_prefix`)}
               </p>
               {(t(`${plan.key}.features`, { returnObjects: true }) as string[]).map(
                 (feature: string, index: number) => (
@@ -120,9 +161,22 @@ export default function PremiumTab() {
               )}
             </div>
 
-            <button className="w-fit bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-xl px-6 py-3 text-sm font-semibold transition-all text-white">
-              {t('premium.upgrade')}
-            </button>
+            {plan.priceId ? (
+              <button 
+                onClick={() => handleSubscribe(plan.priceId![billingCycle])}
+                disabled={isProcessing}
+                className="w-fit bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-xl px-6 py-3 text-sm font-semibold transition-all text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isProcessing ? t('common.loading') : t('premium.upgrade')}
+              </button>
+            ) : (
+              <button 
+                disabled
+                className="w-fit bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-6 py-3 text-sm font-semibold text-gray-400 cursor-default"
+              >
+                {t('premium.currentPlan')}
+              </button>
+            )}
           </div>
         ))}
       </div>

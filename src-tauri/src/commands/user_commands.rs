@@ -253,6 +253,49 @@ pub async fn delete_account(dto: DeleteAccountDto, state: State<'_, AppState>) -
         .map_err(|e| e.to_string())
 }
 
+#[derive(serde::Serialize)]
+pub struct UserProfileResponse {
+    pub id: String,
+    pub email: String,
+    pub full_name: Option<String>,
+    pub profile_picture: Option<String>,
+    pub plan: String,
+    pub created_at: String,
+}
+
+#[tauri::command]
+pub async fn get_current_user(state: State<'_, AppState>) -> Result<Option<UserProfileResponse>, String> {
+    // 1. Get session
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?;
+    
+    if let Some(s) = session {
+        // 2. Check expiry
+        let now = chrono::Utc::now().timestamp();
+        if s.expires_at <= now {
+             let _ = state.session_repo.clear().await;
+             return Ok(None);
+        }
+        
+        // 3. Get user
+        let user = state.user_repo.find_by_id(s.user_id).await.map_err(|e| e.to_string())?;
+        
+        if let Some(u) = user {
+            Ok(Some(UserProfileResponse {
+                id: u.id.to_string(),
+                email: u.email,
+                full_name: u.full_name,
+                profile_picture: u.profile_picture,
+                plan: u.plan,
+                created_at: u.created_at.to_rfc3339(),
+            }))
+        } else {
+            Ok(None)
+        }
+    } else {
+        Ok(None)
+    }
+}
+
 #[tauri::command]
 pub async fn get_session(state: State<'_, AppState>) -> Result<Option<SessionResponse>, String> {
     let session = state.session_repo.get()
@@ -290,6 +333,40 @@ pub async fn clear_session(state: State<'_, AppState>) -> Result<ClearSessionRes
         message: "Session cleared successfully".to_string(),
     })
 }
+
+#[derive(serde::Deserialize)]
+pub struct SyncSessionDto {
+    pub user_id: String,
+    pub access_token: String,
+    pub expires_at: i64,
+    pub google_access_token: Option<String>,
+    pub google_refresh_token: Option<String>,
+    pub google_token_expires_at: Option<i64>,
+}
+
+#[tauri::command]
+pub async fn sync_session(dto: SyncSessionDto, state: State<'_, AppState>) -> Result<(), String> {
+    use crate::domain::user::entity::session::Session;
+    
+    let user_id = Uuid::parse_str(&dto.user_id)
+        .map_err(|e| format!("Invalid user_id format: {}", e))?;
+    
+    let session = Session {
+        id: 1,
+        user_id,
+        access_token: dto.access_token,
+        refresh_token: None,
+        expires_at: dto.expires_at,
+        google_access_token: dto.google_access_token,
+        google_refresh_token: dto.google_refresh_token,
+        google_token_expires_at: dto.google_token_expires_at,
+    };
+    
+    state.session_repo.save(session).await.map_err(|e| e.to_string())?;
+    log::info!("Session synced to SQLite for user: {}", user_id);
+    Ok(())
+}
+
 
 #[tauri::command]
 pub async fn clear_all_data(dto: ClearAllDataDto, state: State<'_, AppState>) -> Result<ClearAllDataResponse, String> {

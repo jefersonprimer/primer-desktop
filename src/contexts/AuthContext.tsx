@@ -19,7 +19,12 @@ interface AuthData {
   accessToken: string;
   refreshToken: string;
   user: User;
+  // Google Calendar tokens (from backend)
+  google_access_token?: string | null;
+  google_refresh_token?: string | null;
+  google_token_expires_at?: number | null;
 }
+
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -189,12 +194,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       setIsAuthenticated(true);
 
+      // Sync session to SQLite for calendar and other Tauri-side features
+      try {
+        // Calculate expires_at (default to 7 days from now if not provided)
+        const expiresAt = Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60);
+
+        await invoke("sync_session", {
+          dto: {
+            user_id: data.user.id,
+            access_token: data.accessToken,
+            expires_at: expiresAt,
+            google_access_token: data.google_access_token || null,
+            google_refresh_token: data.google_refresh_token || null,
+            google_token_expires_at: data.google_token_expires_at || null,
+          }
+        });
+        console.log("Session synced to SQLite");
+      } catch (syncError) {
+        console.error("Failed to sync session to SQLite:", syncError);
+        // Don't fail the whole exchange if sync fails
+      }
+
     } catch (error) {
       console.error("Exchange session error:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const logout = async () => {
     if (!store) return;

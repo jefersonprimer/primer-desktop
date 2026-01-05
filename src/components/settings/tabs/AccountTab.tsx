@@ -21,10 +21,23 @@ export default function AccountTab() {
   const [isClearingData, setIsClearingData] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [stats, setStats] = useState({ sessions: 0, messages: 0, active: 0 });
+  const [plan, setPlan] = useState<string>("free");
 
   useEffect(() => {
     fetchStats();
+    fetchUserProfile();
   }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const userProfile = await invoke<{ plan: string } | null>("get_current_user");
+      if (userProfile && userProfile.plan) {
+        setPlan(userProfile.plan);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -43,6 +56,14 @@ export default function AccountTab() {
           console.error("Failed to save language preference:", err);
       }
       setIsLanguageDropdownOpen(false);
+  };
+
+  const getBadgeColor = (plan: string) => {
+    switch(plan.toLowerCase()) {
+        case 'pro': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800';
+        case 'plus': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800';
+        default: return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700';
+    }
   };
 
   const handleClearAllDataClick = () => {
@@ -131,7 +152,12 @@ export default function AccountTab() {
           </div>
 
           <div className="flex-1">
-            <p className="text-base font-medium text-gray-900 dark:text-white">{userName || "User"}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-base font-medium text-gray-900 dark:text-white">{userName || "User"}</p>
+              <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${getBadgeColor(plan)}`}>
+                  {plan}
+              </span>
+            </div>
             <p className="text-sm text-gray-500 dark:text-neutral-400">{userEmail}</p>
           </div>
 

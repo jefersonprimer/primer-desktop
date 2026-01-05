@@ -107,7 +107,17 @@
     "deleteEvent": "Delete Event",
     "deleteEventWarning": "Are you sure you want to delete this event? This will remove it from Google Calendar as well.",
     "info": "Here you can view and manage events scheduled by the AI Assistant.",
-    "askToCreate": "You don't have events scheduled. Ask the AI to create one for you."
+    "askToCreate": "You don't have events scheduled. Ask the AI to create one for you.",
+    "noEventsInFilter": "No events in this period",
+    "tryChangingFilter": "Try changing the filter to see more events.",
+    "filter": {
+      "label": "Show",
+      "today": "Today",
+      "next7Days": "Next 7 Days",
+      "week": "This Week",
+      "month": "This Month",
+      "all": "All Events"
+    }
   },
   "calendarPreview": {
     "previewTitle": "Schedule this event?",
@@ -429,64 +439,57 @@
     "monthly": "Monthly",
     "yearly": "Yearly",
     "popular": "Popular",
+    "currentPlan": "Current Plan",
     "teams": {
       "interest": "Interested in Primer for Teams?",
       "link": "Talk to sales"
     },
-    "features_prefix": "Everything in Free, and:",
-    "free_plan": {
-      "title": "Free plan",
-      "price": "$0",
-      "features": [
-        "Limited AI responses a day",
-        "Limited free meetings",
-        "Ask AI about past meetings",
-        "Customize AI instructions"
-      ]
-    },
     "plans": {
-      "starter": {
-        "name": "Starter",
-        "originalPrice": "Free",
+      "free": {
+        "name": "Free",
         "price": {
-          "monthly": "Free",
-          "yearly": "Free"
+          "monthly": "R$ 0",
+          "yearly": "R$ 0"
         },
-        "description": "All essential features.",
+        "features_prefix": "Get started with:",
         "features": [
-          "Limited AI responses",
+          "Limited AI responses per day",
           "Limited meeting notetaking",
-          "Customize instructions & upload files",
-          "Ask AI about all your past meetings"
+          "Customize AI instructions",
+          "Ask AI about past meetings"
+        ]
+      },
+      "plus": {
+        "name": "Plus",
+        "originalPrice": "R$ 120/year",
+        "price": {
+          "monthly": "R$ 10/mo",
+          "yearly": "R$ 100/year"
+        },
+        "features_prefix": "Everything in Free, plus:",
+        "features": [
+          "More AI responses per day",
+          "More meeting notetaking",
+          "Priority support",
+          "10GB storage",
+          "Custom domain"
         ]
       },
       "pro": {
-        "name": "Pro plan",
-        "originalPrice": "$15",
+        "name": "Pro",
+        "originalPrice": "R$ 240/year",
         "price": {
-          "monthly": "$15",
-          "yearly": "$10"
+          "monthly": "R$ 20/mo",
+          "yearly": "R$ 180/year"
         },
-        "description": "Unlimited access",
+        "features_prefix": "Everything in Plus, plus:",
         "features": [
-          "Everything in Starter, plus...",
           "Unlimited AI responses",
           "Unlimited meeting notetaking",
           "Unlimited access to latest AI models",
-          "Priority support"
-        ]
-      },
-      "proPlus": {
-        "name": "Pro +",
-        "originalPrice": "$30",
-        "price": {
-          "monthly": "$30",
-          "yearly": "$20"
-        },
-        "description": "Undetectable during screen share.",
-        "features": [
-          "Everything in Pro, plus...",
-          "Completely hidden to meeting screen sharing software"
+          "24/7 priority support",
+          "Unlimited storage",
+          "SSO & Audit logs"
         ]
       }
     }
