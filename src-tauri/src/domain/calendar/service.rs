@@ -73,10 +73,28 @@ pub struct GoogleTokenResponse {
 pub struct GoogleCalendarService;
 
 impl GoogleCalendarService {
-    pub async fn refresh_access_token(_refresh_token: &str) -> Result<String> {
-         // Note: Currently we use Implicit Flow which does not provide a refresh token.
-         // This is a placeholder for future implementation if switching to Auth Code Flow.
-         Err(anyhow!("Token expired and no refresh mechanism available. Please Re-Connect Google."))
+    pub async fn refresh_access_token(refresh_token: &str, client_id: &str, client_secret: &str) -> Result<GoogleTokenResponse> {
+        let client = reqwest::Client::new();
+        let params = [
+            ("client_id", client_id),
+            ("client_secret", client_secret),
+            ("refresh_token", refresh_token),
+            ("grant_type", "refresh_token"),
+        ];
+
+        let res = client
+            .post("https://oauth2.googleapis.com/token")
+            .form(&params)
+            .send()
+            .await?;
+
+        if !res.status().is_success() {
+            let error_text = res.text().await?;
+            return Err(anyhow!("Google token refresh error: {}", error_text));
+        }
+
+        let token_response = res.json::<GoogleTokenResponse>().await?;
+        Ok(token_response)
     }
 
     pub async fn create_event(access_token: &str, payload: CreateEventPayload) -> Result<GoogleEventResponse> {
@@ -164,5 +182,32 @@ impl GoogleCalendarService {
         }
 
         Ok(())
+    }
+
+    pub async fn update_event(access_token: &str, calendar_id: &str, event_id: &str, payload: CreateEventPayload) -> Result<GoogleEventResponse> {
+        let client = reqwest::Client::new();
+        let url = format!("https://www.googleapis.com/calendar/v3/calendars/{}/events/{}", calendar_id, event_id);
+        
+        log::info!("Updating Google Event: URL={}", url);
+
+        let res = client
+            .patch(&url)
+            .header("Authorization", format!("Bearer {}", access_token))
+            .header("Content-Type", "application/json")
+            .json(&payload)
+            .send()
+            .await?;
+
+        let status = res.status();
+        log::info!("Google Update Response Status: {}", status);
+
+        if !status.is_success() {
+            let error_text = res.text().await?;
+            log::error!("Google API Error Body: {}", error_text);
+            return Err(anyhow!("Google Calendar API error: {} - {}", status, error_text));
+        }
+
+        let event = res.json::<GoogleEventResponse>().await?;
+        Ok(event)
     }
 }

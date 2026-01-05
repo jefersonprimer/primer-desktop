@@ -34,4 +34,15 @@ export const calendarService = {
       dto: { user_id: userId, event_id: eventId },
     });
   },
+
+  updateEvent: async (dto: {
+    user_id: string;
+    event_id: string;
+    title: string;
+    description?: string;
+    start_at: string;
+    end_at: string;
+  }): Promise<CalendarEvent> => {
+    return await invoke<CalendarEvent>("update_calendar_event", { dto });
+  },
 };

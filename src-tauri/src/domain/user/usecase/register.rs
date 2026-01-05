@@ -35,6 +35,7 @@ impl RegisterUseCase {
             google_id: None,
             full_name: None,
             profile_picture: None,
+            plan: "free".to_string(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };

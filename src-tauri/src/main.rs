@@ -2,13 +2,13 @@
 
 use app_lib::{
     app_state::AppState,
-    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands, audio_commands, whisper_commands, ollama_commands, changelog_commands, calendar_commands},
+    commands::{chat_commands, email_commands, user_commands, window_commands, screen_commands, config_commands, log_commands, prompt_preset_commands, audio_commands, whisper_commands, ollama_commands, changelog_commands, calendar_commands, notion_commands},
     config::Config,
     clickthrough,
     visibility,
     stealth,
 };
-use tauri::{Manager, Emitter, PhysicalSize};
+use tauri::{Manager, Emitter, PhysicalSize, Listener};
 use tauri_plugin_global_shortcut::{Code, Modifiers, ShortcutState};
 
 #[tauri::command]
@@ -165,7 +165,12 @@ async fn main() {
         .manage(app_state)
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_log::Builder::default().build())
+        .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+            let _ = app.emit("tauri://deep-link", argv);
+        }))
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_shortcuts(["CommandOrControl+Shift+S", "CommandOrControl+Backslash"])
@@ -197,6 +202,7 @@ async fn main() {
             // user commands
             user_commands::login,
             user_commands::google_login,
+            user_commands::exchange_google_code,
             user_commands::get_google_auth_url,
             user_commands::register,
             user_commands::reset_password,
@@ -205,7 +211,9 @@ async fn main() {
             user_commands::delete_api_key,
             user_commands::delete_account,
             user_commands::get_session,
+            user_commands::get_current_user,
             user_commands::clear_session,
+            user_commands::sync_session,
             user_commands::get_shortcuts,
             user_commands::clear_all_data,
             user_commands::get_user_stats,
@@ -276,8 +284,23 @@ async fn main() {
             calendar_commands::create_calendar_event,
             calendar_commands::get_calendar_events,
             calendar_commands::delete_calendar_event,
+            calendar_commands::update_calendar_event,
+            // Notion commands
+            notion_commands::get_notion_status,
+            notion_commands::get_notion_auth_url,
+            notion_commands::exchange_notion_code,
+            notion_commands::create_notion_page,
+            notion_commands::get_notion_pages,
+            notion_commands::delete_notion_page,
+            notion_commands::update_notion_page,
+            notion_commands::get_notion_page_content,
         ])
         .setup(move |app| {
+            let handle = app.handle().clone();
+            app.listen("tauri://deep-link", move |event| {
+                let _ = handle.emit("auth-callback", event.payload());
+            });
+
             let win = app.get_webview_window("main").unwrap();
 
             // 🧱 Limita a largura do conteúdo (não da janela fullscreen)

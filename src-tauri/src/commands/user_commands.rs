@@ -43,13 +43,14 @@ pub async fn get_google_auth_url() -> Result<GoogleAuthUrlResponse, String> {
     let client_id = env::var("GOOGLE_CLIENT_ID")
         .map_err(|_| "GOOGLE_CLIENT_ID not set in .env".to_string())?;
     
-    let redirect_uri = "http://localhost:5173/auth/callback";
+    let redirect_uri = "http://localhost:3000/api/auth/callback/google";
     let scope = "email profile openid https://www.googleapis.com/auth/calendar.events";
-    let response_type = "token"; // using implicit flow to get access token directly
+    let response_type = "code"; // Authorization Code Flow for refresh tokens
+    let access_type = "offline"; // Request refresh token
 
     let url = format!(
-        "https://accounts.google.com/o/oauth2/v2/auth?client_id={}&redirect_uri={}&response_type={}&scope={}&prompt=select_account",
-        client_id, redirect_uri, response_type, scope
+        "https://accounts.google.com/o/oauth2/v2/auth?client_id={}&redirect_uri={}&response_type={}&scope={}&access_type={}&prompt=consent",
+        client_id, redirect_uri, response_type, scope, access_type
     );
 
     Ok(GoogleAuthUrlResponse { url })
@@ -63,10 +64,80 @@ pub async fn google_login(dto: GoogleLoginDto, state: State<'_, AppState>) -> Re
         state.session_repo.clone(),
     );
 
-    google_login_usecase.execute(dto.email, dto.google_id, dto.name, dto.picture, dto.google_access_token)
+    google_login_usecase.execute(
+        dto.email, 
+        dto.google_id, 
+        dto.name, 
+        dto.picture, 
+        dto.google_access_token,
+        dto.google_refresh_token,
+        dto.google_token_expires_at,
+    )
         .await
         .map(|(token, user_id)| GoogleLoginResponse { token, user_id })
         .map_err(|e| e.to_string())
+}
+
+#[derive(serde::Deserialize)]
+pub struct ExchangeGoogleCodeDto {
+    pub code: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct ExchangeGoogleCodeResponse {
+    pub access_token: String,
+    pub refresh_token: Option<String>,
+    pub expires_in: i64,
+}
+
+#[tauri::command]
+pub async fn exchange_google_code(dto: ExchangeGoogleCodeDto) -> Result<ExchangeGoogleCodeResponse, String> {
+    use std::env;
+
+    let client_id = env::var("GOOGLE_CLIENT_ID")
+        .map_err(|_| "GOOGLE_CLIENT_ID not set in .env".to_string())?;
+    let client_secret = env::var("GOOGLE_CLIENT_SECRET")
+        .map_err(|_| "GOOGLE_CLIENT_SECRET not set in .env. Required for Authorization Code Flow.".to_string())?;
+    
+    let redirect_uri = "http://localhost:3000/api/auth/callback/google";
+
+    let client = reqwest::Client::new();
+    let params = [
+        ("client_id", client_id.as_str()),
+        ("client_secret", client_secret.as_str()),
+        ("code", dto.code.as_str()),
+        ("grant_type", "authorization_code"),
+        ("redirect_uri", redirect_uri),
+    ];
+
+    let res = client
+        .post("https://oauth2.googleapis.com/token")
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to exchange code: {}", e))?;
+
+    if !res.status().is_success() {
+        let error_text = res.text().await.unwrap_or_default();
+        return Err(format!("Google token exchange error: {}", error_text));
+    }
+
+    #[derive(serde::Deserialize)]
+    struct GoogleTokenResponse {
+        access_token: String,
+        refresh_token: Option<String>,
+        expires_in: i64,
+    }
+
+    let token_response: GoogleTokenResponse = res.json()
+        .await
+        .map_err(|e| format!("Failed to parse token response: {}", e))?;
+
+    Ok(ExchangeGoogleCodeResponse {
+        access_token: token_response.access_token,
+        refresh_token: token_response.refresh_token,
+        expires_in: token_response.expires_in,
+    })
 }
 
 #[tauri::command]
@@ -182,6 +253,49 @@ pub async fn delete_account(dto: DeleteAccountDto, state: State<'_, AppState>) -
         .map_err(|e| e.to_string())
 }
 
+#[derive(serde::Serialize)]
+pub struct UserProfileResponse {
+    pub id: String,
+    pub email: String,
+    pub full_name: Option<String>,
+    pub profile_picture: Option<String>,
+    pub plan: String,
+    pub created_at: String,
+}
+
+#[tauri::command]
+pub async fn get_current_user(state: State<'_, AppState>) -> Result<Option<UserProfileResponse>, String> {
+    // 1. Get session
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?;
+    
+    if let Some(s) = session {
+        // 2. Check expiry
+        let now = chrono::Utc::now().timestamp();
+        if s.expires_at <= now {
+             let _ = state.session_repo.clear().await;
+             return Ok(None);
+        }
+        
+        // 3. Get user
+        let user = state.user_repo.find_by_id(s.user_id).await.map_err(|e| e.to_string())?;
+        
+        if let Some(u) = user {
+            Ok(Some(UserProfileResponse {
+                id: u.id.to_string(),
+                email: u.email,
+                full_name: u.full_name,
+                profile_picture: u.profile_picture,
+                plan: u.plan,
+                created_at: u.created_at.to_rfc3339(),
+            }))
+        } else {
+            Ok(None)
+        }
+    } else {
+        Ok(None)
+    }
+}
+
 #[tauri::command]
 pub async fn get_session(state: State<'_, AppState>) -> Result<Option<SessionResponse>, String> {
     let session = state.session_repo.get()
@@ -219,6 +333,40 @@ pub async fn clear_session(state: State<'_, AppState>) -> Result<ClearSessionRes
         message: "Session cleared successfully".to_string(),
     })
 }
+
+#[derive(serde::Deserialize)]
+pub struct SyncSessionDto {
+    pub user_id: String,
+    pub access_token: String,
+    pub expires_at: i64,
+    pub google_access_token: Option<String>,
+    pub google_refresh_token: Option<String>,
+    pub google_token_expires_at: Option<i64>,
+}
+
+#[tauri::command]
+pub async fn sync_session(dto: SyncSessionDto, state: State<'_, AppState>) -> Result<(), String> {
+    use crate::domain::user::entity::session::Session;
+    
+    let user_id = Uuid::parse_str(&dto.user_id)
+        .map_err(|e| format!("Invalid user_id format: {}", e))?;
+    
+    let session = Session {
+        id: 1,
+        user_id,
+        access_token: dto.access_token,
+        refresh_token: None,
+        expires_at: dto.expires_at,
+        google_access_token: dto.google_access_token,
+        google_refresh_token: dto.google_refresh_token,
+        google_token_expires_at: dto.google_token_expires_at,
+    };
+    
+    state.session_repo.save(session).await.map_err(|e| e.to_string())?;
+    log::info!("Session synced to SQLite for user: {}", user_id);
+    Ok(())
+}
+
 
 #[tauri::command]
 pub async fn clear_all_data(dto: ClearAllDataDto, state: State<'_, AppState>) -> Result<ClearAllDataResponse, String> {

@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useAi } from "@/contexts/AiContext";
+import { useCalendarEventHandler } from "@/hooks/useCalendarEventHandler";
 
 import Dock from "@/components/Dock";
 
@@ -59,6 +60,9 @@ export default function HomePage() {
     outputLanguage,
     setLastUserMessage
   } = useAi();
+
+  // Calendar preview integration
+  const { processAiResponse } = useCalendarEventHandler();
 
   const fetchSessions = async () => {
     if (!userId) return;
@@ -161,6 +165,10 @@ export default function HomePage() {
 
       setAiMessage(response.message.content);
       await fetchMessages(currentChatId, response.follow_ups);
+
+      // Process AI response for calendar event intents
+      // This will show preview or create event directly based on confidence
+      processAiResponse(response.message.content);
 
     } catch (error) {
       console.error("Chat error:", error);

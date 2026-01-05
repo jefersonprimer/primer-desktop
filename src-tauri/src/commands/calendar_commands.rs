@@ -6,6 +6,7 @@ use chrono::{DateTime, Utc};
 use crate::domain::calendar::usecase::create_event::CreateEventUseCase;
 use crate::domain::calendar::usecase::delete_event::DeleteEventUseCase;
 use crate::domain::calendar::usecase::list_events::ListEventsUseCase;
+use crate::domain::calendar::usecase::update_event::UpdateEventUseCase;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateCalendarEventDto {
@@ -137,4 +138,55 @@ pub async fn get_calendar_events(dto: GetCalendarEventsDto, state: State<'_, App
     }).collect();
 
     Ok(GetCalendarEventsResponse { events: event_dtos })
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateCalendarEventDto {
+    pub user_id: String,
+    pub event_id: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub start_at: String, // ISO 8601
+    pub end_at: String,   // ISO 8601
+}
+
+#[tauri::command]
+pub async fn update_calendar_event(dto: UpdateCalendarEventDto, state: State<'_, AppState>) -> Result<CalendarEventDto, String> {
+    let update_event_usecase = UpdateEventUseCase::new(
+        state.calendar_repo.clone(),
+        state.session_repo.clone(),
+    );
+
+    let user_id = Uuid::parse_str(&dto.user_id)
+        .map_err(|e| format!("Invalid user_id: {}", e))?;
+    
+    let event_id = Uuid::parse_str(&dto.event_id)
+        .map_err(|e| format!("Invalid event_id: {}", e))?;
+
+    let start_at = DateTime::parse_from_rfc3339(&dto.start_at)
+        .map_err(|e| format!("Invalid start_at: {}", e))?
+        .with_timezone(&Utc);
+
+    let end_at = DateTime::parse_from_rfc3339(&dto.end_at)
+        .map_err(|e| format!("Invalid end_at: {}", e))?
+        .with_timezone(&Utc);
+
+    let event = update_event_usecase.execute(
+        user_id,
+        event_id,
+        dto.title,
+        dto.description,
+        start_at,
+        end_at,
+    ).await.map_err(|e| e.to_string())?;
+
+    Ok(CalendarEventDto {
+        id: event.id.to_string(),
+        google_event_id: event.google_event_id,
+        title: event.title,
+        description: event.description,
+        start_at: event.start_at.to_rfc3339(),
+        end_at: event.end_at.to_rfc3339(),
+        status: event.status,
+    })
 }

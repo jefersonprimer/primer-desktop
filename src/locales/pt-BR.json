@@ -107,7 +107,35 @@
     "deleteEvent": "Excluir Evento",
     "deleteEventWarning": "Tem certeza que deseja excluir este evento? Isso também o removerá do Google Calendar.",
     "info": "Aqui você pode visualizar e gerenciar eventos agendados pelo Assistente de IA.",
-    "askToCreate": "Você não tem eventos agendados. Peça para a IA criar um para você."
+    "askToCreate": "Você não tem eventos agendados. Peça para a IA criar um para você.",
+    "noEventsInFilter": "Nenhum evento neste período",
+    "tryChangingFilter": "Tente mudar o filtro para ver mais eventos.",
+    "filter": {
+      "label": "Mostrar",
+      "today": "Hoje",
+      "next7Days": "Próximos 7 dias",
+      "week": "Esta semana",
+      "month": "Este mês",
+      "all": "Todos os eventos"
+    }
+  },
+  "calendarPreview": {
+    "previewTitle": "Agendar este evento?",
+    "editEvent": "Editar Evento",
+    "eventCreated": "Evento criado",
+    "creating": "Criando...",
+    "confirm": "Confirmar",
+    "edit": "Editar",
+    "cancel": "Cancelar",
+    "undo": "Desfazer",
+    "undoSuccess": "Evento cancelado",
+    "saveChanges": "Salvar Alterações",
+    "title": "Título",
+    "date": "Data",
+    "startTime": "Início",
+    "endTime": "Fim",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Adicionar descrição..."
   },
   "resources": {
     "title": "Recursos",
@@ -396,64 +424,57 @@
     "monthly": "Mensal",
     "yearly": "Anual",
     "popular": "Popular",
+    "currentPlan": "Plano Atual",
     "teams": {
       "interest": "Interessado no Primer para Equipes?",
       "link": "Fale com vendas"
     },
-    "features_prefix": "Tudo no plano Grátis, e:",
-    "free_plan": {
-      "title": "Plano Gratuito",
-      "price": "$0",
-      "features": [
-        "Respostas de IA limitadas por dia",
-        "Reuniões gratuitas limitadas",
-        "Pergunte à IA sobre reuniões passadas",
-        "Personalize instruções da IA"
-      ]
-    },
     "plans": {
-      "starter": {
-        "name": "Starter",
-        "originalPrice": "Grátis",
+      "free": {
+        "name": "Grátis",
         "price": {
-          "monthly": "Grátis",
-          "yearly": "Grátis"
+          "monthly": "R$ 0",
+          "yearly": "R$ 0"
         },
-        "description": "Todos os recursos essenciais.",
+        "features_prefix": "Comece com:",
         "features": [
-          "Respostas de IA limitadas",
+          "Respostas de IA limitadas por dia",
           "Anotações de reunião limitadas",
-          "Instruções personalizadas e upload de arquivos",
-          "Pergunte à IA sobre todas as suas reuniões anteriores"
+          "Personalize instruções da IA",
+          "Pergunte à IA sobre reuniões passadas"
+        ]
+      },
+      "plus": {
+        "name": "Plus",
+        "originalPrice": "R$ 120/ano",
+        "price": {
+          "monthly": "R$ 10/mês",
+          "yearly": "R$ 100/ano"
+        },
+        "features_prefix": "Tudo no Grátis, mais:",
+        "features": [
+          "Mais respostas de IA por dia",
+          "Mais anotações de reunião",
+          "Suporte prioritário",
+          "10GB de armazenamento",
+          "Domínio personalizado"
         ]
       },
       "pro": {
         "name": "Pro",
-        "originalPrice": "$15",
+        "originalPrice": "R$ 240/ano",
         "price": {
-          "monthly": "$15",
-          "yearly": "$10"
+          "monthly": "R$ 20/mês",
+          "yearly": "R$ 180/ano"
         },
-        "description": "Acesso ilimitado",
+        "features_prefix": "Tudo no Plus, mais:",
         "features": [
-          "Tudo no Starter, mais...",
           "Respostas de IA ilimitadas",
           "Anotações de reunião ilimitadas",
           "Acesso ilimitado aos modelos de IA mais recentes",
-          "Suporte prioritário"
-        ]
-      },
-      "proPlus": {
-        "name": "Pro +",
-        "originalPrice": "$30",
-        "price": {
-          "monthly": "$30",
-          "yearly": "$20"
-        },
-        "description": "Indetectável durante compartilhamento de tela.",
-        "features": [
-          "Tudo no Pro, mais...",
-          "Completamente oculto para softwares de compartilhamento de tela"
+          "Suporte prioritário 24/7",
+          "Armazenamento ilimitado",
+          "SSO e Logs de auditoria"
         ]
       }
     }

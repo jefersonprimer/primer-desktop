@@ -7,6 +7,7 @@ import { useAi } from "@/contexts/AiContext";
 import Sidebar from "./Sidebar";
 import GeneralTab from "./tabs/GeneralTab";
 import CalendarTab from "./tabs/CalendarTab";
+import NotionTab from "./tabs/NotionTab";
 import ApiTabs from "./tabs/ApiTabs";
 import GoogleTab from "./tabs/GoogleTab";
 import OpenAiTab from "./tabs/OpenAiTab";
@@ -68,13 +69,13 @@ export default function SettingsModal({ open, onClose }: Props) {
     tabs.forEach((tab) => {
       const provider = getProviderFromTab(tab);
       const keyData = apiKeys.find((k) => k.provider === provider);
-      
+
       newDrafts[tab] = {
         apiKey: keyData?.api_key || "",
         model: keyData?.selected_model || getDefaultModel(tab),
       };
     });
-    
+
     setDrafts(newDrafts);
   }, [apiKeys]);
 
@@ -122,7 +123,7 @@ export default function SettingsModal({ open, onClose }: Props) {
 
   const handleSaveCurrentApiTab = async () => {
     if (!userId) return;
-    
+
     const provider = getProviderFromTab(activeApiTab);
     if (!provider) return;
 
@@ -150,19 +151,19 @@ export default function SettingsModal({ open, onClose }: Props) {
     switch (activeItem) {
       case "API e Modelos":
         // Ensure we always have a valid draft object, even if state is initializing
-        const currentDraft = drafts[activeApiTab] || { 
-          apiKey: "", 
-          model: getDefaultModel(activeApiTab) 
+        const currentDraft = drafts[activeApiTab] || {
+          apiKey: "",
+          model: getDefaultModel(activeApiTab)
         };
 
         return (
           <>
-            <ApiTabs 
+            <ApiTabs
               active={activeApiTab}
               onTabChange={setActiveApiTab}
             />
             {activeApiTab === "Google" && (
-              <GoogleTab 
+              <GoogleTab
                 apiKey={currentDraft.apiKey}
                 setApiKey={(val) => handleUpdateDraft("Google", "apiKey", val)}
                 model={currentDraft.model}
@@ -172,7 +173,7 @@ export default function SettingsModal({ open, onClose }: Props) {
               />
             )}
             {activeApiTab === "OpenAI" && (
-              <OpenAiTab 
+              <OpenAiTab
                 apiKey={currentDraft.apiKey}
                 setApiKey={(val) => handleUpdateDraft("OpenAI", "apiKey", val)}
                 model={currentDraft.model}
@@ -205,9 +206,11 @@ export default function SettingsModal({ open, onClose }: Props) {
           </>
         );
       case "General":
-        return <GeneralTab/>;
+        return <GeneralTab />;
       case "Calendar":
-        return <CalendarTab/>;
+        return <CalendarTab />;
+      case "Notion":
+        return <NotionTab />;
       case "Recursos":
         return <ResourcesTab />;
       case "Keybinds":
@@ -215,13 +218,13 @@ export default function SettingsModal({ open, onClose }: Props) {
       case "Languages":
         return <LanguagesTab />;
       case "Profile":
-        return <AccountTab/>;
+        return <AccountTab />;
       case "Billing":
-        return <PremiumTab/>;
+        return <PremiumTab />;
       case "Changelog":
-        return <ChangelogTab/>;
+        return <ChangelogTab />;
       case "Help Center":
-        return <HelpTab/>;
+        return <HelpTab />;
       default:
         return (
           <div className="p-6 text-neutral-400">

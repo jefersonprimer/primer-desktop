@@ -147,28 +147,22 @@ export default function HistoryModal({
 
         <aside className="w-80 bg-[#181719] border-r border-neutral-700 flex flex-col">
           <div className="flex items-center justify-between p-3 shrink-0">
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full">
                <button
                 onClick={() => setActiveTab('chats')}
-                className={`p-2 rounded-lg transition-colors ${activeTab === 'chats' ? 'bg-neutral-800 text-white' : 'text-neutral-400 hover:text-white'}`}
+                className={`flex-1 flex items-center text-sm justify-center gap-2 p-2 rounded-lg transition-colors ${activeTab === 'chats' ? 'bg-neutral-800 text-white' : 'text-neutral-400 hover:text-white'}`}
                 title={t('history.chats')}
               >
-                <MessagesSquareIcon size={20} />
+                <MessagesSquareIcon size={16}/> Chats
               </button>
               <button
                 onClick={() => setActiveTab('calendar')}
-                className={`p-2 rounded-lg transition-colors ${activeTab === 'calendar' ? 'bg-neutral-800 text-white' : 'text-neutral-400 hover:text-white'}`}
+                className={`flex-1 flex items-center text-sm justify-center gap-2 p-2 rounded-lg transition-colors ${activeTab === 'calendar' ? 'bg-neutral-800 text-white' : 'text-neutral-400 hover:text-white'}`}
                 title={t('history.calendar')}
               >
-                <CalendarIcon size={20} />
+                <CalendarIcon size={16}/> Events
               </button>
             </div>
-            <button
-              onClick={onClose}
-              className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
-            >
-              <CloseIcon size={20} />
-            </button>
           </div>
 
           {activeTab === 'chats' ? (
@@ -297,36 +291,47 @@ export default function HistoryModal({
           )}
         </aside>
 
-        <main className="flex-1 p-6 text-neutral-300 overflow-y-auto flex flex-col">
-          {activeTab === 'chats' ? (
-             !selected ? (
+        <main className="flex-1 flex flex-col text-neutral-300 relative overflow-hidden">
+          <div className="w-full flex justify-end p-3 shrink-0 z-10">
+            <button
+              onClick={onClose}
+              className="text-neutral-400 hover:text-white hover:bg-neutral-800 p-1 rounded-full transition-colors"
+            >
+              <CloseIcon size={20} />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-6 pb-6 flex flex-col">
+            {activeTab === 'chats' ? (
+               !selected ? (
+                  <div className="flex-1 flex items-center justify-center text-neutral-500 text-center">
+                    <div className="flex flex-col items-center">
+                        <div className="text-base mb-4">👉</div>
+                        <p>{t('history.selectSession')}</p>
+                    </div>
+                  </div>
+              ) : (
+                  <div className="flex-1 flex flex-col">
+                  <h3 className="text-base font-semibold text-white mb-4 flex justify-between items-center">
+                      <span>{selected.title}</span>
+                  </h3>
+
+                  <div className="flex-1 overflow-y-auto">
+                      <ChatHistory messages={messages} />
+                  </div>
+                  </div>
+              )
+            ) : (
                 <div className="flex-1 flex items-center justify-center text-neutral-500 text-center">
                   <div className="flex flex-col items-center">
-                      <div className="text-base mb-4">👉</div>
-                      <p>{t('history.selectSession')}</p>
+                    <CalendarIcon size={48} />
+                    <p className="mt-4 max-w-xs mx-auto">
+                        {t('calendar.info', "Here you can view and manage events scheduled by the AI Assistant.")}
+                    </p>
                   </div>
                 </div>
-            ) : (
-                <div className="flex-1 flex flex-col">
-                <h3 className="text-base font-semibold text-white mb-4 flex justify-between items-center">
-                    <span>{selected.title}</span>
-                </h3>
-
-                <div className="flex-1  overflow-y-auto">
-                    <ChatHistory messages={messages} />
-                </div>
-                </div>
-            )
-          ) : (
-              <div className="flex-1 flex items-center justify-center text-neutral-500 text-center">
-                <div className="flex flex-col items-center">
-                  <CalendarIcon size={48} />
-                  <p className="mt-4 max-w-xs mx-auto">
-                      {t('calendar.info', "Here you can view and manage events scheduled by the AI Assistant.")}
-                  </p>
-                </div>
-              </div>
-          )}
+            )}
+          </div>
         </main>
       </div>
     </div>

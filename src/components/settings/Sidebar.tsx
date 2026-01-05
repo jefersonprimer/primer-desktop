@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import CloseIcon from "@/components/ui/icons/CloseIcon";
 import SettingsIcon from "@/components/ui/icons/SettingsIcon";
 import CalendarIcon from "@/components/ui/icons/CalendarIcon";
+import NotionIcon from "@/components/ui/icons/NotionIcon";
 import NetworkIcon from "@/components/ui/icons/NetworkIcon";
 import BoxesIcon from "@/components/ui/icons/BoxesIcon";
 import KeyboardIcon from "@/components/ui/icons/KeyboardIcon";
@@ -61,6 +62,14 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
             >
               <CalendarIcon size={20} />
               {t('sidebar.calendar')}
+            </button>
+
+            <button
+              onClick={() => onSelectItem("Notion")}
+              className={itemClass(activeItem === "Notion")}
+            >
+              <NotionIcon size={20}/> 
+              {t('notion.title')}
             </button>
 
             <button

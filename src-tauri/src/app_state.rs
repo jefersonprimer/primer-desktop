@@ -36,6 +36,7 @@ use crate::{
         maintenance::repository::MaintenanceRepository,
         changelog::repository::ChangelogRepository,
         calendar::repository::CalendarRepository,
+        notion::repository::NotionRepository,
     },
     infrastructure::{
         ai::{
@@ -75,6 +76,11 @@ use crate::{
             postgres_calendar_repository::PostgresCalendarRepository,
             noop_calendar_repository::NoOpCalendarRepository,
         },
+        notion::{
+            postgres_repository::PostgresNotionRepository,
+            noop_repository::NoOpNotionRepository,
+            client::NotionClient,
+        },
     },
 };
 
@@ -93,6 +99,8 @@ pub struct AppState {
     pub maintenance_repo: Arc<dyn MaintenanceRepository>,
     pub changelog_repo: Arc<dyn ChangelogRepository>,
     pub calendar_repo: Arc<dyn CalendarRepository>,
+    pub notion_repo: Arc<dyn NotionRepository>,
+    pub notion_client: Arc<NotionClient>,
 
     pub chat_service: Arc<dyn ChatService>,
 
@@ -134,7 +142,7 @@ impl AppState {
         let pg_url = &config.database.database_url;
         let pg_pool_result = connect_pg(pg_url).await;
 
-        let (user_repo, user_api_key_repo, postgres_chat_repo, postgres_message_repo, changelog_repo, calendar_repo) = match pg_pool_result {
+        let (user_repo, user_api_key_repo, postgres_chat_repo, postgres_message_repo, changelog_repo, calendar_repo, notion_repo) = match pg_pool_result {
             Ok(pg_pool) => {
                 migrate_pg(&pg_pool).await?;
                 (
@@ -144,6 +152,7 @@ impl AppState {
                     Arc::new(PostgresMessageRepository::new(pg_pool.clone())) as Arc<dyn MessageRepository>,
                     Arc::new(PostgresChangelogRepository::new(pg_pool.clone())) as Arc<dyn ChangelogRepository>,
                     Arc::new(PostgresCalendarRepository::new(pg_pool.clone())) as Arc<dyn CalendarRepository>,
+                    Arc::new(PostgresNotionRepository::new(pg_pool.clone())) as Arc<dyn NotionRepository>,
                 )
             },
             Err(e) => {
@@ -155,6 +164,7 @@ impl AppState {
                     Arc::new(SqliteMessageRepository::new(sqlite_pool.clone())) as Arc<dyn MessageRepository>,
                     Arc::new(NoOpChangelogRepository::new()) as Arc<dyn ChangelogRepository>,
                     Arc::new(NoOpCalendarRepository::new()) as Arc<dyn CalendarRepository>,
+                    Arc::new(NoOpNotionRepository::new()) as Arc<dyn NotionRepository>,
                 )
             }
         };
@@ -173,6 +183,12 @@ impl AppState {
             session_repo.clone(),
         ));
 
+        let notion_client = Arc::new(NotionClient::new());
+        let create_page_usecase = Arc::new(crate::domain::notion::usecase::create_page::CreatePageUseCase::new(
+            notion_repo.clone(),
+            notion_client.clone(),
+        ));
+
         let chat_service_impl = ChatServiceImpl::new(
             config_repo.clone(),
             user_api_key_repo.clone(),
@@ -183,6 +199,7 @@ impl AppState {
             openai_provider,
             openrouter_provider,
             create_event_usecase,
+            create_page_usecase,
         );
         let chat_service: Arc<dyn ChatService> = Arc::new(chat_service_impl);
 
@@ -221,6 +238,8 @@ impl AppState {
             maintenance_repo,
             changelog_repo,
             calendar_repo,
+            notion_repo,
+            notion_client,
             chat_service,
             password_hasher,
             token_generator,

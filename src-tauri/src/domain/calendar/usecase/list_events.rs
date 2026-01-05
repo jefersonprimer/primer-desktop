@@ -1,6 +1,7 @@
-use anyhow::{Result};
+use anyhow::Result;
 use uuid::Uuid;
 use std::sync::Arc;
+use chrono::Utc;
 use crate::domain::calendar::repository::CalendarRepository;
 use crate::domain::user::repository::session_repository::SessionRepository;
 use crate::domain::calendar::service::{GoogleCalendarService, GoogleEvent};
@@ -27,14 +28,46 @@ impl ListEventsUseCase {
         let mut local_events = self.calendar_repo.find_by_user_id(user_id).await?;
 
         // 2. Try to get Google events if session is active
-        if let Ok(Some(session)) = self.session_repo.get().await {
-            if let Some(token) = session.google_access_token {
+        if let Ok(Some(mut session)) = self.session_repo.get().await {
+            if let Some(mut access_token) = session.google_access_token.clone() {
+                // Check if token is expired and refresh if needed
+                let now = Utc::now().timestamp();
+                let is_expired = session.google_token_expires_at
+                    .map(|exp| exp <= now + 60) // Refresh if expires within 60 seconds
+                    .unwrap_or(false);
+
+                if is_expired {
+                    log::info!("Google access token expired, attempting refresh for list_events...");
+                    
+                    if let Some(refresh_token) = session.google_refresh_token.clone() {
+                        if let (Ok(client_id), Ok(client_secret)) = (
+                            std::env::var("GOOGLE_CLIENT_ID"),
+                            std::env::var("GOOGLE_CLIENT_SECRET")
+                        ) {
+                            if let Ok(token_response) = GoogleCalendarService::refresh_access_token(
+                                &refresh_token, 
+                                &client_id, 
+                                &client_secret
+                            ).await {
+                                // Update session with new token
+                                access_token = token_response.access_token.clone();
+                                session.google_access_token = Some(token_response.access_token);
+                                session.google_token_expires_at = Some(now + token_response.expires_in);
+                                
+                                // Save updated session (ignore errors to not break list)
+                                let _ = self.session_repo.save(session).await;
+                                log::info!("Google access token refreshed successfully");
+                            }
+                        }
+                    }
+                }
+
                 // Fetch list of calendars (Primary + Holidays + etc)
-                if let Ok(calendars) = GoogleCalendarService::list_calendars(&token).await {
+                if let Ok(calendars) = GoogleCalendarService::list_calendars(&access_token).await {
                     for calendar in calendars {
                          // Fetch events for each calendar
                          // We could parallelize this, but let's keep it simple for now to avoid complexity with errors
-                        if let Ok(google_events) = GoogleCalendarService::list_events(&token, &calendar.id).await {
+                        if let Ok(google_events) = GoogleCalendarService::list_events(&access_token, &calendar.id).await {
                             // Merge google events that are NOT in our local DB
                             for ge in google_events {
                                 // Check if we already have this event locally (by google_event_id)
