@@ -14,12 +14,16 @@
       {
         "label": "main",
         "title": "PrimerApp",
-        "width": 400,
-        "height": 600,
+        "width": 1200,
+        "height": 800,
+        "minWidth": 1024,
+        "maxWidth": 1400,
+        "minHeight": 600,
+        "maxHeight": 1000,
         "resizable": true,
         "decorations": false,
         "transparent": true,
-        "alwaysOnTop": true,
+        "alwaysOnTop": false,
         "visible": false,
         "skipTaskbar": false
       },
@@ -37,7 +41,9 @@
     ],
     "security": {
       "csp": null,
-      "capabilities": ["default"]
+      "capabilities": [
+        "default"
+      ]
     }
   },
   "plugins": {
@@ -68,4 +74,3 @@
     ]
   }
 }
-

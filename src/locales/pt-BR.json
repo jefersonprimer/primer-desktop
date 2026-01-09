@@ -71,7 +71,7 @@
     "delete": "Apagar",
     "cancel": "Cancelar",
     "clearAll": "Limpar tudo",
-    "noSessions": "Nenhuma sessão encontrada.",
+    "noSessions": "Sem sessões...",
     "selectSession": "Selecione uma sessão para ver os detalhes.",
     "deleteConversationTitle": "Apagar conversa"
   },
@@ -208,8 +208,11 @@
     "description": "Visualize os atalhos de teclado configurados para o seu fluxo de trabalho.",
     "general": {
       "title": "Geral",
+      "toggleDock": "Mostrar ou esconder a Dock",
+      "toggleApp": "Mostrar ou esconder o aplicativo",
       "toggleVisibility": "Alternar visibilidade do Primer",
       "askScreen": "Pergunte ao Primer sobre sua tela ou qualquer coisa",
+      "searchAsk": "Pesquisar ou perguntar qualquer coisa",
       "screenshot": "Tirar um print e enviar para a IA",
       "audio": "Perguntar ao Primer com áudio",
       "clearConversation": "Limpar a conversa atual com o Primer",
@@ -233,6 +236,20 @@
     "deleteConfirm": "Tem certeza que deseja excluir este assistente?",
     "delete": "Excluir",
     "defaultName": "Novo Assistente"
+  },
+  "notion": {
+    "title": "Notion",
+    "subtitle": "Conecte-se ao seu workspace do Notion",
+    "active": "Conectado",
+    "connect": "Conectar ao Notion",
+    "connected": "Conectado ao {{workspace}}",
+    "disconnect": "Desconectar",
+    "description": "Permita que o Primer crie notas no seu workspace do Notion.",
+    "editNote": "Editar Nota",
+    "noteTitle": "Título",
+    "enterTitle": "Digite o título da nota...",
+    "noteContent": "Conteúdo",
+    "enterContent": "Digite o conteúdo da nota..."
   },
   "openai": {
     "subtitle": "GPT-4.1, GPT-4o e outros modelos",

@@ -1,14 +1,21 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { useSearchParams } from "react-router-dom";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useAi } from "@/contexts/AiContext";
 import { useCalendarEventHandler } from "@/hooks/useCalendarEventHandler";
+import { useDockVisibility } from "@/contexts/DockVisibilityContext";
+import { useNavigation } from "@/contexts/NavigationContext";
+import { useModals } from "@/contexts/ModalContext";
 
 import Dock from "@/components/Dock";
 
+import HomeToolbar from "@/components/HomeToolbar";
+import HomeChatList from "@/components/home/HomeChatList";
+
 import AiModal from "@/components/modals/AiModal";
-import SettingsModal from "@/components/settings/SettingsModal";
+import ChatPreviewModal from "@/components/modals/ChatPreviewModal";
 import HistoryModal from "@/components/modals/HistoryModal";
 
 interface CreateChatResponse {
@@ -27,7 +34,7 @@ interface ChatSession {
   id: string;
   title: string;
   model: string;
-  createdAt: string;
+  createdAt: Date;
 }
 
 interface ChatMessage {
@@ -39,6 +46,7 @@ interface ChatMessage {
 }
 
 export default function HomePage() {
+  const { openModal } = useModals();
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [aiMessage, setAiMessage] = useState("");
   const [chatId, setChatId] = useState<string | null>(null);
@@ -50,6 +58,15 @@ export default function HomePage() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
   const [historyMessages, setHistoryMessages] = useState<ChatMessage[]>([]);
+  
+  // Navigation & URL State
+  const [searchParams] = useSearchParams();
+  const { push } = useNavigation();
+  
+  const activeChatId = searchParams.get('chatId');
+  const previewSession = activeChatId 
+    ? sessions.find(s => s.id === activeChatId) || { id: activeChatId, title: "Loading...", model: "...", createdAt: new Date() } 
+    : null;
 
   const { userId } = useAuth();
   const {
@@ -64,6 +81,9 @@ export default function HomePage() {
   // Calendar preview integration
   const { processAiResponse } = useCalendarEventHandler();
 
+  // Dock visibility controls (Ctrl+Shift+D and Ctrl+Shift+F)
+  const { isDockHidden, isFocusMode } = useDockVisibility();
+
   const fetchSessions = async () => {
     if (!userId) return;
     try {
@@ -72,7 +92,7 @@ export default function HomePage() {
         id: c.id,
         title: c.title || "Nova conversa",
         model: c.model || "Gemini",
-        createdAt: new Date(c.created_at).toLocaleString(),
+        createdAt: new Date(c.created_at),
       }));
       setSessions(mapped);
     } catch (e) {
@@ -101,7 +121,14 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    if (activeModal === "history" && userId) {
+    if (userId) {
+      fetchSessions();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    // Refresh sessions when closing modals that might have created/deleted chats
+    if (!activeModal && userId) {
       fetchSessions();
     }
   }, [activeModal, userId]);
@@ -220,12 +247,37 @@ export default function HomePage() {
         setShowAiInput(true);
       }
     } else {
-      setActiveModal(modal);
+      if (modal === "settings") {
+        openModal("settings");
+      } else {
+        setActiveModal(modal);
+      }
     }
   };
 
   return (
-    <div className="w-full max-w-[1440px] bg-transparent mx-auto h-screen relative">
+    <div className={`w-full max-w-[1440px] mx-auto h-screen flex flex-col relative ${isFocusMode ? 'bg-transparent' : 'bg-black'}`}>
+      
+      {/* Spacer for fixed TitleBar */}
+      {!isFocusMode && <div className="h-14 shrink-0" />}
+
+      {!isFocusMode && <HomeToolbar />}
+
+      <div className="flex-1 overflow-y-auto w-full relative">
+        {!isFocusMode && !activeModal && (
+          <HomeChatList 
+            sessions={sessions} 
+            onSelect={(s) => push(`/home?chatId=${s.id}`)} 
+          />
+        )}
+      </div>
+
+      {/* Modals always functional */}
+      <ChatPreviewModal
+        isOpen={!!activeChatId}
+        onClose={() => push('/home')}
+        session={previewSession}
+      />
 
       <AiModal
         isOpen={activeModal === "chat" || activeModal === "ai-response"}
@@ -237,11 +289,6 @@ export default function HomePage() {
         onEndSession={handleEndSession}
         onSendMessage={handleChatSubmit}
         showInput={showAiInput}
-      />
-
-      <SettingsModal
-        open={activeModal === "settings"}
-        onClose={() => setActiveModal(null)}
       />
 
       <HistoryModal
@@ -280,13 +327,16 @@ export default function HomePage() {
         }}
       />
 
-      <Dock
-        onOpenModal={handleOpenModal}
-        onClose={() => setActiveModal(null)}
-        onActionSelected={(action: string) => handleChatSubmit(action)}
-        aiModalOpen={activeModal === "chat" || activeModal === "ai-response"}
-        isInputVisible={showAiInput}
-      />
+      {/* Dock visibility controlled by Ctrl+Shift+D */}
+      {isDockHidden && (
+        <Dock
+          onOpenModal={handleOpenModal}
+          onClose={() => setActiveModal(null)}
+          onActionSelected={(action: string) => handleChatSubmit(action)}
+          aiModalOpen={activeModal === "chat" || activeModal === "ai-response"}
+          isInputVisible={showAiInput}
+        />
+      )}
     </div>
   );
 }

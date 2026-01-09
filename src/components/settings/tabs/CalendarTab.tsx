@@ -21,10 +21,14 @@ export default function CalendarTab() {
   const [filter, setFilter] = useState<CalendarFilter>('next_7_days');
 
   useEffect(() => {
+    console.log("CalendarTab useEffect triggered:", { userId, isCalendarConnected, isAuthLoading });
+
     if (userId && isCalendarConnected) {
       setIsLoading(true);
+      console.log("Fetching calendar events for user:", userId);
       calendarService.getEvents(userId)
         .then((data) => {
+          console.log("Calendar events received:", data.length, "events");
           const now = new Date();
           // Filter out past events (events whose end_at is before current time)
           const upcomingEvents = data.filter(event =>
@@ -38,12 +42,13 @@ export default function CalendarTab() {
           setIsSessionExpired(false);
         })
         .catch((err) => {
-          console.error(err);
+          console.error("Failed to fetch calendar events:", err);
         })
         .finally(() => {
           setIsLoading(false);
         });
     } else {
+      console.log("Not fetching events - userId:", userId, "isCalendarConnected:", isCalendarConnected);
       setIsLoading(false);
     }
   }, [userId, isCalendarConnected]);
@@ -51,7 +56,7 @@ export default function CalendarTab() {
   const filteredEvents = events.filter(event => {
     const eventDate = new Date(event.start_at);
     // We already filtered past events in useEffect, so we only check the upper bound here
-    
+
     switch (filter) {
       case 'today': {
         const endOfToday = new Date();
@@ -234,7 +239,7 @@ export default function CalendarTab() {
             {t('calendar.description')}
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {isCalendarConnected && events.length > 0 && (
             <div className="relative">
@@ -251,12 +256,12 @@ export default function CalendarTab() {
               </select>
               <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-neutral-500">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m6 9 6 6 6-6"/>
+                  <path d="m6 9 6 6 6-6" />
                 </svg>
               </div>
             </div>
           )}
-          
+
           {isCalendarConnected && (
             <button
               onClick={() => setConfirmDisconnect(true)}
@@ -345,7 +350,7 @@ export default function CalendarTab() {
             <div>
               <CalendarIcon size={20} />
               <h2 className="text-sm font-semibold text-gray-900 dark:text-white mt-2">
-                 {events.length > 0 ? t('calendar.noEventsInFilter', 'No events in this period') : t('calendar.noEvents')}
+                {events.length > 0 ? t('calendar.noEventsInFilter', 'No events in this period') : t('calendar.noEvents')}
               </h2>
               <p className="text-sm">
                 {events.length > 0 ? t('calendar.tryChangingFilter', 'Try changing the filter to see more events.') : t('calendar.askToCreate')}
@@ -353,7 +358,7 @@ export default function CalendarTab() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 bg-gray-50 dark:bg-[#242425] p-4 rounded-xl">
             <div>
               <CalendarIcon size={20} />
               <h2 className="text-sm font-semibold text-gray-900 dark:text-white mt-2">{t('calendar.noCalendars')}</h2>

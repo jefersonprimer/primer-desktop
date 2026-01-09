@@ -173,10 +173,16 @@ async fn main() {
         }))
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
-                .with_shortcuts(["CommandOrControl+Shift+S", "CommandOrControl+Backslash"])
+                .with_shortcuts([
+                    "CommandOrControl+Shift+S",
+                    "CommandOrControl+Backslash",
+                    "CommandOrControl+Shift+D",
+                    "CommandOrControl+Shift+F",
+                ])
                 .expect("Failed to register global shortcuts")
                 .with_handler(|app, shortcut, event| {
                     if event.state() == ShortcutState::Pressed {
+                        // Toggle Stealth Mode: Ctrl+Shift+S
                         if shortcut.matches(Modifiers::SUPER | Modifiers::SHIFT, Code::KeyS) ||
                            shortcut.matches(Modifiers::CONTROL | Modifiers::SHIFT, Code::KeyS) {
                                let app_handle = app.clone();
@@ -184,16 +190,28 @@ async fn main() {
                                    toggle_global_stealth(app_handle).await;
                                });
                         }
+                        // Minimize/Restore Window: Ctrl+\
                         if shortcut.matches(Modifiers::SUPER, Code::Backslash) ||
                            shortcut.matches(Modifiers::CONTROL, Code::Backslash) {
-                                                          if let Some(window) = app.get_webview_window("main") {
-                                                              if window.is_minimized().unwrap_or(false) {
-                                                                  let _ = window.unminimize();
-                                                                  let _ = window.set_focus();
-                                                              } else {
-                                                                  let _ = window.minimize();
-                                                              }
-                                                          }                        }
+                            if let Some(window) = app.get_webview_window("main") {
+                                if window.is_minimized().unwrap_or(false) {
+                                    let _ = window.unminimize();
+                                    let _ = window.set_focus();
+                                } else {
+                                    let _ = window.minimize();
+                                }
+                            }
+                        }
+                        // Toggle Dock Visibility: Ctrl+Shift+D
+                        if shortcut.matches(Modifiers::SUPER | Modifiers::SHIFT, Code::KeyD) ||
+                           shortcut.matches(Modifiers::CONTROL | Modifiers::SHIFT, Code::KeyD) {
+                            let _ = app.emit("toggle_dock_visibility", ());
+                        }
+                        // Toggle Focus Mode: Ctrl+Shift+F
+                        if shortcut.matches(Modifiers::SUPER | Modifiers::SHIFT, Code::KeyF) ||
+                           shortcut.matches(Modifiers::CONTROL | Modifiers::SHIFT, Code::KeyF) {
+                            let _ = app.emit("toggle_focus_mode", ());
+                        }
                     }
                 })
                 .build()

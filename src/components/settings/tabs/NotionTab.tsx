@@ -7,6 +7,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import { useAuth } from "../../../contexts/AuthContext";
 
 import CheckIcon from "@/components/ui/icons/CheckIcon";
+import NotionIcon from "@/components/ui/icons/NotionIcon";
 import EditNoteModal from "@/components/notion/EditNoteModal";
 
 interface NotionStatus {
@@ -235,16 +236,31 @@ export default function NotionTab() {
                         <p className="text-sm text-gray-500 dark:text-neutral-400">Loading...</p>
                     </div>
                 ) : !status.is_connected ? (
-                    <div className="flex flex-col gap-4">
-                        <p className="text-sm text-neutral-900 dark:text-white">
-                            {t("notion.description")}
+                    <div className="flex flex-col gap-4 bg-gray-50 dark:bg-[#242425] p-4 rounded-xl">
+                      <div>
+                        <NotionIcon size={20} />
+                        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mt-2">No notes </h2>
+                        <p className="text-sm">
+                          {t("notion.description")}
                         </p>
+                      </div>
+
                         <button
                             onClick={handleConnect}
                             disabled={loading}
                             className="flex items-center w-fit gap-2 bg-neutral-900 dark:bg-white text-white dark:text-black px-4 py-2 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50"
                         >
-                            {loading ? "Loading..." : t("notion.connect")}
+                            {loading ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                    <span>{t("common.loading", "Loading...")}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <NotionIcon size={20} />
+                                    <span>{t("notion.connect")}</span>
+                                </>
+                            )}
                         </button>
                     </div>
                 ) : (

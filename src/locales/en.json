@@ -71,7 +71,7 @@
     "delete": "Delete",
     "cancel": "Cancel",
     "clearAll": "Clear all",
-    "noSessions": "No sessions found.",
+    "noSessions": "No sessions...",
     "selectSession": "Select a session to view details.",
     "deleteConversationTitle": "Delete conversation"
   },
@@ -208,8 +208,11 @@
     "description": "Visualize the configured keyboard shortcuts for your workflow.",
     "general": {
       "title": "General",
+      "toggleDock": "Show or hide the Dock",
+      "toggleApp": "Show or hide the application",
       "toggleVisibility": "Toggle visibility of Primer",
       "askScreen": "Ask Primer about your screen or anything",
+      "searchAsk": "Search or Ask anything",
       "screenshot": "Take a screenshot and submit to AI",
       "audio": "Ask Primer with audio",
       "clearConversation": "Clear the current conversation with Primer",

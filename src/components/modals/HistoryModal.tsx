@@ -12,7 +12,7 @@ interface ChatSession {
   id: string;
   title: string;
   model: string;
-  createdAt: string;
+  createdAt: Date;
 }
 
 interface ChatMessage {
@@ -201,7 +201,7 @@ export default function HistoryModal({
                     >
                       <div className="text-white font-medium truncate">{s.title}</div>
                       <div className="text-neutral-400 text-sm">{s.model}</div>
-                      <div className="text-neutral-500 text-xs">{s.createdAt}</div>
+                      <div className="text-neutral-500 text-xs">{s.createdAt.toLocaleString()}</div>
                     </button>
 
                     <button
