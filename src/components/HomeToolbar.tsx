@@ -24,10 +24,14 @@ export default function HomeToolbar() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Load welcome state from local storage or default to true
-  const [showWelcome, setShowWelcome] = useState(() => {
-    const saved = localStorage.getItem("show_welcome_card");
-    return saved !== "false";
-  });
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  /*
+  const [showWelcome, setShowWelcome] = useState(() => {                                                                         │
+│   const saved = localStorage.getItem("show_welcome_card");                                                                     │
+│   return saved !== "false";                                                                                                    │
+│ });                                        
+  */
 
   useEffect(() => {
     loadPresets();
@@ -43,9 +47,15 @@ export default function HomeToolbar() {
   }
 
   const handleDismissWelcome = () => {
-    setShowWelcome(false);
-    localStorage.setItem("show_welcome_card", "false");
+    // Kept visible forever
   };
+
+  /*
+  const handleDismissWelcome = () => {                                                                                           │
+│   setShowWelcome(false);                                                                                                       │
+│   localStorage.setItem("show_welcome_card", "false");                                                                          │
+│ };      
+  */
 
   const handleJoinDemo = () => {
     // Logic for joining demo meeting (or tutorial)
@@ -62,7 +72,7 @@ export default function HomeToolbar() {
       {/* Header */
 
       }
-      <div className="w-full max-w-4xl mx-auto flex justify-between items-center px-2 py-4">
+      <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 py-4">
         <div className="flex items-center gap-4">
           <span className="text-white font-medium text-3xl">Primer</span>
 
@@ -136,7 +146,7 @@ export default function HomeToolbar() {
       </div>
 
       {/* Content Section (Grid) */}
-      <div className="w-full max-w-4xl mx-auto px-2 pb-4 animate-in fade-in slide-in-from-top-2 duration-500">
+      <div className="w-full max-w-6xl mx-auto px-2 pb-4 animate-in fade-in slide-in-from-top-2 duration-500">
         {showWelcome ? (
           <div className="grid grid-cols-4 gap-4">
              {/* 

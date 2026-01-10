@@ -108,7 +108,6 @@
   "calendar": {
     "title": "Visible Calendars",
     "description": "Upcoming meetings are synchronized from these calendars",
-    "noCalendars": "No calendars",
     "getStarted": "Get started by connecting a Google account.",
     "connectGoogle": "Connect Google",
     "noEvents": "No upcoming events",

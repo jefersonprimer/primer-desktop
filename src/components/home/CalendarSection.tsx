@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import CalendarIcon from "@/components/ui/icons/CalendarIcon";
+import ArrowRightIcon from "@/components/ui/icons/ArrowRightIcon";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { calendarService } from "@/services/calendarService";
@@ -145,17 +146,11 @@ export default function CalendarSection({ refreshTrigger = 0, compact = false }:
         return (
             <div className={`flex ${compact ? 'flex-col items-start gap-4' : 'flex-row items-center justify-between'} p-4 bg-white/5 rounded-2xl border border-white/10 h-full`}>
                 <div className={`flex ${compact ? 'flex-col items-start' : 'flex-row items-center'} gap-3`}>
-                    <div className="p-2.5 bg-blue-500/10 rounded-xl">
-                        <CalendarIcon size={20} className="text-blue-400" />
-                    </div>
-                    <div>
-                        <p className="text-white font-medium text-sm">{t('calendar.noCalendars')}</p>
-                        <p className="text-white/50 text-xs">{t('calendar.getStarted')}</p>
-                    </div>
+                  <h3 className="text-white text-base">{t('calendar.getStarted')}</h3>
                 </div>
                 <button
                     onClick={handleConnectGoogle}
-                    className={`flex items-center gap-2 bg-white text-black px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5 ${compact ? 'w-full justify-center' : ''}`}
+                    className={`flex items-center gap-2 bg-white text-black px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5 ${compact ? ' justify-center' : ''}`}
                 >
                     <svg width="18" height="18" viewBox="0 0 48 48">
                         <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.2 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c10.5 0 19-8.5 19-19 0-1.3-.1-2.6-.4-3.9z" />
@@ -163,7 +158,8 @@ export default function CalendarSection({ refreshTrigger = 0, compact = false }:
                         <path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.3l-6.3-5.2C29.4 35.7 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.6 5.1C9.4 39.6 16.2 44 24 44z" />
                         <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-1.1 2.9-3.1 5.3-5.7 6.9l6.3 5.2C38.9 36.4 43 30.8 43 24c0-1.3-.1-2.6-.4-3.9z" />
                     </svg>
-                    {compact ? t('calendar.connect', 'Connect') : t('calendar.connectGoogle')}
+                    Connect calendar
+                    <ArrowRightIcon size={18}/>
                 </button>
             </div>
         );

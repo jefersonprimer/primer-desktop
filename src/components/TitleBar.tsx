@@ -8,8 +8,8 @@ import { useModals } from '../contexts/ModalContext';
 
 import CloseIcon from './ui/icons/CloseIcon';
 import SearchIcon from './ui/icons/SearchIcon';
-import ArrowLeftIcon from './ui/icons/ArrowLeftIcon';
-import ArrowRightIcon from './ui/icons/ArrowRightIcon';
+import ChevronLeftIcon from './ui/icons/ChevronLeftIcon';
+import ChevronRightIcon from './ui/icons/ChevronRightIcon';
 import UserIcon from './ui/icons/UserIcon';
 
 const MinimizeIcon = () => (
@@ -122,7 +122,7 @@ export default function TitleBar() {
             <span className="text-white font-bold text-xs">P</span>
           </div>
 
-          {/* Navigation Arrows */}
+          {/* Navigation Chevrons */}
           <div className="flex items-center gap-1 z-50 drag-none" data-tauri-drag-region="false">
             <button
               onClick={goBack}
@@ -132,7 +132,7 @@ export default function TitleBar() {
                   : 'text-white/20 cursor-default'
                 }`}
             >
-              <ArrowLeftIcon size={20} />
+              <ChevronLeftIcon size={20} />
             </button>
             <button
               onClick={goForward}
@@ -142,7 +142,7 @@ export default function TitleBar() {
                   : 'text-white/20 cursor-default'
                 }`}
             >
-              <ArrowRightIcon size={20} />
+              <ChevronRightIcon size={20} />
             </button>
           </div>
         </div>

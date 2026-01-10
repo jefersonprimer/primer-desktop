@@ -108,7 +108,6 @@
   "calendar": {
     "title": "Calendários Visíveis",
     "description": "Próximas reuniões são sincronizadas destes calendários",
-    "noCalendars": "Nenhum calendário",
     "getStarted": "Comece conectando uma conta Google.",
     "connectGoogle": "Conectar Google",
     "noEvents": "Nenhum evento agendado",
