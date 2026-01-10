@@ -220,14 +220,14 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                 )}
 
                 <button
-                  className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition"
+                  className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition"
                   title="Good for coding, reasoning, and web searches"
                 >
                   <ZapIcon size={16} />
                 </button>
 
                 <button
-                  className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition"
+                  className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition"
                   onClick={() => {
                     const allAiResponses = messages
                       ?.filter((msg) => msg.role === "assistant")
@@ -248,7 +248,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                 </button>
 
                 <button
-                  className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition"
+                  className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition"
                   onClick={() => setTerminationStep('confirm_end')}
                 >
                   <CloseIcon size={16} />

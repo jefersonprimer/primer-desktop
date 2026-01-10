@@ -323,12 +323,12 @@ impl ChatService for ChatServiceImpl {
         });
 
         // 5. Fetch chat and preset
-        let chat = self.chat_repo.find_by_id(request.chat_id).await?
+        let mut chat = self.chat_repo.find_by_id(request.chat_id).await?
             .ok_or_else(|| anyhow!("Chat not found"))?;
         
         let mut system_prompt = None;
-        if let Some(preset_id) = chat.prompt_preset_id {
-             if let Some(preset) = self.prompt_preset_repo.find_by_id(&preset_id).await? {
+        if let Some(preset_id) = &chat.prompt_preset_id {
+             if let Some(preset) = self.prompt_preset_repo.find_by_id(preset_id).await? {
                  system_prompt = Some(preset.prompt);
              }
         }
@@ -574,6 +574,12 @@ impl ChatService for ChatServiceImpl {
                 log::error!("AI response background analysis failed: {}", e);
             }
         });
+
+        // Update chat timestamp
+        chat.updated_at = Utc::now();
+        if let Err(e) = self.chat_repo.update(chat).await {
+            log::warn!("Failed to update chat timestamp: {}", e);
+        }
 
         Ok((ai_message, follow_ups))
     }

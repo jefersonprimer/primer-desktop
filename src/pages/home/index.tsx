@@ -35,6 +35,7 @@ interface ChatSession {
   title: string;
   model: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 interface ChatMessage {
@@ -65,7 +66,7 @@ export default function HomePage() {
   
   const activeChatId = searchParams.get('chatId');
   const previewSession = activeChatId 
-    ? sessions.find(s => s.id === activeChatId) || { id: activeChatId, title: "Loading...", model: "...", createdAt: new Date() } 
+    ? sessions.find(s => s.id === activeChatId) || { id: activeChatId, title: "Loading...", model: "...", createdAt: new Date(), updatedAt: new Date() } 
     : null;
 
   const { userId } = useAuth();
@@ -93,6 +94,7 @@ export default function HomePage() {
         title: c.title || "Nova conversa",
         model: c.model || "Gemini",
         createdAt: new Date(c.created_at),
+        updatedAt: new Date(c.updated_at),
       }));
       setSessions(mapped);
     } catch (e) {
@@ -255,6 +257,23 @@ export default function HomePage() {
     }
   };
 
+  const handleDeleteChat = async (sessionId: string) => {
+    try {
+      await invoke("delete_chat", { dto: { chat_id: sessionId } });
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      
+      // If the deleted chat is the current one
+      if (activeChatId === sessionId) {
+        setChatId(null);
+        setAiMessage("");
+        setHistoryMessages([]);
+        push('/home');
+      }
+    } catch (e) {
+      console.error("Failed to delete chat", e);
+    }
+  };
+
   return (
     <div className={`w-full max-w-[1440px] mx-auto h-screen flex flex-col relative ${isFocusMode ? 'bg-transparent' : 'bg-black'}`}>
       
@@ -264,10 +283,11 @@ export default function HomePage() {
       {!isFocusMode && <HomeToolbar />}
 
       <div className="flex-1 overflow-y-auto w-full relative">
-        {!isFocusMode && !activeModal && (
+        {!isFocusMode && (!activeModal || activeModal === "chat" || activeModal === "ai-response") && (
           <HomeChatList 
             sessions={sessions} 
             onSelect={(s) => push(`/home?chatId=${s.id}`)} 
+            onDelete={handleDeleteChat}
           />
         )}
       </div>

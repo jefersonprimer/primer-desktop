@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useStealthMode } from "@/contexts/StealthModeContext";
 import { useAi } from "@/contexts/AiContext";
@@ -69,25 +70,32 @@ export default function HomeToolbar() {
 
     <div className="w-full flex flex-col z-50 bg-[#121214] border-b border-t border-white/5 shadow-2xl">
 
-      {/* Header */
-
-      }
       <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 py-4">
         <div className="flex items-center gap-4">
           <span className="text-white font-medium text-3xl">Primer</span>
 
-          <button
+          <motion.button
             onClick={() => setRefreshTrigger(prev => prev + 1)}
-            className="text-white/70 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="group relative flex items-center justify-center p-2 rounded-full bg-white/5 border border-white/5 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] backdrop-blur-sm transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95, rotate: 360 }}
             title={t('calendar.refresh', 'Refresh Events')}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
               height="20"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-sync-icon lucide-calendar-sync"><path d="M11 10v4h4" /><path d="m11 14 1.535-1.605a5 5 0 0 1 8 1.5" /><path d="M16 2v4" /><path d="m21 18-1.535 1.605a5 5 0 0 1-8-1.5" /><path d="M21 22v-4h-4" /><path d="M21 8.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4.3" /><path d="M3 10h4" /><path d="M8 2v4" />
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="lucide lucide-calendar-sync-icon lucide-calendar-sync transition-transform duration-700 ease-in-out group-hover:rotate-[360deg]"
+            >
+              <path d="M11 10v4h4" /><path d="m11 14 1.535-1.605a5 5 0 0 1 8 1.5" /><path d="M16 2v4" /><path d="m21 18-1.535 1.605a5 5 0 0 1-8-1.5" /><path d="M21 22v-4h-4" /><path d="M21 8.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4.3" /><path d="M3 10h4" /><path d="M8 2v4" />
             </svg>
-          </button>
+          </motion.button>
 
           <div className="relative">
             <button
@@ -113,35 +121,73 @@ export default function HomeToolbar() {
           </div>
 
           {/* Stealth Toggle */}
-          <div className="flex items-center gap-2 border border-white/10 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
-            <div className="flex">
-              {!isStealth ? (
-                <div className="flex items-center gap-2 text-gray-900 dark:text-white">
-                  <EyeIcon size={18} />
-                  <h1 className="text-base font-semibold text-white">Detectable</h1>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-gray-900 dark:text-white">
-                  <HatGlassesIcon size={18} />
-                  <h1 className="text-base font-semibold text-white">Undetectable</h1>
-                </div>
-              )}
-            </div>
-            <button
-              onClick={toggleStealth}
-              className={`relative w-11 h-6 rounded-full transition-colors ${isStealth ? 'bg-[#48CAE1]' : 'bg-gray-200 dark:bg-zinc-700'
-                }`}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${isStealth ? 'translate-x-5' : 'translate-x-0'
-                  }`}
+          <motion.button
+            onClick={toggleStealth}
+            className={`relative flex items-center gap-3 px-4 py-2 rounded-full border backdrop-blur-md transition-all duration-500 overflow-hidden ${
+              isStealth
+                ? "bg-[#48CAE1]/10 border-[#48CAE1]/30 text-[#48CAE1] shadow-[0_0_15px_rgba(72,202,225,0.15)]"
+                : "bg-white/5 border-white/5 text-white/60 hover:bg-white/10 hover:text-white/90"
+            }`}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            layout
+          >
+            {/* Animated Background Gradient for Stealth */}
+            {isStealth && (
+              <motion.div
+                layoutId="stealth-glow"
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-[#48CAE1]/10 to-transparent"
+                initial={{ x: "-100%" }}
+                animate={{ x: "100%" }}
+                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
               />
-            </button>
-          </div>
+            )}
+
+            <div className="relative z-10 flex items-center gap-2">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={isStealth ? "stealth" : "visible"}
+                  initial={{ y: -20, opacity: 0, rotate: -20 }}
+                  animate={{ y: 0, opacity: 1, rotate: 0 }}
+                  exit={{ y: 20, opacity: 0, rotate: 20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {isStealth ? <HatGlassesIcon size={18} /> : <EyeIcon size={18} />}
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="relative h-[20px] w-[80px] overflow-hidden flex items-center">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={isStealth ? "undetectable" : "detectable"}
+                    className="absolute inset-0 font-medium text-sm flex items-center"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -20, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {isStealth ? "Undetectable" : "Detectable"}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* Stylized Toggle Switch */}
+            <div className={`relative w-8 h-5 flex items-center px-0.5 rounded-full transition-colors duration-300 border ${isStealth ? 'bg-[#48CAE1]/20 border-[#48CAE1]/50' : 'bg-black/20 border-white/10'}`}>
+              <motion.div
+                className={`w-3.5 h-3.5 rounded-full shadow-sm ${isStealth ? 'bg-[#48CAE1]' : 'bg-white/80'}`}
+                animate={{ x: isStealth ? 14 : 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              />
+            </div>
+          </motion.button>
         </div>
 
-        <button className="bg-white text-black px-6 py-1.5 rounded-full font-semibold text-sm hover:bg-gray-200 transition-colors">
-          Start
+        <button className="relative group overflow-hidden px-8 py-2 rounded-full transition-all duration-300 ease-out hover:scale-105 active:scale-95">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-md group-hover:bg-white/20 transition-colors duration-300"></div>
+          <div className="absolute inset-0 rounded-full border border-white/20 group-hover:border-white/40 transition-colors duration-300"></div>
+          <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
+          <span className="relative z-10 font-medium text-white/90 group-hover:text-white tracking-wide text-base">Start</span>
         </button>
       </div>
 
