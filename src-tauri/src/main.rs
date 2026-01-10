@@ -230,8 +230,6 @@ async fn main() {
             // chat commands
             chat_commands::create_chat,
             chat_commands::send_message,
-            chat_commands::sync_messages,
-            chat_commands::backup_chat,
             chat_commands::get_chats,
             chat_commands::get_messages,
             chat_commands::delete_chat,

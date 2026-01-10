@@ -39,9 +39,7 @@ use crate::{
             chat::{
                 chat_service_impl::ChatServiceImpl,
                 sqlite_chat_repository::SqliteChatRepository,
-                postgres_chat_repository::PostgresChatRepository,
                 sqlite_message_repository::SqliteMessageRepository,
-                postgres_message_repository::PostgresMessageRepository,
             },
             provider::{
                 gemini::GeminiClient,
@@ -85,9 +83,7 @@ pub struct AppState {
     pub session_repo: Arc<dyn SessionRepository>,
 
     pub sqlite_chat_repo: Arc<dyn ChatRepository>,
-    pub postgres_chat_repo: Arc<dyn ChatRepository>,
     pub sqlite_message_repo: Arc<dyn MessageRepository>,
-    pub postgres_message_repo: Arc<dyn MessageRepository>,
 
     pub config_repo: Arc<dyn ConfigRepository>,
     pub prompt_preset_repo: Arc<dyn PromptPresetRepository>,
@@ -138,13 +134,11 @@ impl AppState {
         let pg_url = &config.database.database_url;
         let pg_pool_result = connect_pg(pg_url).await;
 
-        let (user_repo, postgres_chat_repo, postgres_message_repo, changelog_repo, calendar_repo, notion_repo) = match pg_pool_result {
+        let (user_repo, changelog_repo, calendar_repo, notion_repo) = match pg_pool_result {
             Ok(pg_pool) => {
                 migrate_pg(&pg_pool).await?;
                 (
                     Arc::new(SqlUserRepository::new(pg_pool.clone())) as Arc<dyn UserRepository>,
-                    Arc::new(PostgresChatRepository::new(pg_pool.clone())) as Arc<dyn ChatRepository>,
-                    Arc::new(PostgresMessageRepository::new(pg_pool.clone())) as Arc<dyn MessageRepository>,
                     Arc::new(PostgresChangelogRepository::new(pg_pool.clone())) as Arc<dyn ChangelogRepository>,
                     Arc::new(PostgresCalendarRepository::new(pg_pool.clone())) as Arc<dyn CalendarRepository>,
                     Arc::new(PostgresNotionRepository::new(pg_pool.clone())) as Arc<dyn NotionRepository>,
@@ -154,8 +148,6 @@ impl AppState {
                 eprintln!("WARNING: Failed to connect to Postgres. Falling back to Sqlite. Error: {}", e);
                 (
                     Arc::new(SqliteUserRepository::new(sqlite_pool.clone())) as Arc<dyn UserRepository>,
-                    Arc::new(SqliteChatRepository::new(sqlite_pool.clone())) as Arc<dyn ChatRepository>,
-                    Arc::new(SqliteMessageRepository::new(sqlite_pool.clone())) as Arc<dyn MessageRepository>,
                     Arc::new(NoOpChangelogRepository::new()) as Arc<dyn ChangelogRepository>,
                     Arc::new(NoOpCalendarRepository::new()) as Arc<dyn CalendarRepository>,
                     Arc::new(NoOpNotionRepository::new()) as Arc<dyn NotionRepository>,
@@ -213,9 +205,7 @@ impl AppState {
             user_api_key_repo,
             session_repo,
             sqlite_chat_repo,
-            postgres_chat_repo,
             sqlite_message_repo,
-            postgres_message_repo,
             config_repo,
             prompt_preset_repo,
             maintenance_repo,
