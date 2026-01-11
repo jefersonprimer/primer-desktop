@@ -68,7 +68,7 @@ export default function HomeToolbar() {
 
   return (
 
-    <div className="w-full flex flex-col z-50 bg-[#121214] border-b border-t border-white/5 shadow-2xl">
+    <div className="w-full flex flex-col z-50 bg-[#121212] border-b border-t border-white/5">
 
       <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 py-4">
         <div className="flex items-center gap-4">

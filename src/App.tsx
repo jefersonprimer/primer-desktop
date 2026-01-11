@@ -18,6 +18,8 @@ import StealthMirror from "./components/StealthMirror";
 import TitleBar from "./components/TitleBar";
 import AppWrapper from "./components/AppWrapper";
 
+import WindowFrame from "./components/WindowFrame";
+
 import NotificationContainer from "./components/ui/NotificationContainer";
 import EventCreatedToast from "./components/calendar/EventCreatedToast";
 import { EventRemindersProvider } from "./components/calendar/EventRemindersProvider";
@@ -67,14 +69,16 @@ function App() {
                     <ModalProvider>
                       <HashRouter>
                         <NavigationProvider>
-                          <TitleBar />
-                          <StealthMirror />
-                          <AppWrapper>
-                            <AppRoutes />
-                          </AppWrapper>
-                          <NotificationContainer />
-                          <EventCreatedToast />
-                          <GlobalModals />
+                          <WindowFrame>
+                            <TitleBar />
+                            <StealthMirror />
+                            <AppWrapper>
+                              <AppRoutes />
+                            </AppWrapper>
+                            <NotificationContainer />
+                            <EventCreatedToast />
+                            <GlobalModals />
+                          </WindowFrame>
                         </NavigationProvider>
                       </HashRouter>
                     </ModalProvider>

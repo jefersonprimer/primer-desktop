@@ -313,7 +313,7 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                         setShowAssistantSelector(false);
                       }}
                       onClose={() => setShowAssistantSelector(false)}
-                      positionClass="absolute top-11 right-[-240px]"
+                      positionClass="absolute top-11 right-[-260px]"
                     />
                   )}
 
@@ -392,31 +392,20 @@ export default function Dock({ onOpenModal, onClose: _onClose, onActionSelected,
                   Settings
                 </button>
 
-                <button 
-                  onClick={() => {
-                    onOpenModal("history");
-                    setShowMenu(false);
-                  }}
+                <button
+                  onClick={logout}
+                  className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/10 rounded-lg transition"
+                >
+                  Log Out
+                </button>
+
+
+                <button
+                  onClick={onCloseApp}
                   className="w-full px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
                 >
-                  History
-                </button> 
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={logout}
-                    className="flex-1 px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/10 rounded-lg transition"
-                  >
-                    Log Out
-                  </button>
-
-                  <button
-                    onClick={onCloseApp}
-                    className="flex-1 px-3 py-2 text-white text-sm bg-[#414143] hover:bg-white/5 rounded-lg transition"
-                  >
-                    Quit
-                  </button>
-                </div>
+                  Quit Primer
+                </button>
               </div>
             </div>
           )}

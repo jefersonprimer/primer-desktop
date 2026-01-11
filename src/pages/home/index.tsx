@@ -16,7 +16,7 @@ import HomeChatList from "@/components/home/HomeChatList";
 
 import AiModal from "@/components/modals/AiModal";
 import ChatPreviewModal from "@/components/modals/ChatPreviewModal";
-import HistoryModal from "@/components/modals/HistoryModal";
+
 
 interface CreateChatResponse {
   chat_id: string;
@@ -275,10 +275,10 @@ export default function HomePage() {
   };
 
   return (
-    <div className={`w-full max-w-[1440px] mx-auto h-screen flex flex-col relative ${isFocusMode ? 'bg-transparent' : 'bg-black'}`}>
+    <div className={`w-full max-w-[1440px] mx-auto h-screen flex flex-col relative ${isFocusMode ? 'bg-transparent' : 'bg-[#141414]'}`}>
       
       {/* Spacer for fixed TitleBar */}
-      {!isFocusMode && <div className="h-14 shrink-0" />}
+      {!isFocusMode && <div className="h-12 shrink-0" />}
 
       {!isFocusMode && <HomeToolbar />}
 
@@ -288,6 +288,19 @@ export default function HomePage() {
             sessions={sessions} 
             onSelect={(s) => push(`/home?chatId=${s.id}`)} 
             onDelete={handleDeleteChat}
+            onDeleteAll={async () => {
+              if (!userId) return;
+              try {
+                await invoke("delete_all_chats", { dto: { user_id: userId } });
+                setSessions([]);
+                setHistoryMessages([]);
+                setChatId(null);
+                setAiMessage("");
+              } catch (e) {
+                console.error("Failed to delete all chats", e);
+                // Optionally show error toast
+              }
+            }}
           />
         )}
       </div>
@@ -309,42 +322,6 @@ export default function HomePage() {
         onEndSession={handleEndSession}
         onSendMessage={handleChatSubmit}
         showInput={showAiInput}
-      />
-
-      <HistoryModal
-        isOpen={activeModal === "history"}
-        onClose={() => setActiveModal(null)}
-        sessions={sessions}
-        selected={selectedSession}
-        onSelect={setSelectedSession}
-        messages={historyMessages}
-        onLoadMessages={fetchMessages}
-        userId={userId}
-        onDelete={async (sessionId: string) => {
-          try {
-            await invoke("delete_chat", { dto: { chat_id: sessionId } });
-            setSessions(prev => prev.filter(s => s.id !== sessionId));
-            if (selectedSession?.id === sessionId) {
-              setSelectedSession(null);
-              setHistoryMessages([]);
-            }
-          } catch (e) {
-            console.error("Failed to delete chat", e);
-            alert("Erro ao apagar conversa");
-          }
-        }}
-        onDeleteAll={async () => {
-          if (!userId) return;
-          try {
-            await invoke("delete_all_chats", { dto: { user_id: userId } });
-            setSessions([]);
-            setSelectedSession(null);
-            setHistoryMessages([]);
-          } catch (e) {
-            console.error("Failed to delete all chats", e);
-            alert("Erro ao limpar histórico");
-          }
-        }}
       />
 
       {/* Dock visibility controlled by Ctrl+Shift+D */}

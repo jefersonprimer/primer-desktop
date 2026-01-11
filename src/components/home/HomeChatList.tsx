@@ -16,11 +16,13 @@ interface HomeChatListProps {
   sessions: ChatSession[];
   onSelect: (session: ChatSession) => void;
   onDelete: (sessionId: string) => void;
+  onDeleteAll: () => void;
 }
 
-export default function HomeChatList({ sessions, onSelect, onDelete }: HomeChatListProps) {
+export default function HomeChatList({ sessions, onSelect, onDelete, onDeleteAll }: HomeChatListProps) {
   const { t } = useTranslation();
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const formatDuration = (start: Date, end: Date) => {
     const diff = Math.max(0, end.getTime() - start.getTime());

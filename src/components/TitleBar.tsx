@@ -26,9 +26,20 @@ const MaximizeIcon = () => (
 );
 
 const RestoreIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2v2"></path>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="square"
+    strokeLinejoin="miter"
+  >
+    <rect x="6" y="6" width="12" height="12" rx="0.5" ry="0.5" />
+
+    <rect x="3" y="9" width="12" height="12" rx="0.5" ry="0.5" />
   </svg>
 );
 
@@ -115,7 +126,7 @@ export default function TitleBar() {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-14 flex items-center z-[9999] bg-black px-4">
+    <div className="fixed top-0 left-0 right-0 h-12 flex items-center z-[9999] bg-[#141414] px-4">
       {/* Logo Area - Left */}
       {isAuthenticated && (
         <div className="flex items-center gap-4">
@@ -151,12 +162,12 @@ export default function TitleBar() {
 
       {/* Search Bar - Center */}
       {isAuthenticated && (
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center pointer-events-none">
-          <div className="flex items-center space-x-3 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full transition-colors min-w-[320px] justify-between pointer-events-auto cursor-text">
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+          <div className="flex items-center space-x-3 px-12 py-1.5 bg-white/5 rounded-full transition-colors min-w-[320px] justify-between pointer-events-auto cursor-text">
             <div className="flex items-center space-x-2 text-white/50">
               <SearchIcon size={14} />
               <span className="text-xs font-medium">
-                Search or Ask anything
+                Search or Ask anything...
               </span>
             </div>
             <div className="flex items-center space-x-1">
@@ -295,7 +306,7 @@ export default function TitleBar() {
 
         <button
           onClick={handleMinimize}
-          className="w-9 h-8 pt-2 flex items-center justify-center hover:bg-white/10 text-white/70 hover:text-white transition-colors rounded-md"
+          className="pt-2 w-9 h-8 flex items-center justify-center hover:bg-white/10 text-white/70 hover:text-white transition-colors rounded-md"
         >
           <MinimizeIcon />
         </button>

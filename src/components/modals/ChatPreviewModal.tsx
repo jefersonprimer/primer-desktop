@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import CloseIcon from "../ui/icons/CloseIcon";
+import MailIcon from "../ui/icons/MailIcon";
+import LinkIcon from "../ui/icons/LinkIcon";
+import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
 import ChatHistory from "../ChatHistory";
+import CopyIcon from "../ui/icons/CopyIcon";
 import { invoke } from "@tauri-apps/api/core";
 
 interface ChatSession {
@@ -69,20 +73,66 @@ export default function ChatPreviewModal({ isOpen, onClose, session }: ChatPrevi
       <div className="w-full max-w-4xl mx-auto h-full flex flex-col relative">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+        <div className="flex items-center justify-end gap-3 my-4">
+          <button 
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors text-sm border border-white/10 cursor-pointer"
+          >
+            <MailIcon size={16} />
+            <span>Follow-up email</span>
+          </button>
+          <button 
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors text-sm border border-white/10 cursor-pointer"
+          >
+            <LinkIcon size={16} />
+            <span>Share</span>
+            <ChevronDownIcon size={16}/> 
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <h2 className="text-xl font-semibold text-white">{session.title}</h2>
+            <h1 className="text-3xl font-semibold text-white">{session.title}</h1>
             <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-white/50">{session.model}</span>
-                <span className="text-white/20">•</span>
-                <span className="text-sm text-white/50">{session.createdAt.toLocaleString()}</span>
+              <span className="text-sm text-white/50">{session.model}</span>
+              <span className="text-white/20">•</span>
+              <span className="text-sm text-white/50">{session.createdAt.toLocaleString()}</span>
             </div>
           </div>
-          <button 
-            onClick={onClose}
-            className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-colors"
-          >
-            <CloseIcon size={24} />
+        </div>
+
+        <div className="flex items-center justify-between my-4">
+          <div className="flex items-center gap-4 px-4 py-2 bg-white/10 rounded-xl text-gray-400">
+            <button>Summary</button>
+            <button>Transcript</button>
+            <button>Usage</button>
+          </div>
+
+          <button className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-xl text-neutral-400">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M14 17H5"/>
+              <path d="M19 7h-9"/>
+              <circle cx="17" cy="17" r="3"/>
+              <circle cx="7" cy="7" r="3"/>
+            </svg>
+            General
+            <ChevronDownIcon size={16}/>
+          </button>
+        </div>
+
+        <div className="flex items-center justify-end gap-3 my-4 text-sm text-neutral-400">
+          <button className="flex items-center gap-2">
+            <CopyIcon size={16}/>
+            Copy full summary
           </button>
         </div>
 

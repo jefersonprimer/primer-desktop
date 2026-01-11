@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
-type ModalType = "settings" | "history" | "chat" | "assistants" | null;
+type ModalType = "settings" | "chat" | "assistants" | null;
 
 interface ModalContextType {
   activeModal: ModalType;
