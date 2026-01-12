@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAi } from "../../../contexts/AiContext";
+import { fetchGoogleModels } from "@/services/aiService";
 
 import CheckIcon from "@/components/ui/icons/CheckIcon";
 import ZapIcon from "@/components/ui/icons/ZapIcon";
@@ -48,6 +49,10 @@ export default function GoogleTab({
   // Track specific whisper model selection
   const [activeWhisperModel, setActiveWhisperModel] = useState<string>(() => localStorage.getItem("whisper_model") || "tiny");
   const [showWhisperConfig, setShowWhisperConfig] = useState(transcriptionModel === "whisper_cpp");
+  
+  const [fetchedModels, setFetchedModels] = useState<{ id: string; label: string; description?: string }[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [modelLoadError, setModelLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (transcriptionModel === "whisper_cpp") {
@@ -55,19 +60,58 @@ export default function GoogleTab({
     }
   }, [transcriptionModel]);
 
+  useEffect(() => {
+    // Attempt to fetch models if we have an API Key (and it looks vaguely valid or is the saved one)
+    if (apiKey && apiKey.length > 20) {
+       loadModels();
+    }
+  }, [apiKey]);
+
+  const loadModels = async () => {
+    if (!apiKey) return;
+    setIsLoadingModels(true);
+    setModelLoadError(null);
+    console.log("Starting to load Google models with key ending in:", apiKey.slice(-4));
+    try {
+      const models = await fetchGoogleModels(apiKey);
+      console.log("Google models fetched:", models?.length);
+      
+      if (models && models.length > 0) {
+        const geminiModels = models
+          .filter(m => m.name.toLowerCase().includes("gemini"))
+          .map(m => ({
+             id: m.name.replace("models/", ""), // API returns 'models/gemini-pro', we usually just need 'gemini-pro'
+             label: m.displayName || m.name.replace("models/", ""),
+             description: m.description
+          }))
+          .sort((a, b) => b.id.localeCompare(a.id));
+        setFetchedModels(geminiModels);
+      } else {
+         console.warn("No models returned from Google API");
+      }
+    } catch (error) {
+      console.error("Failed to load Google models", error);
+      setModelLoadError("Failed to load models. Check API Key.");
+    } finally {
+      setIsLoadingModels(false);
+    }
+  }
+
   const handleSetWhisperModel = (name: string) => {
     localStorage.setItem("whisper_model", name);
     setActiveWhisperModel(name);
   };
 
-  // Modelos principais do Gemini (Atualizado para a solicitação)
-  const analysisModels = [
+  // Default fallback models
+  const defaultModels = [
     { id: "gemini-3-pro-preview", label: "Gemini 3 Pro Preview", description: t("google.models.gemini3pro.description") },
     { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", description: t("google.models.gemini25pro.description") },
     { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: t("google.models.gemini25flash.description") },
     { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite", description: t("google.models.gemini25flashlite.description") },
     { id: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash-Lite", description: t("google.models.gemini20flashlite.description") }
   ];
+
+  const displayModels = fetchedModels.length > 0 ? fetchedModels : defaultModels;
 
   // Modelos de transcrição (Atualizado)
   const isMacOrWin = /Mac|Win/.test(navigator.platform);
@@ -322,17 +366,35 @@ export default function GoogleTab({
       {performanceMode === "personalizado" && (
         <div className="space-y-6 mb-6">
           <div>
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.analysisModel.title")}</h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("google.analysisModel.description")}</p>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("google.analysisModel.title")}</h3>
+                <p className="text-neutral-500 dark:text-neutral-400 text-sm">{t("google.analysisModel.description")}</p>
+              </div>
+              <button 
+                onClick={loadModels}
+                disabled={isLoadingModels || !apiKey}
+                className="p-1.5 text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                title={t("custom.ollama.refresh", "Refresh Models")}
+              >
+                 <div className={`${isLoadingModels ? "animate-spin" : ""}`}>
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                 </div>
+              </button>
+            </div>
+            
+            {modelLoadError && (
+              <p className="text-xs text-red-500 mb-2">{modelLoadError}</p>
+            )}
 
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
               className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none "
             >
-              {analysisModels.map((m) => (
+              {displayModels.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.label}
+                  {m.label} {m.description ? `- ${m.description.substring(0, 50)}${m.description.length > 50 ? '...' : ''}` : ""}
                 </option>
               ))}
             </select>

@@ -90,6 +90,47 @@ async function callOpenRouter(apiKey: string, model: string, prompt: string): Pr
     return parseActions(text);
   }
 
+export async function fetchOpenAIModels(apiKey: string): Promise<{id: string}[]> {
+  try {
+    const response = await fetch("https://api.openai.com/v1/models", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.warn(`Failed to fetch OpenAI models: ${response.status} ${response.statusText}`);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error("Error fetching OpenAI models:", error);
+    return [];
+  }
+}
+
+export async function fetchGoogleModels(apiKey: string): Promise<{name: string, displayName: string, description: string}[]> {
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      console.warn(`Failed to fetch Google models: ${response.status} ${response.statusText}`);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.models || [];
+  } catch (error) {
+    console.error("Error fetching Google models:", error);
+    return [];
+  }
+}
+
 function parseActions(text: string): string[] {
   if (!text) return [];
   try {

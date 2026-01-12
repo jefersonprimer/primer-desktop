@@ -9,6 +9,7 @@ import CheckIcon from "../ui/icons/CheckIcon";
 import CopyIcon from "../ui/icons/CopyIcon";
 import CloseIcon from "../ui/icons/CloseIcon";
 import EventPreviewCard from "../calendar/EventPreviewCard";
+import MarkdownRenderer from "../ui/MarkdownRenderer";
 
 interface ChatMessage {
   id: string;
@@ -268,13 +269,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                         <div className={`text-xs mb-1 text-gray-500`}>
                         </div>
                         <div className={`max-w-full p-2 text-gray-200`}>
-                          <p className="whitespace-pre-line text-sm">{msg.content}</p>
-                          <button
-                            onClick={() => navigator.clipboard.writeText(msg.content)}
-                            className="mt-2 text-[10px] bg-gray-700 px-1.5 py-0.5 rounded hover:bg-gray-600 transition"
-                          >
-                            Copiar
-                          </button>
+                          <MarkdownRenderer content={msg.content} />
                         </div>
                         {/* Follow-ups */}
                         {msg.followUps && msg.followUps.length > 0 && (

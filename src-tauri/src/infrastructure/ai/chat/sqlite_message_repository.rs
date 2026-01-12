@@ -19,10 +19,14 @@ impl SqliteMessageRepository {
 #[async_trait]
 impl MessageRepository for SqliteMessageRepository {
     async fn create(&self, message: Message) -> Result<Message> {
+        // Serialize follow_ups to JSON string
+        let follow_ups_json = message.follow_ups.as_ref()
+            .map(|f| serde_json::to_string(f).unwrap_or_default());
+
         sqlx::query(
             r#"
-            INSERT INTO messages (id, chat_id, role, content, created_at, summary, message_type, importance)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+            INSERT INTO messages (id, chat_id, role, content, created_at, summary, message_type, importance, follow_ups)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
             "#
         )
         .bind(message.id.to_string())
@@ -33,6 +37,7 @@ impl MessageRepository for SqliteMessageRepository {
         .bind(message.summary.clone())
         .bind(message.message_type.clone())
         .bind(message.importance)
+        .bind(follow_ups_json)
         .execute(&self.pool)
         .await?;
 
@@ -42,7 +47,7 @@ impl MessageRepository for SqliteMessageRepository {
     async fn find_by_chat_id(&self, chat_id: Uuid) -> Result<Vec<Message>> {
         let records = sqlx::query(
             r#"
-            SELECT id, chat_id, role, content, created_at, summary, message_type, importance
+            SELECT id, chat_id, role, content, created_at, summary, message_type, importance, follow_ups
             FROM messages
             WHERE chat_id = ?1
             ORDER BY created_at ASC
@@ -52,7 +57,13 @@ impl MessageRepository for SqliteMessageRepository {
         .try_map(|row: sqlx::sqlite::SqliteRow| {
             let id_str: String = row.get("id");
             let chat_id_str: String = row.get("chat_id");
+            let follow_ups_json: Option<String> = row.get("follow_ups");
             
+            // Deserialize follow_ups from JSON
+            let follow_ups = follow_ups_json.and_then(|json| {
+                serde_json::from_str::<Vec<String>>(&json).ok()
+            });
+
             Ok(Message {
                 id: Uuid::parse_str(&id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
                 chat_id: Uuid::parse_str(&chat_id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
@@ -62,6 +73,7 @@ impl MessageRepository for SqliteMessageRepository {
                 summary: row.get("summary"),
                 message_type: row.get("message_type"),
                 importance: row.get("importance"),
+                follow_ups,
             })
         })
         .fetch_all(&self.pool)
@@ -106,7 +118,7 @@ impl MessageRepository for SqliteMessageRepository {
         // This query finds the top K most important summaries from the user's recent chats
         let records = sqlx::query(
             r#"
-            SELECT m.id, m.chat_id, m.role, m.content, m.created_at, m.summary, m.message_type, m.importance
+            SELECT m.id, m.chat_id, m.role, m.content, m.created_at, m.summary, m.message_type, m.importance, m.follow_ups
             FROM messages m
             JOIN chats c ON m.chat_id = c.id
             WHERE c.user_id = ?1
@@ -125,7 +137,12 @@ impl MessageRepository for SqliteMessageRepository {
         .try_map(|row: sqlx::sqlite::SqliteRow| {
             let id_str: String = row.get("id");
             let chat_id_str: String = row.get("chat_id");
+            let follow_ups_json: Option<String> = row.get("follow_ups");
             
+            let follow_ups = follow_ups_json.and_then(|json| {
+                serde_json::from_str::<Vec<String>>(&json).ok()
+            });
+
             Ok(Message {
                 id: Uuid::parse_str(&id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
                 chat_id: Uuid::parse_str(&chat_id_str).map_err(|e| sqlx::Error::Decode(Box::new(e)))?,
@@ -135,6 +152,7 @@ impl MessageRepository for SqliteMessageRepository {
                 summary: row.get("summary"),
                 message_type: row.get("message_type"),
                 importance: row.get("importance"),
+                follow_ups,
             })
         })
         .fetch_all(&self.pool)

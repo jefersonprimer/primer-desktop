@@ -6,7 +6,6 @@ use crate::domain::ai::chat::{
         get_chats::GetChatsUseCase,
         get_messages::GetMessagesUseCase,
         delete_chat::DeleteChatUseCase,
-        delete_all_chats::DeleteAllChatsUseCase,
     },
     dto::{
         CreateChatDto, CreateChatResponse,
@@ -14,7 +13,6 @@ use crate::domain::ai::chat::{
         GetChatsDto, GetChatsResponse, ChatDto,
         GetMessagesDto, GetMessagesResponse,
         DeleteChatDto, DeleteChatResponse,
-        DeleteAllChatsDto, DeleteAllChatsResponse,
     },
     service::chat_service::ChatServiceRequest, // Added this line
 };
@@ -82,6 +80,7 @@ pub async fn send_message(dto: SendMessageDto, state: State<'_, AppState>) -> Re
             role: message.role,
             content: message.content,
             created_at: message.created_at,
+            follow_ups: message.follow_ups,
         },
         follow_ups,
     })
@@ -131,6 +130,7 @@ pub async fn get_messages(dto: GetMessagesDto, state: State<'_, AppState>) -> Re
                 role: m.role,
                 content: m.content,
                 created_at: m.created_at,
+                follow_ups: m.follow_ups,
             }).collect()
         })
         .map_err(|e| e.to_string())
@@ -148,20 +148,5 @@ pub async fn delete_chat(dto: DeleteChatDto, state: State<'_, AppState>) -> Resu
     delete_chat_usecase.execute(chat_id)
         .await
         .map(|_| DeleteChatResponse { message: "Chat deleted successfully".to_string() })
-        .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-pub async fn delete_all_chats(dto: DeleteAllChatsDto, state: State<'_, AppState>) -> Result<DeleteAllChatsResponse, String> {
-    let delete_all_chats_usecase = DeleteAllChatsUseCase::new(
-        state.sqlite_chat_repo.clone(),
-    );
-
-    let user_id = Uuid::parse_str(&dto.user_id)
-        .map_err(|e| format!("Invalid user_id format: {}", e))?;
-
-    delete_all_chats_usecase.execute(user_id)
-        .await
-        .map(|_| DeleteAllChatsResponse { message: "All chats deleted successfully".to_string() })
         .map_err(|e| e.to_string())
 }

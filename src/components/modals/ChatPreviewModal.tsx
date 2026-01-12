@@ -27,6 +27,7 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   createdAt: string;
+  followUpOptions?: string[];
 }
 
 interface SendMessageResponse {
@@ -102,6 +103,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
         role: m.role as "user" | "assistant",
         content: m.content,
         createdAt: m.created_at,
+        // Backend get_messages doesn't persist follow-ups yet, so we leave it undefined for history
       }));
       setMessages(mapped);
     } catch (e) {
@@ -157,11 +159,9 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
     setIsEmailModalOpen(true);
   };
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !session || !userId) return;
+  const sendMessageLogic = async (text: string) => {
+    if (!session || !userId) return;
 
-    const text = inputMessage.trim();
-    setInputMessage("");
     setIsSending(true);
 
     // Optimistically add user message
@@ -194,6 +194,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
         role: "assistant",
         content: response.message.content,
         createdAt: new Date().toISOString(),
+        followUpOptions: response.follow_ups,
       };
       setMessages(prev => [...prev, aiMsg]);
       
@@ -206,6 +207,17 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
     } finally {
       setIsSending(false);
     }
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim()) return;
+    const text = inputMessage.trim();
+    setInputMessage("");
+    await sendMessageLogic(text);
+  };
+
+  const handleFollowUpClick = (text: string) => {
+    sendMessageLogic(text);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -338,7 +350,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
                   <>
                   {activeTab === "summary" && (
                       <>
-                        <ChatHistory messages={messages} />
+                        <ChatHistory messages={messages} onFollowUpClick={handleFollowUpClick} />
                         {isSending && (
                             <div className="flex justify-start mt-4">
                                 <div className="py-2 px-3 rounded-lg flex items-center gap-1.5 bg-white/5">

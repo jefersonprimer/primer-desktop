@@ -110,6 +110,7 @@
     "description": "Próximas reuniões são sincronizadas destes calendários",
     "getStarted": "Comece conectando uma conta Google.",
     "connectGoogle": "Conectar Google",
+    "noCalendars": "Nenhum calendário conectado",
     "noEvents": "Nenhum evento agendado",
     "scheduledEvents": "Eventos Agendados",
     "deleteEvent": "Excluir Evento",

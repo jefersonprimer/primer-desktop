@@ -300,6 +300,7 @@ impl ChatService for ChatServiceImpl {
             summary: None,
             message_type: "chat".to_string(),
             importance: 0,
+            follow_ups: None,
         };
         self.message_repo.create(user_message.clone()).await?;
 
@@ -552,6 +553,7 @@ impl ChatService for ChatServiceImpl {
             summary: None,
             message_type: "chat".to_string(),
             importance: 0,
+            follow_ups: if follow_ups.is_empty() { None } else { Some(follow_ups.clone()) },
         };
 
         self.message_repo.create(ai_message.clone()).await?;

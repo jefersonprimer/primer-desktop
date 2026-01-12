@@ -58,14 +58,14 @@ export default function HomePage() {
   // History state
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [historyMessages, setHistoryMessages] = useState<ChatMessage[]>([]);
-  
+
   // Navigation & URL State
   const [searchParams] = useSearchParams();
   const { push } = useNavigation();
-  
+
   const activeChatId = searchParams.get('chatId');
-  const previewSession = activeChatId 
-    ? sessions.find(s => s.id === activeChatId) || { id: activeChatId, title: "Loading...", model: "...", createdAt: new Date(), updatedAt: new Date() } 
+  const previewSession = activeChatId
+    ? sessions.find(s => s.id === activeChatId) || { id: activeChatId, title: "Loading...", model: "...", createdAt: new Date(), updatedAt: new Date() }
     : null;
 
   const { userId } = useAuth();
@@ -101,7 +101,7 @@ export default function HomePage() {
     }
   };
 
-  const fetchMessages = async (sessionId: string, lastFollowUps?: string[]) => {
+  const fetchMessages = async (sessionId: string) => {
     try {
       const res = await invoke<{ messages: any[] }>("get_messages", { dto: { chat_id: sessionId } });
       const mapped: ChatMessage[] = res.messages.map((m) => ({
@@ -109,11 +109,8 @@ export default function HomePage() {
         role: m.role as "user" | "assistant",
         content: m.content,
         createdAt: m.created_at,
+        followUps: m.follow_ups,
       }));
-
-      if (lastFollowUps && mapped.length > 0) {
-        mapped[mapped.length - 1].followUps = lastFollowUps;
-      }
 
       setHistoryMessages(mapped);
     } catch (e) {
@@ -192,7 +189,7 @@ export default function HomePage() {
       });
 
       setAiMessage(response.message.content);
-      await fetchMessages(currentChatId, response.follow_ups);
+      await fetchMessages(currentChatId);
 
       // Process AI response for calendar event intents
       // This will show preview or create event directly based on confidence
@@ -260,7 +257,7 @@ export default function HomePage() {
     try {
       await invoke("delete_chat", { dto: { chat_id: sessionId } });
       setSessions((prev) => prev.filter((s) => s.id !== sessionId));
-      
+
       // If the deleted chat is the current one
       if (activeChatId === sessionId) {
         setChatId(null);
@@ -275,7 +272,7 @@ export default function HomePage() {
 
   return (
     <div className={`w-full max-w-[1440px] mx-auto h-screen overflow-y-auto flex flex-col relative ${isFocusMode ? 'bg-transparent' : 'bg-[#141414]'}`}>
-      
+
       {/* Spacer for fixed TitleBar */}
       {!isFocusMode && <div className="h-12 shrink-0" />}
 
@@ -283,9 +280,9 @@ export default function HomePage() {
 
       <div className="flex-1 overflow-y-auto w-full relative">
         {!isFocusMode && (!activeModal || activeModal === "chat" || activeModal === "ai-response") && (
-          <HomeChatList 
-            sessions={sessions} 
-            onSelect={(s) => push(`/home?chatId=${s.id}`)} 
+          <HomeChatList
+            sessions={sessions}
+            onSelect={(s) => push(`/home?chatId=${s.id}`)}
             onDelete={handleDeleteChat}
           />
         )}

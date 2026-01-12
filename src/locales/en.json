@@ -110,6 +110,7 @@
     "description": "Upcoming meetings are synchronized from these calendars",
     "getStarted": "Get started by connecting a Google account.",
     "connectGoogle": "Connect Google",
+    "noCalendars": "No calendars connected",
     "noEvents": "No upcoming events",
     "scheduledEvents": "Scheduled Events",
     "deleteEvent": "Delete Event",

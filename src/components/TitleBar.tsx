@@ -196,7 +196,7 @@ export default function TitleBar() {
           <div className="relative" ref={profileMenuRef}>
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="w-8 h-8 mr-4 rounded-md bg-gray-200 dark:bg-white/80 flex items-center justify-center text-sm font-semibold overflow-hidden transition-colors select-none hover:ring-2 hover:ring-white/30"
+              className="w-8 h-8 mr-4 rounded-lg bg-gray-200 dark:bg-white/80 flex items-center justify-center text-sm font-semibold overflow-hidden transition-colors select-none hover:ring-2 hover:ring-white/30"
             >
               {userPicture ? (
                 <img
