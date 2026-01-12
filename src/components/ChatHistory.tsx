@@ -11,7 +11,7 @@ interface ChatHistoryProps {
 
 export default function ChatHistory({ messages }: ChatHistoryProps) {
   return (
-    <div className="w-full h-full overflow-y-auto space-y-4 pr-2">
+    <div className="w-full h-auto space-y-4">
       {messages.map((m) => (
         <div
           key={m.id}
@@ -20,16 +20,9 @@ export default function ChatHistory({ messages }: ChatHistoryProps) {
           }`}
         >
           <div
-            className={`max-w-[75%] p-3 rounded-xl text-sm whitespace-pre-wrap ${
-              m.role === "user"
-                ? "bg-blue-600 text-white"
-                : "bg-neutral-800 text-neutral-200"
-            }`}
+            className="w-full text-white text-base whitespace-pre-wrap"
           >
             {m.content}
-            <div className="text-xs opacity-60 mt-1">
-              {new Date(m.createdAt).toLocaleString()}
-            </div>
           </div>
         </div>
       ))}

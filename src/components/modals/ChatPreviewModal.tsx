@@ -5,7 +5,11 @@ import LinkIcon from "../ui/icons/LinkIcon";
 import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
 import ChatHistory from "../ChatHistory";
 import CopyIcon from "../ui/icons/CopyIcon";
+import CheckIcon from "../ui/icons/CheckIcon";
 import { invoke } from "@tauri-apps/api/core";
+import SelectAssistantModal from "./SelectAssistantModal";
+import { getPromptPresets, type PromptPreset } from "@/lib/tauri";
+import { useAi } from "@/contexts/AiContext";
 
 interface ChatSession {
   id: string;
@@ -28,15 +32,45 @@ interface ChatPreviewModalProps {
 }
 
 export default function ChatPreviewModal({ isOpen, onClose, session }: ChatPreviewModalProps) {
+  const { activePromptPreset } = useAi();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const [showAssistantPicker, setShowAssistantPicker] = useState(false);
+  const [presetId, setPresetId] = useState(activePromptPreset || "general");
+  const [presetName, setPresetName] = useState("General");
+  const [presets, setPresets] = useState<PromptPreset[]>([]);
+  const [activeTab, setActiveTab] = useState<"summary" | "transcript" | "usage">("summary");
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     if (isOpen && session) {
       loadMessages(session.id);
+      loadPresets();
     }
   }, [isOpen, session]);
+
+  useEffect(() => {
+    if (isOpen && activePromptPreset) {
+      setPresetId(activePromptPreset);
+    }
+  }, [isOpen, activePromptPreset]);
+
+  const loadPresets = async () => {
+    try {
+      const data = await getPromptPresets();
+      setPresets(data);
+      
+      const currentId = presetId || activePromptPreset || "general";
+      const found = data.find(p => p.id === currentId);
+      if (found) {
+        setPresetName(found.name);
+      }
+    } catch (e) {
+      console.error("Failed to load presets", e);
+    }
+  };
 
   const loadMessages = async (chatId: string) => {
     setIsLoading(true);
@@ -66,27 +100,54 @@ export default function ChatPreviewModal({ isOpen, onClose, session }: ChatPrevi
     }
   }, [messages, isOpen]);
 
+  const handlePresetChange = (id: string) => {
+    setPresetId(id);
+    const found = presets.find(p => p.id === id);
+    if (found) {
+      setPresetName(found.name);
+    }
+    setShowAssistantPicker(false);
+  };
+
+  const handleCopySummary = async () => {
+    if (messages.length === 0) return;
+
+    const text = messages
+      .map(m => `${m.role === 'user' ? 'User' : 'Assistant'} (${new Date(m.createdAt).toLocaleString()}): ${m.content}`)
+      .join('\n\n');
+    
+    try {
+        await navigator.clipboard.writeText(text);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+        console.error('Failed to copy:', err);
+    }
+  };
+
   if (!isOpen || !session) return null;
 
   return (
-    <div className="fixed top-14 left-0 right-0 bottom-0 bg-[#121214]/95 backdrop-blur-md z-[100] animate-in fade-in slide-in-from-bottom-4 duration-200">
-      <div className="w-full max-w-4xl mx-auto h-full flex flex-col relative">
+    <div className="fixed top-12 overflow-y-auto rounded-lg left-1 right-1 bottom-1 bg-[#212121] z-[100] animate-in fade-in slide-in-from-bottom-4 duration-200">
+      <div className="w-full max-w-4xl mx-auto h-auto my-8 flex flex-col relative">
         
         {/* Header */}
         <div className="flex items-center justify-end gap-3 my-4">
           <button 
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors text-sm border border-white/10 cursor-pointer"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors text-sm border border-white/10"
           >
             <MailIcon size={16} />
             <span>Follow-up email</span>
           </button>
           <button 
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors text-sm border border-white/10 cursor-pointer"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors text-sm border border-white/10"
           >
             <LinkIcon size={16} />
             <span>Share</span>
             <ChevronDownIcon size={16}/> 
           </button>
+
+          
         </div>
 
         <div className="flex items-center justify-between">
@@ -100,44 +161,78 @@ export default function ChatPreviewModal({ isOpen, onClose, session }: ChatPrevi
           </div>
         </div>
 
-        <div className="flex items-center justify-between my-4">
-          <div className="flex items-center gap-4 px-4 py-2 bg-white/10 rounded-xl text-gray-400">
-            <button>Summary</button>
-            <button>Transcript</button>
-            <button>Usage</button>
+        <div className="flex items-center justify-between my-6 relative">
+          <div className="flex items-center gap-1 p-1 bg-white/5 rounded-2xl border border-white/5">
+            <button 
+              onClick={() => setActiveTab("summary")}
+              className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${
+                activeTab === "summary" 
+                  ? "bg-white/10 text-white shadow-sm font-medium" 
+                  : "text-neutral-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Summary
+            </button>
+            <button 
+              onClick={() => setActiveTab("transcript")}
+              className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${
+                activeTab === "transcript" 
+                  ? "bg-white/10 text-white shadow-sm font-medium" 
+                  : "text-neutral-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Transcript
+            </button>
+            <button 
+              onClick={() => setActiveTab("usage")}
+              className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${
+                activeTab === "usage" 
+                  ? "bg-white/10 text-white shadow-sm font-medium" 
+                  : "text-neutral-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Usage
+            </button>
           </div>
 
-          <button className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-xl text-neutral-400">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div className="relative">
+            <button 
+              onClick={() => setShowAssistantPicker(!showAssistantPicker)}
+              className="flex items-center gap-2 p-2 bg-white/10 hover:bg-[#414141] rounded-2xl border border-white/10 text-neutral-400 hover:text-white transition-colors"
             >
-              <path d="M14 17H5"/>
-              <path d="M19 7h-9"/>
-              <circle cx="17" cy="17" r="3"/>
-              <circle cx="7" cy="7" r="3"/>
-            </svg>
-            General
-            <ChevronDownIcon size={16}/>
-          </button>
-        </div>
-
-        <div className="flex items-center justify-end gap-3 my-4 text-sm text-neutral-400">
-          <button className="flex items-center gap-2">
-            <CopyIcon size={16}/>
-            Copy full summary
-          </button>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M14 17H5"/>
+                <path d="M19 7h-9"/>
+                <circle cx="17" cy="17" r="3"/>
+                <circle cx="7" cy="7" r="3"/>
+              </svg>
+              {presetName}
+              <ChevronDownIcon size={16}/>
+            </button>
+            
+            {showAssistantPicker && (
+              <SelectAssistantModal
+                value={presetId}
+                onChange={handlePresetChange}
+                onClose={() => setShowAssistantPicker(false)}
+                positionClass="absolute right-0 top-full mt-2"
+              />
+            )}
+          </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 pr-2">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="flex items-center gap-2">
@@ -148,10 +243,40 @@ export default function ChatPreviewModal({ isOpen, onClose, session }: ChatPrevi
             </div>
           ) : (
             <>
-                <ChatHistory messages={messages} />
-                <div ref={messagesEndRef} className="h-4" />
+              {activeTab === "summary" && (
+                <>
+                    <ChatHistory messages={messages.filter(m => m.role === "assistant")} />
+                    <div ref={messagesEndRef} className="h-4" />
+                </>
+              )}
+              {activeTab === "transcript" && (
+                <div className="flex flex-col items-center justify-center h-full text-neutral-500 gap-2">
+                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                    </div>
+                    <p>No audio transcript available</p>
+                </div>
+              )}
+              {activeTab === "usage" && (
+                <div className="flex flex-col items-center justify-center h-full text-neutral-500 gap-2">
+                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-2">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                    </div>
+                    <p>Usage statistics not available</p>
+                </div>
+              )}
             </>
           )}
+        </div>
+
+        <div>
+          <button 
+            onClick={handleCopySummary}
+            className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/10 text-white/80 hover:text-white transition-colors"
+            title="Copy Summary"
+          >
+            {isCopied ? <CheckIcon size={16}/> : <CopyIcon size={16}/>}
+          </button>
         </div>
       </div>
     </div>

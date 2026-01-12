@@ -59,7 +59,7 @@ export default function SelectAssistantModal({ value, onChange, onClose, positio
         transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
         className={`
           w-[240px] flex flex-col
-          bg-[#18181b]/95 backdrop-blur-2xl border border-white/10
+          bg-[#414141] backdrop-blur-2xl border border-white/10
           rounded-xl shadow-2xl shadow-black/50
           z-[70] overflow-hidden
           ${positionClass || "absolute left-1/2 -translate-x-1/2 bottom-full mb-2"}

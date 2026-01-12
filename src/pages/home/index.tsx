@@ -166,7 +166,7 @@ export default function HomePage() {
         const chatRes = await invoke<CreateChatResponse>("create_chat", {
           dto: {
             user_id: userId,
-            title: text.substring(0, 30) || "New Chat",
+            title: text.substring(0, 100) || "New Chat",
             prompt_preset_id: activePromptPreset?.trim() || "general",
             model: activeModel || (activeProvider === "Google" ? "gemini-1.5-flash" : "gpt-4o"),
           },
