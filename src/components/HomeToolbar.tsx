@@ -25,7 +25,7 @@ export default function HomeToolbar() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Load welcome state from local storage or default to true
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome] = useState(true);
 
   /*
   const [showWelcome, setShowWelcome] = useState(() => {                                                                         │
@@ -68,7 +68,7 @@ export default function HomeToolbar() {
 
   return (
 
-    <div className="w-full flex flex-col z-50 bg-[#121212] border-b border-t border-white/5">
+    <div className="w-full min-h-[200px] max-h-[400px] flex flex-col z-50 bg-[#121212] border-b border-t border-white/5">
 
       <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 py-4">
         <div className="flex items-center gap-4">
@@ -192,9 +192,9 @@ export default function HomeToolbar() {
       </div>
 
       {/* Content Section (Grid) */}
-      <div className="w-full max-w-6xl mx-auto px-2 pb-4 animate-in fade-in slide-in-from-top-2 duration-500">
+      <div className="w-full max-w-6xl mx-auto px-2 pb-4 animate-in fade-in slide-in-from-top-2 duration-500 flex-1 overflow-hidden">
         {showWelcome ? (
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4 h-full">
              {/* 
                 Logic:
                 - If connected: Calendar takes 3 cols, Welcome takes 1 col.
@@ -202,27 +202,25 @@ export default function HomeToolbar() {
              */}
             {!isCalendarConnected ? (
               <>
-                <div className="col-span-3">
+                <div className="col-span-3 h-full min-h-0">
                   <WelcomeCard 
-                    onDismiss={handleDismissWelcome} 
                     onJoinDemo={handleJoinDemo} 
                     className="h-full"
                   />
                 </div>
-                <div className="col-span-1">
+                <div className="col-span-1 h-full min-h-0">
                   <CalendarSection refreshTrigger={refreshTrigger} compact={true} />
                 </div>
               </>
             ) : (
                <>
-                <div className="col-span-1">
+                <div className="col-span-1 h-full min-h-0">
                   <WelcomeCard 
-                    onDismiss={handleDismissWelcome} 
                     onJoinDemo={handleJoinDemo} 
                     className="h-full"
                   />
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-3 h-full min-h-0">
                   <CalendarSection refreshTrigger={refreshTrigger} />
                 </div>
                </>

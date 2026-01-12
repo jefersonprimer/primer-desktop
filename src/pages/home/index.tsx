@@ -57,7 +57,6 @@ export default function HomePage() {
 
   // History state
   const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
   const [historyMessages, setHistoryMessages] = useState<ChatMessage[]>([]);
   
   // Navigation & URL State
@@ -275,7 +274,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className={`w-full max-w-[1440px] mx-auto h-screen flex flex-col relative ${isFocusMode ? 'bg-transparent' : 'bg-[#141414]'}`}>
+    <div className={`w-full max-w-[1440px] mx-auto h-screen overflow-y-auto flex flex-col relative ${isFocusMode ? 'bg-transparent' : 'bg-[#141414]'}`}>
       
       {/* Spacer for fixed TitleBar */}
       {!isFocusMode && <div className="h-12 shrink-0" />}
@@ -288,19 +287,6 @@ export default function HomePage() {
             sessions={sessions} 
             onSelect={(s) => push(`/home?chatId=${s.id}`)} 
             onDelete={handleDeleteChat}
-            onDeleteAll={async () => {
-              if (!userId) return;
-              try {
-                await invoke("delete_all_chats", { dto: { user_id: userId } });
-                setSessions([]);
-                setHistoryMessages([]);
-                setChatId(null);
-                setAiMessage("");
-              } catch (e) {
-                console.error("Failed to delete all chats", e);
-                // Optionally show error toast
-              }
-            }}
           />
         )}
       </div>

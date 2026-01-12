@@ -1,14 +1,12 @@
-import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 
 interface WelcomeCardProps {
-  onDismiss: () => void;
+  onDismiss?: () => void;
   onJoinDemo: () => void;
   className?: string;
 }
 
-export default function WelcomeCard({ onDismiss, onJoinDemo, className = "" }: WelcomeCardProps) {
-  const { t } = useTranslation();
+export default function WelcomeCard({ onJoinDemo, className = "" }: WelcomeCardProps) {
 
   return (
     <motion.div

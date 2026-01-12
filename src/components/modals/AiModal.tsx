@@ -199,7 +199,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
       <Draggable nodeRef={nodeRef} handle=".drag-handle">
         <div
           ref={nodeRef}
-          className={`relative w-[600px] bg-[#4E4D4F] text-white rounded-xl p-2 shadow-xl flex flex-col gap-4 transition-all duration-300 ${isCompact ? 'h-auto' : ''}`}
+          className={`relative w-[600px] bg-[#4E4D4F] text-white rounded-xl p-2 shadow-xl flex flex-col gap-4 transition-colors duration-300 ${isCompact ? 'h-auto' : ''}`}
         >
 
           {!isCompact && (

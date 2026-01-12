@@ -32,7 +32,7 @@ export default function WindowFrame({ children }: WindowFrameProps) {
 
   return (
     <div
-      className={`relative w-full h-screen bg-[#141414] ${
+      className={`relative w-full h-screen ${
         !isMaximized ? "rounded-xl border border-white/10 shadow-2xl" : ""
       }`}
       style={{
