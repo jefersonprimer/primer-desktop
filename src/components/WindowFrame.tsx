@@ -32,7 +32,7 @@ export default function WindowFrame({ children }: WindowFrameProps) {
 
   return (
     <div
-      className={`relative w-full h-screen ${
+      className={`relative w-full min-h-screen md:h-screen overflow-y-auto md:overflow-visible ${
         !isMaximized ? "rounded-xl border border-white/10 shadow-2xl" : ""
       }`}
       style={{

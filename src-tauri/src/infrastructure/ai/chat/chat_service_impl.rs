@@ -38,6 +38,7 @@ struct NotionPageRequest {
 #[derive(Deserialize)]
 struct AiResponse {
     answer: String,
+    tip: Option<String>,
     follow_ups: Vec<String>,
     calendar_event: Option<AiCalendarEvent>,
     notion_page: Option<NotionPageRequest>,
@@ -301,6 +302,7 @@ impl ChatService for ChatServiceImpl {
             message_type: "chat".to_string(),
             importance: 0,
             follow_ups: None,
+            tip: None,
         };
         self.message_repo.create(user_message.clone()).await?;
 
@@ -352,7 +354,7 @@ impl ChatService for ChatServiceImpl {
 
         // 6.3. Add System Prompt with JSON instructions and Global Context
         let lang_instruction = match &request.output_language {
-            Some(lang) => format!("\n- Responda OBRIGATORIAMENTE no idioma: {}", lang),
+            Some(lang) => format!("\n- You MUST respond in the following language: {}", lang),
             None => "".to_string(),
         };
 
@@ -373,7 +375,7 @@ impl ChatService for ChatServiceImpl {
         let current_date = Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string();
 
         let json_instruction = format!(
-            "{}\n\nApós responder o usuário:\n- Gere de 3 a 4 perguntas de follow-up\n- As perguntas devem ajudar a avançar tecnicamente\n- Não repita informações já dadas\n- Se não houver follow-ups úteis, retorne uma lista vazia\n- As perguntas devem ser curtas e objetivas\n\nCALENDAR TOOL:\nSe o usuário pedir explicitamente para agendar/criar um evento, preencha o campo 'calendar_event'.\n- Use ISO 8601 para datas (Ex: 2024-12-30T15:00:00Z)\n- Converta termos relativos (amanhã, próxima terça) para datas absolutas baseadas em HOJE ({})\n- description é opcional\n\nNOTION TOOL:\nSe o usuário pedir para criar uma nota, página ou salvar algo no Notion, preencha o campo 'notion_page'.\n- 'title': Título da página.\n- 'content': Conteúdo da página (pode usar Markdown simples).\n- 'parent_id': Opcional. ID da página pai. Se não souber, deixe null (será usado o padrão).\n\nResponda em JSON no formato:\n{{\n  \"answer\": string,\n  \"follow_ups\": string[],\n  \"calendar_event\": {{\n    \"summary\": string,\n    \"description\": string | null,\n    \"start_time\": string,\n    \"end_time\": string\n  }} | null,\n  \"notion_page\": {{\n    \"title\": string,\n    \"content\": string,\n    \"parent_id\": string | null\n  }} | null\n}}\n{}",
+            "{}\\n\\nAfter answering the user:\\n\\nTIP (DICA PRÁTICA):\\n- If there's a useful practical tip related to the answer, fill the 'tip' field\\n- The tip should be concise, actionable, and add value (e.g., best practices, shortcuts, common pitfalls)\\n- If no relevant tip exists, return null\\n- Maximum 2 sentences\\n\\nFOLLOW-UP QUESTIONS:\\n- Generate 2 to 3 follow-up questions\\n- Questions must help advance technically\\n- Do not repeat information already given\\n- If no useful follow-ups exist, return an empty list\\n- Questions must be short and objective (e.g., 'Mostrar exemplo de código', 'Comparar com outras opções')\\n\\nCALENDAR TOOL:\\nIf the user explicitly asks to schedule/create an event, fill the 'calendar_event' field.\\n- Use ISO 8601 for dates (Ex: 2024-12-30T15:00:00Z)\\n- Convert relative terms (tomorrow, next Tuesday) to absolute dates based on TODAY ({})\\n- description is optional\\n\\nNOTION TOOL:\\nIf the user asks to create a note, page or save something to Notion, fill the 'notion_page' field.\\n- 'title': Page title.\\n- 'content': Page content (simple Markdown allowed).\\n- 'parent_id': Optional. Parent page ID. If unknown, leave null (default will be used).\\n\\nRespond in JSON format:\\n{{\\n  \\\"answer\\\": string,\\n  \\\"tip\\\": string | null,\\n  \\\"follow_ups\\\": string[],\\n  \\\"calendar_event\\\": {{\\n    \\\"summary\\\": string,\\n    \\\"description\\\": string | null,\\n    \\\"start_time\\\": string,\\n    \\\"end_time\\\": string\\n  }} | null,\\n  \\\"notion_page\\\": {{\\n    \\\"title\\\": string,\\n    \\\"content\\\": string,\\n    \\\"parent_id\\\": string | null\\n  }} | null\\n}}\\n{}",
             global_context_str,
             current_date,
             lang_instruction
@@ -472,23 +474,38 @@ impl ChatService for ChatServiceImpl {
             .unwrap_or_else(|| "assistant".to_string()); 
 
         // Parse JSON response
-        let (mut answer, follow_ups, calendar_event, notion_page) = match serde_json::from_str::<AiResponse>(&ai_response_message_content) {
-            Ok(parsed) => (parsed.answer, parsed.follow_ups, parsed.calendar_event, parsed.notion_page),
-            Err(_) => {
-                    // Try to strip markdown code blocks if present ```json ... ```
-                    let clean_content = ai_response_message_content.trim();
-                    let clean_content = if clean_content.starts_with("```json") {
-                        clean_content.trim_start_matches("```json").trim_end_matches("```").trim()
-                    } else if clean_content.starts_with("```") {
-                        clean_content.trim_start_matches("```").trim_end_matches("```").trim()
-                    } else {
-                        clean_content
-                    };
-                    
-                    match serde_json::from_str::<AiResponse>(clean_content) {
-                        Ok(parsed) => (parsed.answer, parsed.follow_ups, parsed.calendar_event, parsed.notion_page),
-                        Err(_) => (ai_response_message_content.clone(), vec![], None, None) // Fallback to original
+        let (mut answer, tip, follow_ups, calendar_event, notion_page) = {
+            let clean_content = ai_response_message_content.trim();
+            
+            // Helper to try parsing a string as AiResponse
+            let try_parse = |s: &str| -> Option<AiResponse> {
+                serde_json::from_str::<AiResponse>(s).ok()
+            };
+
+            // Strategy 1: Direct parse
+            if let Some(parsed) = try_parse(clean_content) {
+                (parsed.answer, parsed.tip, parsed.follow_ups, parsed.calendar_event, parsed.notion_page)
+            } else {
+                // Strategy 2: Locate JSON object bounds { ... }
+                // This handles ```json wrappers and conversational pre/post-ambles
+                let extracted = clean_content.find('{')
+                    .and_then(|start| clean_content.rfind('}').map(|end| (start, end)))
+                    .and_then(|(start, end)| {
+                        if start < end {
+                            try_parse(&clean_content[start..=end])
+                        } else {
+                            None
+                        }
+                    });
+
+                match extracted {
+                    Some(parsed) => (parsed.answer, parsed.tip, parsed.follow_ups, parsed.calendar_event, parsed.notion_page),
+                    None => {
+                        log::warn!("Failed to parse AI JSON response. Fallback to raw text.");
+                        // Fallback: Treat entire content as the answer, no tip/follow-ups
+                        (ai_response_message_content.clone(), None, vec![], None, None)
                     }
+                }
             }
         };
 
@@ -554,6 +571,7 @@ impl ChatService for ChatServiceImpl {
             message_type: "chat".to_string(),
             importance: 0,
             follow_ups: if follow_ups.is_empty() { None } else { Some(follow_ups.clone()) },
+            tip: tip.clone(),
         };
 
         self.message_repo.create(ai_message.clone()).await?;

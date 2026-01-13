@@ -81,6 +81,7 @@ pub async fn send_message(dto: SendMessageDto, state: State<'_, AppState>) -> Re
             content: message.content,
             created_at: message.created_at,
             follow_ups: message.follow_ups,
+            tip: message.tip,
         },
         follow_ups,
     })
@@ -131,6 +132,7 @@ pub async fn get_messages(dto: GetMessagesDto, state: State<'_, AppState>) -> Re
                 content: m.content,
                 created_at: m.created_at,
                 follow_ups: m.follow_ups,
+                tip: m.tip,
             }).collect()
         })
         .map_err(|e| e.to_string())

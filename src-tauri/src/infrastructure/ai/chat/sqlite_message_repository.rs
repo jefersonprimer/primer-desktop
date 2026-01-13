@@ -74,6 +74,7 @@ impl MessageRepository for SqliteMessageRepository {
                 message_type: row.get("message_type"),
                 importance: row.get("importance"),
                 follow_ups,
+                tip: None, // Tips are not persisted, recalculated per-request
             })
         })
         .fetch_all(&self.pool)
@@ -153,6 +154,7 @@ impl MessageRepository for SqliteMessageRepository {
                 message_type: row.get("message_type"),
                 importance: row.get("importance"),
                 follow_ups,
+                tip: None, // Tips are not persisted
             })
         })
         .fetch_all(&self.pool)

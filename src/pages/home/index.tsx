@@ -43,6 +43,7 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   createdAt: string;
+  tip?: string;
   followUps?: string[];
 }
 
@@ -271,7 +272,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className={`w-full max-w-[1440px] mx-auto h-screen overflow-y-auto flex flex-col relative ${isFocusMode ? 'bg-transparent' : 'bg-[#141414]'}`}>
+    <div className={`w-full max-w-[1440px] mx-auto min-h-screen md:h-screen overflow-y-auto flex flex-col relative ${isFocusMode ? 'bg-transparent' : 'bg-[#141414]'}`}>
 
       {/* Spacer for fixed TitleBar */}
       {!isFocusMode && <div className="h-12 shrink-0" />}

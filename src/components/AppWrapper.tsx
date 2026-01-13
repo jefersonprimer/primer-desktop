@@ -9,7 +9,7 @@ export default function AppWrapper({ children }: AppWrapperProps) {
     // const { isFocusMode } = useDockVisibility();
 
     return (
-        <div className={`w-full max-w-[1440px] mx-auto h-screen relative overflow-hidden`}>
+        <div className={`w-full max-w-[1440px] mx-auto min-h-screen md:h-screen relative overflow-y-auto md:overflow-hidden`}>
             {children}
         </div>
     );

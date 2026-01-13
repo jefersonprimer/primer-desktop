@@ -159,7 +159,7 @@ export default function CalendarSection({ refreshTrigger = 0, compact = false }:
                   </div>
                   <div>
                     <h3 className="text-white text-lg font-semibold tracking-tight">{t('calendar.getStarted')}</h3>
-                    <p className="text-white/40 text-sm mt-1">Sync your schedule instantly</p>
+                    <p className="text-white/40 text-sm mt-1 hidden md:block">Sync your schedule instantly</p>
                   </div>
                 </div>
                 

@@ -103,7 +103,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
         role: m.role as "user" | "assistant",
         content: m.content,
         createdAt: m.created_at,
-        // Backend get_messages doesn't persist follow-ups yet, so we leave it undefined for history
+        followUpOptions: m.follow_ups,
       }));
       setMessages(mapped);
     } catch (e) {
@@ -231,7 +231,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
 
   return (
     <>
-      <div className="fixed top-12 left-1 right-1 bottom-1 bg-[#212121] z-[100] animate-in fade-in slide-in-from-bottom-4 duration-200 flex flex-col rounded-lg overflow-hidden">
+      <div className="fixed top-12 left-1 right-1 bottom-1 bg-white dark:bg-[#212121] z-[100] animate-in fade-in slide-in-from-bottom-4 duration-200 flex flex-col rounded-lg overflow-hidden">
         <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col min-h-0 relative">
           
           {/* Scrollable Content */}
@@ -241,13 +241,13 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
               <div className="flex items-center justify-end gap-3 mb-4">
               <button 
                   onClick={handleOpenEmailModal}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors text-sm border border-white/10"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors text-sm border border-black/10 dark:border-white/10"
               >
                   <MailIcon size={16} />
                   <span>Follow-up email</span>
               </button>
               <button 
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors text-sm border border-white/10"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors text-sm border border-black/10 dark:border-white/10"
               >
                   <LinkIcon size={16} />
                   <span>Share</span>
@@ -257,23 +257,23 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
 
               <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                  <h1 className="text-3xl font-semibold text-white">{session.title}</h1>
+                  <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">{session.title}</h1>
                   <div className="flex items-center gap-2 mt-1">
-                  <span className="text-sm text-white/50">{session.model}</span>
-                  <span className="text-white/20">•</span>
-                  <span className="text-sm text-white/50">{session.createdAt.toLocaleString()}</span>
+                  <span className="text-sm text-gray-500 dark:text-white/50">{session.model}</span>
+                  <span className="text-gray-300 dark:text-white/20">•</span>
+                  <span className="text-sm text-gray-500 dark:text-white/50">{session.createdAt.toLocaleString()}</span>
                   </div>
               </div>
               </div>
 
               <div className="flex items-center justify-between my-6 relative">
-              <div className="flex items-center gap-1 p-1 bg-white/5 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-1 p-1 bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5">
                   <button 
                   onClick={() => setActiveTab("summary")}
                   className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${
                       activeTab === "summary" 
-                      ? "bg-white/10 text-white shadow-sm font-medium" 
-                      : "text-neutral-400 hover:text-white hover:bg-white/5"
+                      ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm font-medium" 
+                      : "text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
                   }`}
                   >
                   Summary
@@ -282,8 +282,8 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
                   onClick={() => setActiveTab("transcript")}
                   className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${
                       activeTab === "transcript" 
-                      ? "bg-white/10 text-white shadow-sm font-medium" 
-                      : "text-neutral-400 hover:text-white hover:bg-white/5"
+                      ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm font-medium" 
+                      : "text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
                   }`}
                   >
                   Transcript
@@ -292,8 +292,8 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
                   onClick={() => setActiveTab("usage")}
                   className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${
                       activeTab === "usage" 
-                      ? "bg-white/10 text-white shadow-sm font-medium" 
-                      : "text-neutral-400 hover:text-white hover:bg-white/5"
+                      ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm font-medium" 
+                      : "text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
                   }`}
                   >
                   Usage
@@ -303,7 +303,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
               <div className="relative">
                   <button 
                   onClick={() => setShowAssistantPicker(!showAssistantPicker)}
-                  className="flex items-center gap-2 p-2 bg-white/10 hover:bg-[#414141] rounded-2xl border border-white/10 text-neutral-400 hover:text-white transition-colors"
+                  className="flex items-center gap-2 p-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-[#414141] rounded-2xl border border-black/10 dark:border-white/10 text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                   >
                   <svg 
                       xmlns="http://www.w3.org/2000/svg"
@@ -341,9 +341,9 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
               {isLoading && messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                   <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-white/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 bg-white/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-2 h-2 bg-white/40 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-black/20 dark:bg-white/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-black/20 dark:bg-white/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-black/20 dark:bg-white/40 rounded-full animate-bounce"></div>
                   </div>
                   </div>
               ) : (
@@ -353,7 +353,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
                         <ChatHistory messages={messages} onFollowUpClick={handleFollowUpClick} />
                         {isSending && (
                             <div className="flex justify-start mt-4">
-                                <div className="py-2 px-3 rounded-lg flex items-center gap-1.5 bg-white/5">
+                                <div className="py-2 px-3 rounded-lg flex items-center gap-1.5 bg-black/5 dark:bg-white/5">
                                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
@@ -365,7 +365,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
                         <div>
                           <button 
                               onClick={handleCopySummary}
-                              className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/10 text-white/80 hover:text-white transition-colors"
+                              className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors"
                               title="Copy Summary"
                           >
                               {isCopied ? <CheckIcon size={16}/> : <CopyIcon size={16}/>}
@@ -374,16 +374,16 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
                       </>
                   )}
                   {activeTab === "transcript" && (
-                      <div className="flex flex-col items-center justify-center h-full text-neutral-500 gap-2 min-h-[200px]">
-                          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-2">
+                      <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-neutral-500 gap-2 min-h-[200px]">
+                          <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-2">
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
                           </div>
                           <p>No audio transcript available</p>
                       </div>
                   )}
                   {activeTab === "usage" && (
-                      <div className="flex flex-col items-center justify-center h-full text-neutral-500 gap-2 min-h-[200px]">
-                          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-2">
+                      <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-neutral-500 gap-2 min-h-[200px]">
+                          <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-2">
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
                           </div>
                           <p>Usage statistics not available</p>
@@ -397,26 +397,26 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
           {/* Sticky Input Footer */}
           {activeTab === "summary" && (
               <div className="pb-4">
-                <div className={`flex items-center gap-2 w-full rounded-full bg-white/5 p-2 border border-white/5 focus-within:border-white/20 transition-all ${isSending ? 'opacity-50' : ''}`}>
+                <div className={`flex items-center gap-2 w-full rounded-full bg-black/5 dark:bg-white/5 p-2 border border-black/5 dark:border-white/5 focus-within:border-gray-200 dark:focus-within:border-white/20 transition-all ${isSending ? 'opacity-50' : ''}`}>
                   <input
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyDown={handleKeyDown}
                       disabled={isSending}
-                      className="flex-1 bg-transparent px-3 py-2 text-white placeholder-white/40 focus:outline-none text-sm"
+                      className="flex-1 bg-transparent px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none text-sm"
                       placeholder="Ask anything..."
                   />
 
                   <div className="flex items-center gap-1">
                     <button 
-                      className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                      className="p-2 text-gray-400 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
                       title="Dictate"
                     >
                       <MicIcon size={18}/>
                     </button>
 
                     <button
-                      className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                      className="p-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-gray-700 dark:text-white rounded-full transition-colors"
                       title="Use voice mode"
                     >
                       <AudioLinesIcon size={18}/>

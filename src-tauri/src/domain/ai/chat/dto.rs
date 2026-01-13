@@ -36,6 +36,7 @@ pub struct MessageDto {
     pub content: String,
     pub created_at: DateTime<Utc>,
     pub follow_ups: Option<Vec<String>>,
+    pub tip: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

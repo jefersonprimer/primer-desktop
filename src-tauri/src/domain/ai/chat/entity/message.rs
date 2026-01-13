@@ -14,5 +14,8 @@ pub struct Message {
     pub importance: i32,
     #[sqlx(skip)]
     pub follow_ups: Option<Vec<String>>,
+    #[sqlx(skip)]
+    pub tip: Option<String>,
 }
+
 

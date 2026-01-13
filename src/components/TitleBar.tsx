@@ -126,12 +126,12 @@ export default function TitleBar() {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-12 flex items-center z-[9999] bg-[#141414] px-4">
+    <div className="fixed top-0 left-0 right-0 h-12 flex items-center z-[9999] bg-gray-100/95 dark:bg-[#141414] px-4 backdrop-blur-md border-b border-gray-200 dark:border-transparent transition-colors duration-200">
       {/* Logo Area - Left */}
       {isAuthenticated && (
         <div className="flex items-center gap-4">
-          <div className="flex items-center justify-center w-5 h-5 border-2 border-white/60 rounded-full select-none">
-            <span className="text-white/60 font-bold text-xs">P</span>
+          <div className="flex items-center justify-center w-5 h-5 border-2 border-gray-400 dark:border-white/60 rounded-full select-none">
+            <span className="text-gray-500 dark:text-white/60 font-bold text-xs">P</span>
           </div>
 
           {/* Navigation Chevrons */}
@@ -140,8 +140,8 @@ export default function TitleBar() {
               onClick={goBack}
               disabled={!canGoBack}
               className={`p-1 rounded-xl transition-colors ${canGoBack
-                  ? 'text-white hover:bg-white/10'
-                  : 'text-white/20 cursor-default'
+                  ? 'text-gray-700 dark:text-white hover:bg-black/5 dark:hover:bg-white/10'
+                  : 'text-gray-300 dark:text-white/20 cursor-default'
                 }`}
             >
               <ChevronLeftIcon size={20} />
@@ -150,8 +150,8 @@ export default function TitleBar() {
               onClick={goForward}
               disabled={!canGoForward}
               className={`p-1 rounded-xl transition-colors ${canGoForward
-                  ? 'text-white hover:bg-white/10'
-                  : 'text-white/20 cursor-default'
+                  ? 'text-gray-700 dark:text-white hover:bg-black/5 dark:hover:bg-white/10'
+                  : 'text-gray-300 dark:text-white/20 cursor-default'
                 }`}
             >
               <ChevronRightIcon size={20} />
@@ -163,17 +163,17 @@ export default function TitleBar() {
       {/* Search Bar - Center */}
       {isAuthenticated && (
         <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
-          <div className="flex items-center space-x-3 px-12 py-1.5 bg-white/5 rounded-full transition-colors min-w-[320px] justify-between pointer-events-auto cursor-text">
-            <div className="flex items-center space-x-2 text-white/50">
+          <div className="flex items-center space-x-3 px-6 md:px-12 md:min-w-[320px] py-1.5 bg-white/40 dark:bg-white/5 border border-black/5 dark:border-white/5 shadow-sm dark:shadow-none rounded-full transition-all duration-200 justify-between pointer-events-auto cursor-text hover:bg-white/60 dark:hover:bg-white/10">
+            <div className="flex items-center space-x-2 text-gray-500 dark:text-white/50">
               <SearchIcon size={14} />
-              <span className="text-xs font-medium">
+              <span className="text-xs font-medium hidden md:block">
                 Search or Ask anything...
               </span>
             </div>
             <div className="flex items-center space-x-1">
-              <kbd className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-white/30 font-sans border border-white/5">Ctrl</kbd>
-              <kbd className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-white/30 font-sans border border-white/5">Shift</kbd>
-              <kbd className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-white/30 font-sans border border-white/5">D</kbd>
+              <kbd className="px-1.5 py-0.5 bg-black/5 dark:bg-white/5 rounded text-[10px] text-gray-400 dark:text-white/30 font-sans border border-black/5 dark:border-white/5">Ctrl</kbd>
+              <kbd className="px-1.5 py-0.5 bg-black/5 dark:bg-white/5 rounded text-[10px] text-gray-400 dark:text-white/30 font-sans border border-black/5 dark:border-white/5">Shift</kbd>
+              <kbd className="px-1.5 py-0.5 bg-black/5 dark:bg-white/5 rounded text-[10px] text-gray-400 dark:text-white/30 font-sans border border-black/5 dark:border-white/5">D</kbd>
             </div>
           </div>
         </div>
@@ -196,7 +196,7 @@ export default function TitleBar() {
           <div className="relative" ref={profileMenuRef}>
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="w-8 h-8 mr-4 rounded-lg bg-gray-200 dark:bg-white/80 flex items-center justify-center text-sm font-semibold overflow-hidden transition-colors select-none hover:ring-2 hover:ring-white/30"
+              className="w-8 h-8 mr-4 rounded-lg bg-gray-200 dark:bg-white/80 flex items-center justify-center text-sm font-semibold overflow-hidden transition-colors select-none hover:ring-2 hover:ring-black/5 dark:hover:ring-white/30"
             >
               {userPicture ? (
                 <img
@@ -218,27 +218,27 @@ export default function TitleBar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-                  className="absolute right-0 top-full mt-2 w-56 bg-[#1c1c1e]/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl overflow-hidden z-[10000]"
+                  className="absolute right-0 top-full mt-2 w-56 bg-white/90 dark:bg-[#1c1c1e]/90 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-[10000]"
                 >
                   {/* User Info Header */}
                   <div className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="flex-1 min-w-0 flex flex-col">
-                        <p className="text-white font-semibold text-sm truncate">{userName || "User"}</p>
-                        <p className="text-white/40 text-[11px] truncate tracking-wider font-medium">{userEmail || ""}</p>
+                        <p className="text-gray-900 dark:text-white font-semibold text-sm truncate">{userName || "User"}</p>
+                        <p className="text-gray-500 dark:text-white/40 text-[11px] truncate tracking-wider font-medium">{userEmail || ""}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="border-t border-white/5 mx-2" />
+                  <div className="border-t border-black/5 dark:border-white/5 mx-2" />
 
                   {/* Menu Items */}
                   <div className="p-1.5">
                     <button
                       onClick={() => { setShowProfileMenu(false); openModal("settings", "API e Modelos"); }}
-                      className="w-full flex items-center gap-3 px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 text-left group"
+                      className="w-full flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all duration-200 text-left group"
                     >
-                      <div className="p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
+                      <div className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors">
                         <svg 
                           xmlns="http://www.w3.org/2000/svg" 
                           width="16" 
@@ -258,9 +258,9 @@ export default function TitleBar() {
 
                     <button
                       onClick={() => { setShowProfileMenu(false); openModal("settings", "Billing"); }}
-                      className="w-full flex items-center gap-3 px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 text-left group"
+                      className="w-full flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all duration-200 text-left group"
                     >
-                      <div className="p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
+                      <div className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <rect width="20" height="14" x="2" y="5" rx="2" />
                           <line x1="2" x2="22" y1="10" y2="10" />
@@ -271,9 +271,9 @@ export default function TitleBar() {
 
                     <button
                       onClick={() => { setShowProfileMenu(false); openModal("settings", "Help Center"); }}
-                      className="w-full flex items-center gap-3 px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 text-left group"
+                      className="w-full flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all duration-200 text-left group"
                     >
-                      <div className="p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
+                      <div className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="10" />
                           <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
@@ -283,13 +283,13 @@ export default function TitleBar() {
                       <span className="text-sm font-medium">Get Help</span>
                     </button>
 
-                    <div className="my-1.5 border-t border-white/5 mx-1.5" />
+                    <div className="my-1.5 border-t border-black/5 dark:border-white/5 mx-1.5" />
 
                     <button
                       onClick={() => { setShowProfileMenu(false); openModal("settings", "General"); }}
-                      className="w-full flex items-center gap-3 px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 text-left group"
+                      className="w-full flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all duration-200 text-left group"
                     >
-                      <div className="p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
+                      <div className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
                           <circle cx="12" cy="12" r="3" />
@@ -306,19 +306,19 @@ export default function TitleBar() {
 
         <button
           onClick={handleMinimize}
-          className="pt-2 w-9 h-8 flex items-center justify-center hover:bg-white/10 text-white/70 hover:text-white transition-colors rounded-md"
+          className="pt-2 w-9 h-8 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors rounded-md"
         >
           <MinimizeIcon />
         </button>
         <button
           onClick={handleMaximize}
-          className="w-9 h-8 flex items-center justify-center hover:bg-white/10 text-white/70 hover:text-white transition-colors rounded-md"
+          className="w-9 h-8 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors rounded-md"
         >
           {isMaximized ? <RestoreIcon /> : <MaximizeIcon />}
         </button>
         <button
           onClick={handleClose}
-          className="w-9 h-8 flex items-center justify-center hover:bg-red-500/80 text-white/70 hover:text-white transition-colors rounded-md"
+          className="w-9 h-8 flex items-center justify-center hover:bg-red-500/80 text-gray-500 dark:text-white/70 hover:text-white transition-colors rounded-md"
         >
           <CloseIcon size={16} />
         </button>

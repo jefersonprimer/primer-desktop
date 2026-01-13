@@ -37,8 +37,8 @@ export default function ChatHistory({ messages, onFollowUpClick }: ChatHistoryPr
             >
               <div
                 className={`${m.role === "user"
-                    ? "max-w-[85%] bg-white/5 px-4 py-2 rounded-2xl text-white/90 whitespace-pre-wrap"
-                    : "w-full text-white"
+                    ? "max-w-[85%] bg-black/5 dark:bg-white/5 px-4 py-2 rounded-2xl text-gray-800 dark:text-white/90 whitespace-pre-wrap shadow-sm"
+                    : "w-full text-gray-900 dark:text-white"
                   } text-base`}
               >
                 {m.role === "assistant" ? (
@@ -56,7 +56,7 @@ export default function ChatHistory({ messages, onFollowUpClick }: ChatHistoryPr
                   <button
                     key={idx}
                     onClick={() => onFollowUpClick?.(option)}
-                    className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl text-white/80 hover:text-white transition-all text-left"
+                    className="px-4 py-2 text-sm bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 hover:border-black/10 dark:hover:border-white/20 rounded-full text-gray-700 dark:text-white/90 hover:text-gray-900 dark:hover:text-white transition-all text-left shadow-sm"
                   >
                     {option}
                   </button>
