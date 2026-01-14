@@ -6,6 +6,7 @@ import ChatHistory from "../ChatHistory";
 import CopyIcon from "../ui/icons/CopyIcon";
 import CheckIcon from "../ui/icons/CheckIcon";
 import MicIcon from "../ui/icons/MicIcon";
+import ShareDropdown from "../ui/ShareDropdown";
 import AudioLinesIcon from "../ui/icons/AudioLinesIcon";
 
 import { invoke } from "@tauri-apps/api/core";
@@ -50,7 +51,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   const [showAssistantPicker, setShowAssistantPicker] = useState(false);
   const [presetId, setPresetId] = useState(activePromptPreset || "general");
   const [presetName, setPresetName] = useState("General");
@@ -64,6 +65,12 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
 
   // Email Summary Modal State
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+
+  // Share State
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [showShareDropdown, setShowShareDropdown] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const [emailBody, setEmailBody] = useState("");
 
   useEffect(() => {
@@ -83,7 +90,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
     try {
       const data = await getPromptPresets();
       setPresets(data);
-      
+
       const currentId = presetId || activePromptPreset || "general";
       const found = data.find(p => p.id === currentId);
       if (found) {
@@ -116,10 +123,10 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
   // Scroll to bottom when messages load or new message added
   useEffect(() => {
     if (messagesEndRef.current) {
-        // Small timeout to ensure rendering
-        setTimeout(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
+      // Small timeout to ensure rendering
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     }
   }, [messages, isOpen, isSending]);
 
@@ -138,13 +145,13 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
     const text = messages
       .map(m => `${m.role === 'user' ? 'User' : 'Assistant'} (${new Date(m.createdAt).toLocaleString()}): ${m.content}`)
       .join('\n\n');
-    
+
     try {
-        await navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
+      await navigator.clipboard.writeText(text);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
-        console.error('Failed to copy:', err);
+      console.error('Failed to copy:', err);
     }
   };
 
@@ -154,9 +161,79 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
     const text = messages
       .map(m => `${m.role === 'user' ? 'User' : 'Assistant'}:\n${m.content}`)
       .join('\n\n');
-    
+
     setEmailBody(text);
     setIsEmailModalOpen(true);
+  };
+
+  const handleShare = async () => {
+    if (!session || messages.length === 0) return;
+
+    // If already shared, just copy the existing URL
+    if (shareUrl) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+      return;
+    }
+
+    setIsSharing(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      console.log('[Share] Calling API:', `${apiUrl}/api/chat/share`);
+
+      const response = await fetch(`${apiUrl}/api/chat/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chatId: session.id,
+          title: session.title,
+          messages: messages.map(m => ({
+            role: m.role,
+            content: m.content,
+            created_at: m.createdAt,
+          })),
+          userId: userId,
+        }),
+      });
+
+      console.log('[Share] Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Share] API Error:', errorText);
+        throw new Error('Failed to create share');
+      }
+
+      const data = await response.json();
+      console.log('[Share] Success:', data);
+      setShareUrl(data.shareUrl);
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(data.shareUrl);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch (error) {
+      console.error('[Share] Error:', error);
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleShareDropdownToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (shareUrl) {
+      setShowShareDropdown(!showShareDropdown);
+    } else {
+      // If not shared yet, trigger share first
+      handleShare();
+    }
   };
 
   const sendMessageLogic = async (text: string) => {
@@ -175,7 +252,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
 
     try {
       const providerName = activeProvider === "Google" ? "Gemini" : activeProvider;
-      
+
       const response = await invoke<SendMessageResponse>("send_message", {
         dto: {
           user_id: userId,
@@ -197,7 +274,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
         followUpOptions: response.follow_ups,
       };
       setMessages(prev => [...prev, aiMsg]);
-      
+
       // Optionally reload all messages to ensure sync/IDs
       // loadMessages(session.id); 
 
@@ -233,202 +310,215 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
     <>
       <div className="fixed top-12 left-1 right-1 bottom-1 bg-white dark:bg-[#212121] z-[100] animate-in fade-in slide-in-from-bottom-4 duration-200 flex flex-col rounded-lg overflow-hidden">
         <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col min-h-0 relative">
-          
+
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto px-2 py-4 custom-scrollbar">
-              
-              {/* Header */}
-              <div className="flex items-center justify-end gap-3 mb-4">
-              <button 
-                  onClick={handleOpenEmailModal}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors text-sm border border-black/10 dark:border-white/10"
-              >
-                  <MailIcon size={16} />
-                  <span>Follow-up email</span>
-              </button>
-              <button 
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors text-sm border border-black/10 dark:border-white/10"
-              >
-                  <LinkIcon size={16} />
-                  <span>Share</span>
-                  <ChevronDownIcon size={16}/> 
-              </button>
-              </div>
 
-              <div className="flex items-center justify-between">
+            {/* Header */}
+            <div className="flex items-center justify-end gap-3 mb-4">
+              <button
+                onClick={handleOpenEmailModal}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors text-sm border border-black/10 dark:border-white/10"
+              >
+                <MailIcon size={16} />
+                <span>Follow-up email</span>
+              </button>
+              <div className="relative">
+                <button
+                  onClick={handleShare}
+                  disabled={isSharing || messages.length === 0}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors text-sm border border-black/10 dark:border-white/10 ${isSharing ? 'opacity-50 cursor-wait' : ''}`}
+                >
+                  {shareCopied ? <CheckIcon size={16} /> : <LinkIcon size={16} />}
+                  <span>{isSharing ? 'Sharing...' : shareCopied ? 'Copied!' : shareUrl ? 'Copy link' : 'Share'}</span>
+                  <button
+                    onClick={handleShareDropdownToggle}
+                    className="-mr-1 p-0.5 hover:bg-black/10 dark:hover:bg-white/10 rounded"
+                  >
+                    <ChevronDownIcon size={16} />
+                  </button>
+                </button>
+                {shareUrl && (
+                  <ShareDropdown
+                    shareUrl={shareUrl}
+                    isOpen={showShareDropdown}
+                    onClose={() => setShowShareDropdown(false)}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                  <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">{session.title}</h1>
-                  <div className="flex items-center gap-2 mt-1">
+                <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">{session.title}</h1>
+                <div className="flex items-center gap-2 mt-1">
                   <span className="text-sm text-gray-500 dark:text-white/50">{session.model}</span>
                   <span className="text-gray-300 dark:text-white/20">•</span>
                   <span className="text-sm text-gray-500 dark:text-white/50">{session.createdAt.toLocaleString()}</span>
-                  </div>
+                </div>
               </div>
-              </div>
+            </div>
 
-              <div className="flex items-center justify-between my-6 relative">
+            <div className="flex items-center justify-between my-6 relative">
               <div className="flex items-center gap-1 p-1 bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5">
-                  <button 
+                <button
                   onClick={() => setActiveTab("summary")}
-                  className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${
-                      activeTab === "summary" 
-                      ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm font-medium" 
-                      : "text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
-                  }`}
-                  >
+                  className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${activeTab === "summary"
+                    ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm font-medium"
+                    : "text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                    }`}
+                >
                   Summary
-                  </button>
-                  <button 
+                </button>
+                <button
                   onClick={() => setActiveTab("transcript")}
-                  className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${
-                      activeTab === "transcript" 
-                      ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm font-medium" 
-                      : "text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
-                  }`}
-                  >
+                  className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${activeTab === "transcript"
+                    ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm font-medium"
+                    : "text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                    }`}
+                >
                   Transcript
-                  </button>
-                  <button 
+                </button>
+                <button
                   onClick={() => setActiveTab("usage")}
-                  className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${
-                      activeTab === "usage" 
-                      ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm font-medium" 
-                      : "text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
-                  }`}
-                  >
+                  className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ${activeTab === "usage"
+                    ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm font-medium"
+                    : "text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                    }`}
+                >
                   Usage
-                  </button>
+                </button>
               </div>
 
               <div className="relative">
-                  <button 
+                <button
                   onClick={() => setShowAssistantPicker(!showAssistantPicker)}
                   className="flex items-center gap-2 p-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-[#414141] rounded-2xl border border-black/10 dark:border-white/10 text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                  <svg 
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                  >
-                      <path d="M14 17H5"/>
-                      <path d="M19 7h-9"/>
-                      <circle cx="17" cy="17" r="3"/>
-                      <circle cx="7" cy="7" r="3"/>
+                    <path d="M14 17H5" />
+                    <path d="M19 7h-9" />
+                    <circle cx="17" cy="17" r="3" />
+                    <circle cx="7" cy="7" r="3" />
                   </svg>
                   {presetName}
-                  <ChevronDownIcon size={16}/>
-                  </button>
-                  
-                  {showAssistantPicker && (
+                  <ChevronDownIcon size={16} />
+                </button>
+
+                {showAssistantPicker && (
                   <SelectAssistantModal
-                      value={presetId}
-                      onChange={handlePresetChange}
-                      onClose={() => setShowAssistantPicker(false)}
-                      positionClass="absolute right-0 top-full mt-2"
+                    value={presetId}
+                    onChange={handlePresetChange}
+                    onClose={() => setShowAssistantPicker(false)}
+                    positionClass="absolute right-0 top-full mt-2"
                   />
-                  )}
+                )}
               </div>
-              </div>
+            </div>
 
-              {/* Content */}
-              <div className="flex-1 pr-2 pb-4">
+            {/* Content */}
+            <div className="flex-1 pr-2 pb-4">
               {isLoading && messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full">
+                <div className="flex items-center justify-center h-full">
                   <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-black/20 dark:bg-white/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 bg-black/20 dark:bg-white/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-2 h-2 bg-black/20 dark:bg-white/40 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-black/20 dark:bg-white/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-2 h-2 bg-black/20 dark:bg-white/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-2 h-2 bg-black/20 dark:bg-white/40 rounded-full animate-bounce"></div>
                   </div>
-                  </div>
+                </div>
               ) : (
-                  <>
+                <>
                   {activeTab === "summary" && (
-                      <>
-                        <ChatHistory messages={messages} onFollowUpClick={handleFollowUpClick} />
-                        {isSending && (
-                            <div className="flex justify-start mt-4">
-                                <div className="py-2 px-3 rounded-lg flex items-center gap-1.5 bg-black/5 dark:bg-white/5">
-                                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-                                </div>
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} className="h-4" />
-
-                        <div>
-                          <button 
-                              onClick={handleCopySummary}
-                              className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors"
-                              title="Copy Summary"
-                          >
-                              {isCopied ? <CheckIcon size={16}/> : <CopyIcon size={16}/>}
-                          </button>
+                    <>
+                      <ChatHistory messages={messages} onFollowUpClick={handleFollowUpClick} />
+                      {isSending && (
+                        <div className="flex justify-start mt-4">
+                          <div className="py-2 px-3 rounded-lg flex items-center gap-1.5 bg-black/5 dark:bg-white/5">
+                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                          </div>
                         </div>
-                      </>
+                      )}
+                      <div ref={messagesEndRef} className="h-4" />
+
+                      <div>
+                        <button
+                          onClick={handleCopySummary}
+                          className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors"
+                          title="Copy Summary"
+                        >
+                          {isCopied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
+                        </button>
+                      </div>
+                    </>
                   )}
                   {activeTab === "transcript" && (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-neutral-500 gap-2 min-h-[200px]">
-                          <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-                          </div>
-                          <p>No audio transcript available</p>
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-neutral-500 gap-2 min-h-[200px]">
+                      <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" /></svg>
                       </div>
+                      <p>No audio transcript available</p>
+                    </div>
                   )}
                   {activeTab === "usage" && (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-neutral-500 gap-2 min-h-[200px]">
-                          <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-                          </div>
-                          <p>Usage statistics not available</p>
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-neutral-500 gap-2 min-h-[200px]">
+                      <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg>
                       </div>
+                      <p>Usage statistics not available</p>
+                    </div>
                   )}
-                  </>
+                </>
               )}
-              </div>
+            </div>
           </div>
 
           {/* Sticky Input Footer */}
           {activeTab === "summary" && (
-              <div className="pb-4">
-                <div className={`flex items-center gap-2 w-full rounded-full bg-black/5 dark:bg-white/5 p-2 border border-black/5 dark:border-white/5 focus-within:border-gray-200 dark:focus-within:border-white/20 transition-all ${isSending ? 'opacity-50' : ''}`}>
-                  <input
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      disabled={isSending}
-                      className="flex-1 bg-transparent px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none text-sm"
-                      placeholder="Ask anything..."
-                  />
+            <div className="pb-4">
+              <div className={`flex items-center gap-2 w-full rounded-full bg-black/5 dark:bg-white/5 p-2 border border-black/5 dark:border-white/5 focus-within:border-gray-200 dark:focus-within:border-white/20 transition-all ${isSending ? 'opacity-50' : ''}`}>
+                <input
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={isSending}
+                  className="flex-1 bg-transparent px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none text-sm"
+                  placeholder="Ask anything..."
+                />
 
-                  <div className="flex items-center gap-1">
-                    <button 
-                      className="p-2 text-gray-400 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
-                      title="Dictate"
-                    >
-                      <MicIcon size={18}/>
-                    </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    className="p-2 text-gray-400 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
+                    title="Dictate"
+                  >
+                    <MicIcon size={18} />
+                  </button>
 
-                    <button
-                      className="p-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-gray-700 dark:text-white rounded-full transition-colors"
-                      title="Use voice mode"
-                    >
-                      <AudioLinesIcon size={18}/>
-                    </button>
-                  </div>
+                  <button
+                    className="p-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-gray-700 dark:text-white rounded-full transition-colors"
+                    title="Use voice mode"
+                  >
+                    <AudioLinesIcon size={18} />
+                  </button>
                 </div>
               </div>
+            </div>
           )}
 
         </div>
       </div>
-      <EmailSummaryModal 
+      <EmailSummaryModal
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
         initialBody={emailBody}
