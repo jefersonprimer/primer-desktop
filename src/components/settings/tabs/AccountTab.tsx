@@ -8,6 +8,7 @@ import { useNotification } from "../../../contexts/NotificationContext";
 
 import ChevronDownIcon from "@/components/ui/icons/ChevronDownIcon";
 import ChevronUpIcon from "@/components/ui/icons/ChevronUpIcon";
+import UserIcon from "@/components/ui/icons/UserIcon";
 import DeleteAccountModal from "@/components/modals/DeleteAccountModal";
 import ClearLocalAccountDataModal from "@/components/modals/ClearLocalAccountDataModal";
 
@@ -22,6 +23,7 @@ export default function AccountTab() {
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [stats, setStats] = useState({ sessions: 0, messages: 0, active: 0 });
   const [plan, setPlan] = useState<string>("free");
+  // const [hasPassword, setHasPassword] = useState(true);
 
   useEffect(() => {
     fetchStats();
@@ -30,9 +32,10 @@ export default function AccountTab() {
 
   const fetchUserProfile = async () => {
     try {
-      const userProfile = await invoke<{ plan: string } | null>("get_current_user");
-      if (userProfile && userProfile.plan) {
-        setPlan(userProfile.plan);
+      const userProfile = await invoke<{ plan: string, has_password: boolean } | null>("get_current_user");
+      if (userProfile) {
+        if (userProfile.plan) setPlan(userProfile.plan);
+        // setHasPassword(userProfile.has_password);
       }
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
@@ -101,7 +104,7 @@ export default function AccountTab() {
     }
   };
   
-  const handleDeleteAccount = async (password: string) => {
+  const handleDeleteAccount = async () => {
     if (!userId) return;
     
     setIsDeleting(true);
@@ -109,7 +112,7 @@ export default function AccountTab() {
       await invoke("delete_account", {
         dto: {
           user_id: userId,
-          password: password,
+          password: "", // Pass empty string as the backend DTO still has this field but we ignore it
         },
       });
       
@@ -124,7 +127,7 @@ export default function AccountTab() {
       console.error("Failed to delete account:", error);
       addNotification({
         type: 'error',
-        message: t("account.deleteAccount.error")
+        message: typeof error === 'string' ? error : t("account.deleteAccount.error")
       });
     } finally {
       setIsDeleting(false);
@@ -147,7 +150,7 @@ export default function AccountTab() {
             {userPicture ? (
               <img src={userPicture} alt={userName || "User"} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-gray-600 dark:text-white">{userName?.[0]?.toUpperCase() || userEmail?.[0]?.toUpperCase() || "U"}</span>
+              <UserIcon size={24} />
             )}
           </div>
 

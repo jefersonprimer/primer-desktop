@@ -1,9 +1,19 @@
 import { useTranslation } from "react-i18next";
+import type { ReactNode } from "react";
 
 import HatGlassesIcon from "@/components/ui/icons/HatGlassesIcon"
 import EnterIcon from "@/components/ui/icons/EnterIcon";
 import MonitorIcon from "@/components/ui/icons/MonitorIcon";
 import MicIcon from "@/components/ui/icons/MicIcon";
+import BoxIcon from "@/components/ui/icons/BoxIcon";
+import EyeIcon from "@/components/ui/icons/EyeIcon";
+import SearchIcon from "@/components/ui/icons/SearchIcon";
+
+const Kbd = ({ children }: { children: ReactNode }) => (
+  <kbd className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-white/40 font-sans border border-white/5 min-w-[20px] inline-flex items-center justify-center">
+    {children}
+  </kbd>
+);
 
 export default function ShortcutsTab() {
   const { t } = useTranslation();
@@ -18,7 +28,9 @@ export default function ShortcutsTab() {
       </div>
 
       <div className="mb-4">
-        <h2 className="font-semibold text-gray-900 dark:text-white px-4">{t("shortcuts.general.title")}</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-white px-4 mb-2">{t("shortcuts.general.title")}</h2>
+        
+        {/* Toggle Visibility */}
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="gap-2 flex items-center">
             <div className="text-gray-500 dark:text-neutral-400">
@@ -42,12 +54,61 @@ export default function ShortcutsTab() {
             <h3 className="text-sm text-gray-900 dark:text-white">{t("shortcuts.general.toggleVisibility")}</h3>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Ctrl</span>
-            <span className="text-sm bg-gray-100 dark:bg-white/10 px-2.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">\</span>
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>\</Kbd>
           </div>
         </div>
 
+        {/* Search or Ask anything */}
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
+          <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
+            <SearchIcon size={16}/>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+              {t("shortcuts.general.searchAsk")}
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>Shift</Kbd>
+            <Kbd>D</Kbd>
+          </div>
+        </div>
+
+        {/* Toggle Dock */}
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
+          <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
+            <BoxIcon size={16}/>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+              {t("shortcuts.general.toggleDock")}
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>Shift</Kbd>
+            <Kbd>D</Kbd>
+          </div>
+        </div>
+
+        {/* Toggle App */}
+        <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
+          <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
+            <EyeIcon size={16}/>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+              {t("shortcuts.general.toggleApp")}
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>Shift</Kbd>
+            <Kbd>F</Kbd>
+          </div>
+        </div>
+
+        {/* Ask Screen */}
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="flex items-center gap-2">
             <div className="text-gray-500 dark:text-neutral-400">
@@ -75,12 +136,13 @@ export default function ShortcutsTab() {
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">{t("shortcuts.general.askScreen")}</h3>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Ctrl</span>
-            <span className="bg-gray-100 dark:bg-white/10 p-1.5 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition"><EnterIcon size={16}/></span>
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd><EnterIcon size={12}/></Kbd>
           </div>
         </div>
 
+        {/* Screenshot */}
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
             <MonitorIcon size={16}/>
@@ -89,20 +151,20 @@ export default function ShortcutsTab() {
             </h3>
           </div>
 
-          <div className="flex items-center gap-4 text-gray-500 dark:text-neutral-400">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Ctrl</span>
-              <span className="bg-gray-100 dark:bg-white/10 p-1.5 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition"><EnterIcon size={16}/></span>
+          <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
+            <div className="flex items-center gap-1">
+              <Kbd>Ctrl</Kbd>
+              <Kbd><EnterIcon size={12}/></Kbd>
             </div>
-            +
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Ctrl</span>
-              <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">E</span>
+            <span className="text-[10px] opacity-50">+</span>
+            <div className="flex items-center gap-1">
+              <Kbd>Ctrl</Kbd>
+              <Kbd>E</Kbd>
             </div>
           </div>
         </div>
 
-
+        {/* Audio */}
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
             <MicIcon size={16}/>
@@ -111,12 +173,13 @@ export default function ShortcutsTab() {
             </h3>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Ctrl</span>
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">D</span>
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>D</Kbd>
           </div>
         </div>
 
+        {/* Clear Conversation */}
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="flex items-center gap-2">
             <div className="text-gray-500 dark:text-neutral-400">
@@ -140,12 +203,13 @@ export default function ShortcutsTab() {
             </h3>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Ctrl</span>
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">R</span>
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>R</Kbd>
           </div>
         </div>
 
+        {/* Stealth Mode */}
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400">
             <HatGlassesIcon size={16}/> 
@@ -154,16 +218,18 @@ export default function ShortcutsTab() {
             </h3>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Ctrl</span>
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Shift</span>
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">S</span>
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>Shift</Kbd>
+            <Kbd>S</Kbd>
           </div>
         </div>
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 dark:text-white px-4">{t("shortcuts.scroll.title")}</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white px-4 mb-2">{t("shortcuts.scroll.title")}</h3>
+        
+        {/* Scroll Up */}
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="flex items-center gap-2">
             <div className="text-gray-500 dark:text-neutral-400">
@@ -190,13 +256,13 @@ export default function ShortcutsTab() {
             </h3>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Ctrl</span>
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>
               <svg 
                 xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="18"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -207,10 +273,11 @@ export default function ShortcutsTab() {
                 <path d="m5 12 7-7 7 7"/>
                 <path d="M12 19V5"/>
               </svg> 
-            </span>
+            </Kbd>
           </div>
         </div>
 
+        {/* Scroll Down */}
         <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#232326] rounded-lg group">
           <div className="flex items-center gap-2">
             <div className="text-gray-500 dark:text-neutral-400">
@@ -237,13 +304,13 @@ export default function ShortcutsTab() {
             </h3>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">Ctrl</span>
-            <span className="text-sm font-medium bg-gray-100 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white transition">
+          <div className="flex items-center gap-1">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>
               <svg 
                 xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="18" 
+                width="12"
+                height="12" 
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -254,7 +321,7 @@ export default function ShortcutsTab() {
                 <path d="M12 5v14"/>
                 <path d="m19 12-7 7-7-7"/>
               </svg>
-            </span>
+            </Kbd>
           </div>
         </div>
 

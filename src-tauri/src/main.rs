@@ -173,10 +173,16 @@ async fn main() {
         }))
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
-                .with_shortcuts(["CommandOrControl+Shift+S", "CommandOrControl+Backslash"])
+                .with_shortcuts([
+                    "CommandOrControl+Shift+S",
+                    "CommandOrControl+Backslash",
+                    "CommandOrControl+Shift+D",
+                    "CommandOrControl+Shift+F",
+                ])
                 .expect("Failed to register global shortcuts")
                 .with_handler(|app, shortcut, event| {
                     if event.state() == ShortcutState::Pressed {
+                        // Toggle Stealth Mode: Ctrl+Shift+S
                         if shortcut.matches(Modifiers::SUPER | Modifiers::SHIFT, Code::KeyS) ||
                            shortcut.matches(Modifiers::CONTROL | Modifiers::SHIFT, Code::KeyS) {
                                let app_handle = app.clone();
@@ -184,48 +190,49 @@ async fn main() {
                                    toggle_global_stealth(app_handle).await;
                                });
                         }
+                        // Minimize/Restore Window: Ctrl+\
                         if shortcut.matches(Modifiers::SUPER, Code::Backslash) ||
                            shortcut.matches(Modifiers::CONTROL, Code::Backslash) {
-                                                          if let Some(window) = app.get_webview_window("main") {
-                                                              if window.is_minimized().unwrap_or(false) {
-                                                                  let _ = window.unminimize();
-                                                                  let _ = window.set_focus();
-                                                              } else {
-                                                                  let _ = window.minimize();
-                                                              }
-                                                          }                        }
+                            if let Some(window) = app.get_webview_window("main") {
+                                if window.is_minimized().unwrap_or(false) {
+                                    let _ = window.unminimize();
+                                    let _ = window.set_focus();
+                                } else {
+                                    let _ = window.minimize();
+                                }
+                            }
+                        }
+                        // Toggle Dock Visibility: Ctrl+Shift+D
+                        if shortcut.matches(Modifiers::SUPER | Modifiers::SHIFT, Code::KeyD) ||
+                           shortcut.matches(Modifiers::CONTROL | Modifiers::SHIFT, Code::KeyD) {
+                            let _ = app.emit("toggle_dock_visibility", ());
+                        }
+                        // Toggle Focus Mode: Ctrl+Shift+F
+                        if shortcut.matches(Modifiers::SUPER | Modifiers::SHIFT, Code::KeyF) ||
+                           shortcut.matches(Modifiers::CONTROL | Modifiers::SHIFT, Code::KeyF) {
+                            let _ = app.emit("toggle_focus_mode", ());
+                        }
                     }
                 })
                 .build()
         )
         .invoke_handler(tauri::generate_handler![
             // user commands
-            user_commands::login,
-            user_commands::google_login,
-            user_commands::exchange_google_code,
-            user_commands::get_google_auth_url,
-            user_commands::register,
-            user_commands::reset_password,
             user_commands::add_api_key,
             user_commands::get_api_keys,
             user_commands::delete_api_key,
             user_commands::delete_account,
-            user_commands::get_session,
             user_commands::get_current_user,
             user_commands::clear_session,
             user_commands::sync_session,
-            user_commands::get_shortcuts,
             user_commands::clear_all_data,
             user_commands::get_user_stats,
             // chat commands
             chat_commands::create_chat,
             chat_commands::send_message,
-            chat_commands::sync_messages,
-            chat_commands::backup_chat,
             chat_commands::get_chats,
             chat_commands::get_messages,
             chat_commands::delete_chat,
-            chat_commands::delete_all_chats,
             // email commands
             email_commands::send_email,
             email_commands::send_chat_summary,

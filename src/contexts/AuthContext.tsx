@@ -46,6 +46,7 @@ interface AuthContextType {
   userPicture: string | null;
   isCalendarConnected: boolean;
   googleCalendarToken: string | null;
+  googleAccessToken: string | null;
   checkAuth: () => Promise<boolean>;
 }
 
@@ -368,10 +369,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const savedAuth = await store.get<AuthData>("auth");
           if (savedAuth) {
             savedAuth.user = updatedUser;
+            // Also clear the Google tokens from the auth data
+            savedAuth.google_access_token = null;
+            savedAuth.google_refresh_token = null;
+            savedAuth.google_token_expires_at = null;
             await store.set("auth", savedAuth);
             await store.save();
           }
         }
+
+        // Clear Google tokens from local SQLite session
+        try {
+          const savedAuth = await store?.get<AuthData>("auth");
+          if (savedAuth) {
+            await invoke("sync_session", {
+              dto: {
+                user_id: user.id,
+                access_token: savedAuth.accessToken,
+                expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60),
+                google_access_token: null,
+                google_refresh_token: null,
+                google_token_expires_at: null,
+              }
+            });
+            console.log("Local SQLite session updated to clear Google tokens");
+          }
+        } catch (syncError) {
+          console.error("Failed to clear Google tokens from local session:", syncError);
+        }
+
         console.log("Google Calendar disconnected successfully");
       } else {
         console.error("Failed to disconnect calendar");
@@ -433,6 +459,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userPicture: user?.profile_picture || null,
         isCalendarConnected: user?.isCalendarConnected || false,
         googleCalendarToken: user?.google_calendar_token || null,
+        googleAccessToken: user?.google_calendar_token || null,
       }}
     >
       {children}

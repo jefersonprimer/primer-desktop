@@ -37,7 +37,13 @@
       "clearAll": "Limpar",
       "confirmClear": "Tem certeza que deseja limpar todos os dados? Isso não pode ser desfeito.",
       "successClear": "Todos os dados foram limpos com sucesso.",
-      "errorClear": "Falha ao limpar dados."
+      "errorClear": "Falha ao limpar dados.",
+      "clearModal": {
+        "title": "Limpar Todos os Dados",
+        "warning": "Tem certeza que deseja limpar todos os dados? Isso não pode ser desfeito.",
+        "confirmButton": "Limpar Tudo",
+        "cancelButton": "Cancelar"
+      }
     },
     "deleteAccount": {
       "title": "Excluir Conta",
@@ -46,6 +52,9 @@
       "modalTitle": "Tem certeza que deseja excluir sua conta?",
       "modalWarning": "Ao excluir sua conta, você perderá acesso a todos os seus dados, histórico e configurações. Esta ação não pode ser desfeita.",
       "passwordLabel": "Digite sua senha para confirmar",
+      "passwordPlaceholder": "Senha",
+      "confirmationText": "EXCLUIR MINHA CONTA",
+      "confirmLabel": "Para confirmar, digite EXCLUIR MINHA CONTA no campo abaixo",
       "confirmButton": "Excluir conta",
       "cancelButton": "Cancelar",
       "success": "Conta excluída com sucesso.",
@@ -62,7 +71,7 @@
     "delete": "Apagar",
     "cancel": "Cancelar",
     "clearAll": "Limpar tudo",
-    "noSessions": "Nenhuma sessão encontrada.",
+    "noSessions": "Sem sessões...",
     "selectSession": "Selecione uma sessão para ver os detalhes.",
     "deleteConversationTitle": "Apagar conversa"
   },
@@ -99,9 +108,9 @@
   "calendar": {
     "title": "Calendários Visíveis",
     "description": "Próximas reuniões são sincronizadas destes calendários",
-    "noCalendars": "Nenhum calendário",
     "getStarted": "Comece conectando uma conta Google.",
     "connectGoogle": "Conectar Google",
+    "noCalendars": "Nenhum calendário conectado",
     "noEvents": "Nenhum evento agendado",
     "scheduledEvents": "Eventos Agendados",
     "deleteEvent": "Excluir Evento",
@@ -199,8 +208,11 @@
     "description": "Visualize os atalhos de teclado configurados para o seu fluxo de trabalho.",
     "general": {
       "title": "Geral",
+      "toggleDock": "Mostrar ou esconder a Dock",
+      "toggleApp": "Mostrar ou esconder o aplicativo",
       "toggleVisibility": "Alternar visibilidade do Primer",
       "askScreen": "Pergunte ao Primer sobre sua tela ou qualquer coisa",
+      "searchAsk": "Pesquisar ou perguntar qualquer coisa",
       "screenshot": "Tirar um print e enviar para a IA",
       "audio": "Perguntar ao Primer com áudio",
       "clearConversation": "Limpar a conversa atual com o Primer",
@@ -224,6 +236,20 @@
     "deleteConfirm": "Tem certeza que deseja excluir este assistente?",
     "delete": "Excluir",
     "defaultName": "Novo Assistente"
+  },
+  "notion": {
+    "title": "Notion",
+    "subtitle": "Conecte-se ao seu workspace do Notion",
+    "active": "Conectado",
+    "connect": "Conectar ao Notion",
+    "connected": "Conectado ao {{workspace}}",
+    "disconnect": "Desconectar",
+    "description": "Permita que o Primer crie notas no seu workspace do Notion.",
+    "editNote": "Editar Nota",
+    "noteTitle": "Título",
+    "enterTitle": "Digite o título da nota...",
+    "noteContent": "Conteúdo",
+    "enterContent": "Digite o conteúdo da nota..."
   },
   "openai": {
     "subtitle": "GPT-4.1, GPT-4o e outros modelos",

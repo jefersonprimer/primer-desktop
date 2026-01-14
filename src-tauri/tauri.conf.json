@@ -14,12 +14,16 @@
       {
         "label": "main",
         "title": "PrimerApp",
-        "width": 400,
-        "height": 600,
+        "width": 1200,
+        "height": 800,
+        "minWidth": 600,
+        "maxWidth": 1400,
+        "minHeight": 300,
+        "maxHeight": 1000,
         "resizable": true,
         "decorations": false,
         "transparent": true,
-        "alwaysOnTop": true,
+        "alwaysOnTop": false,
         "visible": false,
         "skipTaskbar": false
       },
@@ -27,8 +31,8 @@
         "label": "splashscreen",
         "title": "Splashscreen",
         "url": "splashscreen.html",
-        "width": 300,
-        "height": 300,
+        "width": 1200,
+        "height": 800,
         "decorations": false,
         "transparent": true,
         "alwaysOnTop": true,
@@ -37,7 +41,9 @@
     ],
     "security": {
       "csp": null,
-      "capabilities": ["default"]
+      "capabilities": [
+        "default"
+      ]
     }
   },
   "plugins": {
@@ -68,4 +74,3 @@
     ]
   }
 }
-

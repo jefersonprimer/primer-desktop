@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAi } from "../../../contexts/AiContext";
+import { fetchOpenAIModels } from "@/services/aiService";
 
 import CheckIcon from "@/components/ui/icons/CheckIcon";
 import ZapIcon from "@/components/ui/icons/ZapIcon";
@@ -47,6 +48,9 @@ export default function OpenAiTab({
   // Track specific whisper model selection
   const [activeWhisperModel, setActiveWhisperModel] = useState<string>(() => localStorage.getItem("whisper_model") || "tiny");
   const [showWhisperConfig, setShowWhisperConfig] = useState(transcriptionModel === "whisper_cpp");
+  
+  const [fetchedModels, setFetchedModels] = useState<{ id: string; label: string; description?: string }[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
 
   useEffect(() => {
     if (transcriptionModel === "whisper_cpp") {
@@ -54,18 +58,51 @@ export default function OpenAiTab({
     }
   }, [transcriptionModel]);
 
+  useEffect(() => {
+    // Attempt to fetch models if we have an API Key (and it looks vaguely valid or is the saved one)
+    if (apiKey && apiKey.length > 20) {
+       loadModels();
+    }
+  }, [apiKey]);
+
+  const loadModels = async () => {
+    if (!apiKey) return;
+    setIsLoadingModels(true);
+    try {
+      const models = await fetchOpenAIModels(apiKey);
+      if (models && models.length > 0) {
+        // Filter for chat models (gpt-*, o1-*) and sort them
+        const chatModels = models
+          .filter(m => m.id.startsWith("gpt") || m.id.startsWith("o1") || m.id.startsWith("chatgpt"))
+          .sort((a, b) => b.id.localeCompare(a.id)) // Newest usually higher version numbers or dates
+          .map(m => ({
+             id: m.id,
+             label: m.id,
+             description: undefined
+          }));
+        setFetchedModels(chatModels);
+      }
+    } catch (error) {
+      console.error("Failed to load OpenAI models", error);
+    } finally {
+      setIsLoadingModels(false);
+    }
+  }
+
   const handleSetWhisperModel = (name: string) => {
     localStorage.setItem("whisper_model", name);
     setActiveWhisperModel(name);
   };
 
-  // Lista completa de modelos para personalizado (Restrita conforme solicitado)
-  const allModels = [
+  // Default fallback models
+  const defaultModels = [
     { id: "gpt-4.1", label: "gpt-4.1", description: "Advanced multimodal model for complex analysis and reasoning." },
     { id: "gpt-4.1-nano", label: "gpt-4.1-nano", description: "Lightweight, extremely fast model for quick tasks." },
     { id: "gpt-4o", label: "gpt-4o", description: "Versatile flagship model for high-quality text and vision." },
     { id: "gpt-4o-mini", label: "gpt-4o-mini", description: "Cost-effective, fast model for standard interactions." }
   ];
+
+  const displayModels = fetchedModels.length > 0 ? fetchedModels : defaultModels;
 
   // Modelos de transcrição (Atualizado)
   const isMacOrWin = /Mac|Win/.test(navigator.platform);
@@ -322,17 +359,31 @@ export default function OpenAiTab({
       {performanceMode === "personalizado" && (
         <div className="space-y-6 mb-6">
           <div>
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("openai.analysisModel.title")}</h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">{t("openai.analysisModel.description")}</p>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                 <h3 className="text-base font-semibold text-neutral-900 dark:text-white">{t("openai.analysisModel.title")}</h3>
+                 <p className="text-neutral-500 dark:text-neutral-400 text-sm">{t("openai.analysisModel.description")}</p>
+              </div>
+              <button 
+                onClick={loadModels}
+                disabled={isLoadingModels || !apiKey}
+                className="p-1.5 text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                title={t("custom.ollama.refresh", "Refresh Models")}
+              >
+                 <div className={`${isLoadingModels ? "animate-spin" : ""}`}>
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                 </div>
+              </button>
+            </div>
 
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
               className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-300 focus:outline-none focus:border-blue-500 appearance-none "
             >
-              {allModels.map((m) => (
+              {displayModels.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.label}
+                  {m.label} {m.description ? `- ${m.description}` : ""}
                 </option>
               ))}
             </select>

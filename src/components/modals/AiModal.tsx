@@ -9,12 +9,14 @@ import CheckIcon from "../ui/icons/CheckIcon";
 import CopyIcon from "../ui/icons/CopyIcon";
 import CloseIcon from "../ui/icons/CloseIcon";
 import EventPreviewCard from "../calendar/EventPreviewCard";
+import MarkdownRenderer from "../ui/MarkdownRenderer";
 
 interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
   createdAt: string;
+  tip?: string;
   followUps?: string[];
 }
 
@@ -199,14 +201,14 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
       <Draggable nodeRef={nodeRef} handle=".drag-handle">
         <div
           ref={nodeRef}
-          className={`relative w-[600px] bg-[#4E4D4F] text-white rounded-xl p-2 shadow-xl flex flex-col gap-4 transition-all duration-300 ${isCompact ? 'h-auto' : ''}`}
+          className={`relative w-[600px] bg-white dark:bg-[#4E4D4F] text-gray-900 dark:text-white rounded-xl p-2 shadow-xl border border-gray-200 dark:border-transparent flex flex-col gap-4 transition-colors duration-300 ${isCompact ? 'h-auto' : ''}`}
         >
 
           {!isCompact && (
             <div className="drag-handle flex items-center justify-between cursor-move px-2 pt-1">
               <div className="flex items-center overflow-hidden gap-2">
-                <span className="text-xs border border-white px-1 rounded-full">P</span>
-                <span className="text-sm font-medium">
+                <span className="text-xs border border-gray-400 dark:border-white px-1 rounded-full text-gray-500 dark:text-white">P</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-white">
                   {isLoading ? "Thinking..." : "Ai response"}
                 </span>
               </div>
@@ -214,20 +216,20 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
               <div className="flex items-center gap-2 shrink-0">
 
                 {lastUserMessage && (
-                  <div className="text-xs text-white bg-[#707071] hover:bg-white/10 p-2 rounded-full truncate max-w-[300px]">
+                  <div className="text-xs text-gray-600 dark:text-white bg-gray-100 dark:bg-[#707071] hover:bg-black/5 dark:hover:bg-white/10 p-2 rounded-full truncate max-w-[300px] border border-gray-200 dark:border-transparent">
                     {lastUserMessage}
                   </div>
                 )}
 
                 <button
-                  className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition"
+                  className="p-1.5 rounded-md text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition"
                   title="Good for coding, reasoning, and web searches"
                 >
                   <ZapIcon size={16} />
                 </button>
 
                 <button
-                  className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition"
+                  className="p-1.5 rounded-md text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition"
                   onClick={() => {
                     const allAiResponses = messages
                       ?.filter((msg) => msg.role === "assistant")
@@ -248,7 +250,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                 </button>
 
                 <button
-                  className="p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-[#141414]/80 transition"
+                  className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition"
                   onClick={() => setTerminationStep('confirm_end')}
                 >
                   <CloseIcon size={16} />
@@ -267,14 +269,8 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                       <div key={msg.id} className={`flex flex-col items-start`}>
                         <div className={`text-xs mb-1 text-gray-500`}>
                         </div>
-                        <div className={`max-w-full p-2 text-gray-200`}>
-                          <p className="whitespace-pre-line text-sm">{msg.content}</p>
-                          <button
-                            onClick={() => navigator.clipboard.writeText(msg.content)}
-                            className="mt-2 text-[10px] bg-gray-700 px-1.5 py-0.5 rounded hover:bg-gray-600 transition"
-                          >
-                            Copiar
-                          </button>
+                        <div className={`max-w-full p-2 text-gray-700 dark:text-gray-200`}>
+                          <MarkdownRenderer content={msg.content} />
                         </div>
                         {/* Follow-ups */}
                         {msg.followUps && msg.followUps.length > 0 && (
@@ -283,7 +279,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                               <button
                                 key={i}
                                 onClick={() => onSendMessage && onSendMessage(q)}
-                                className="px-3 py-1 text-xs border border-gray-600 rounded-full hover:bg-gray-700 transition text-gray-300 text-left"
+                                className="px-3 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-600 dark:text-gray-300 shadow-sm"
                               >
                                 {q}
                               </button>
@@ -303,11 +299,11 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                     <span className="text-xs text-gray-500">Latest</span>
                     <button
                       onClick={() => navigator.clipboard.writeText(message)}
-                      className="text-xs bg-gray-700 px-2 py-1 rounded">
+                      className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded border border-gray-200 dark:border-transparent">
                       Copiar
                     </button>
                   </div>
-                  <p className="text-gray-200 whitespace-pre-line">
+                  <p className="text-gray-700 dark:text-gray-200 whitespace-pre-line">
                     {message}
                   </p>
                 </div>
@@ -331,18 +327,18 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
           )}
 
           {terminationStep !== 'none' && (
-            <div className=" border-t border-white/10 p-3 animate-in fade-in slide-in-from-top-2">
+            <div className=" border-t border-black/10 dark:border-white/10 p-3 animate-in fade-in slide-in-from-top-2">
               {terminationStep === 'confirm_end' && (
                 <div className="flex items-center gap-2">
-                  <p className="text-center text-sm text-white font-medium">End session?</p>
+                  <p className="text-center text-sm text-gray-900 dark:text-white font-medium">End session?</p>
                   <button
-                    className="px-4 py-1.5 bg-red-600 hover:bg-red-500 rounded text-xs font-semibold transition"
+                    className="px-4 py-1.5 bg-red-600 hover:bg-red-500 rounded text-xs font-semibold text-white transition"
                     onClick={() => setTerminationStep('confirm_email')}
                   >
                     Yes
                   </button>
                   <button
-                    className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-xs transition"
+                    className="px-4 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-xs text-gray-700 dark:text-white transition"
                     onClick={() => setTerminationStep('none')}
                   >
                     No
@@ -351,9 +347,9 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
               )}
               {terminationStep === 'confirm_email' && (
                 <div className="flex items-center gap-2">
-                  <p className="text-sm text-white font-medium">Send a summary by email?</p>
+                  <p className="text-sm text-gray-900 dark:text-white font-medium">Send a summary by email?</p>
                   <button
-                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-xs font-semibold transition"
+                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-xs font-semibold text-white transition"
                     onClick={() => {
                       if (onEndSession) onEndSession(true);
                       setTerminationStep('none');
@@ -362,7 +358,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                     Yes
                   </button>
                   <button
-                    className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-xs transition"
+                    className="px-4 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-xs text-gray-700 dark:text-white transition"
                     onClick={() => {
                       if (onEndSession) onEndSession(false);
                       setTerminationStep('none');
@@ -377,14 +373,14 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
 
           {/* Input Area (Replaces Footer) */}
           {terminationStep === 'none' && showInput && (
-            <div className={`flex flex-col gap-2 ${!isCompact ? 'border-t border-white/10 pt-2' : ''} ${isCompact ? 'drag-handle' : ''}`}>
+            <div className={`flex flex-col gap-2 ${!isCompact ? 'border-t border-black/5 dark:border-white/10 pt-2' : ''} ${isCompact ? 'drag-handle' : ''}`}>
               {/* Captured Image Preview */}
               {capturedImage && (
                 <div className="relative w-fit">
                   <img
                     src={capturedImage}
                     alt="Captured"
-                    className="h-16 w-auto rounded-lg border border-white/20 shadow-lg"
+                    className="h-16 w-auto rounded-lg border border-black/10 dark:border-white/20 shadow-lg"
                   />
                   <button
                     onClick={() => setCapturedImage(null)}
@@ -408,7 +404,7 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                   onBlur={() => setIsFocused(false)}
                   disabled={isLoading}
                   className={`flex-1 rounded-xl bg-transparent px-4 py-2
-                          text-white placeholder-white/40 focus:outline-none focus:ring-0 border-none outline-none text-sm transition-all
+                          text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:ring-0 border-none outline-none text-sm transition-all
                           ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   placeholder="Ask anything..."
                 />
@@ -416,17 +412,17 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                 {!isFocused && (
                   <button
                     onClick={toggleAutoFocus}
-                    className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 text-white opacity-40 transition disabled:opacity-50"
+                    className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-white opacity-60 dark:opacity-40 transition disabled:opacity-50"
                   >
                     <span className="text-sm font-medium">Auto focus</span>
-                    <span className="border border-white/40 rounded-lg p-0.5 min-w-[22px] min-h-[22px] flex items-center justify-center">
+                    <span className="border border-black/20 dark:border-white/40 rounded-lg p-0.5 min-w-[22px] min-h-[22px] flex items-center justify-center">
                       {autoFocusEnabled && <CheckIcon size={14} />}
                     </span>
                   </button>
                 )}
 
                 <button
-                  className="flex items-center gap-2 py-2 px-4 rounded-full border border-white/40 hover:bg-white/10 transition text-white group"
+                  className="flex items-center gap-2 py-2 px-4 rounded-full border border-black/10 dark:border-white/40 hover:bg-black/5 dark:hover:bg-white/10 transition text-gray-700 dark:text-white group"
                   title="Good for coding, reasoning, and web searches"
                 >
                   <ZapIcon size={16} />
@@ -438,10 +434,10 @@ export default function AiModal({ isOpen, message, onEndSession, messages, onSen
                 <button
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-white/10 text-white transition disabled:opacity-50 group"
+                  className="flex justify-center items-center gap-2 py-2 px-4 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-white transition disabled:opacity-50 group"
                 >
                   <span className="text-sm font-medium">Submit</span>
-                  <span className="bg-white/10 px-1.5 py-1 rounded-lg text-white/70 group-hover:text-white transition">
+                  <span className="bg-black/5 dark:bg-white/10 px-1.5 py-1 rounded-lg text-gray-500 dark:text-white/70 group-hover:text-gray-900 dark:group-hover:text-white transition">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"

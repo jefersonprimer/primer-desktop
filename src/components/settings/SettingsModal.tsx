@@ -24,6 +24,7 @@ import HelpTab from "./tabs/HelpTab";
 interface Props {
   open: boolean;
   onClose: () => void;
+  initialTab?: string;
 }
 
 interface ApiKeyDto {
@@ -44,12 +45,24 @@ interface TabState {
   model: string;
 }
 
-export default function SettingsModal({ open, onClose }: Props) {
-  const { userId } = useAuth();
+export default function SettingsModal({ open, onClose, initialTab }: Props) {
+  const { userId, isAuthenticated } = useAuth();
   const { refreshConfig, activeProvider } = useAi();
   const [activeItem, setActiveItem] = useState("API e Modelos");
   const [activeApiTab, setActiveApiTab] = useState("Google");
   const [apiKeys, setApiKeys] = useState<ApiKeyDto[]>([]);
+
+  useEffect(() => {
+    if (!isAuthenticated && open) {
+      onClose();
+    }
+  }, [isAuthenticated, open, onClose]);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveItem(initialTab);
+    }
+  }, [initialTab]);
 
   // Independent state for each tab to prevent shared state issues
   const [drafts, setDrafts] = useState<Record<string, TabState>>({});

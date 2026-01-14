@@ -35,34 +35,14 @@ pub struct MessageDto {
     pub role: String,
     pub content: String,
     pub created_at: DateTime<Utc>,
+    pub follow_ups: Option<Vec<String>>,
+    pub tip: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SendMessageResponse {
     pub message: MessageDto,
     pub follow_ups: Vec<String>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct SyncMessagesDto {
-    pub user_id: String,
-    pub chat_id: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct SyncMessagesResponse {
-    pub message: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct BackupChatDto {
-    pub user_id: String,
-    pub chat_id: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct BackupChatResponse {
-    pub message: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

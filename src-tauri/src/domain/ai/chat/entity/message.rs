@@ -12,4 +12,10 @@ pub struct Message {
     pub summary: Option<String>,
     pub message_type: String,
     pub importance: i32,
+    #[sqlx(skip)]
+    pub follow_ups: Option<Vec<String>>,
+    #[sqlx(skip)]
+    pub tip: Option<String>,
 }
+
+

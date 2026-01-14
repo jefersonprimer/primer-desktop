@@ -1,25 +1,18 @@
 use tauri::State;
-use log::error;
 use crate::domain::ai::chat::{
     usecase::{
         create_chat::CreateChatUseCase,
         send_message::SendMessageUseCase,
-        sync_messages::SyncMessagesUseCase,
-        backup_chat::BackupChatUseCase,
         get_chats::GetChatsUseCase,
         get_messages::GetMessagesUseCase,
         delete_chat::DeleteChatUseCase,
-        delete_all_chats::DeleteAllChatsUseCase,
     },
     dto::{
         CreateChatDto, CreateChatResponse,
         SendMessageDto, SendMessageResponse, MessageDto,
-        SyncMessagesDto, SyncMessagesResponse,
-        BackupChatDto, BackupChatResponse,
         GetChatsDto, GetChatsResponse, ChatDto,
         GetMessagesDto, GetMessagesResponse,
         DeleteChatDto, DeleteChatResponse,
-        DeleteAllChatsDto, DeleteAllChatsResponse,
     },
     service::chat_service::ChatServiceRequest, // Added this line
 };
@@ -87,53 +80,12 @@ pub async fn send_message(dto: SendMessageDto, state: State<'_, AppState>) -> Re
             role: message.role,
             content: message.content,
             created_at: message.created_at,
+            follow_ups: message.follow_ups,
+            tip: message.tip,
         },
         follow_ups,
     })
     .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-pub async fn sync_messages(dto: SyncMessagesDto, state: State<'_, AppState>) -> Result<SyncMessagesResponse, String> {
-    let sync_messages_usecase = SyncMessagesUseCase::new(
-        state.sqlite_message_repo.clone(),
-        state.postgres_message_repo.clone(),
-        state.sqlite_chat_repo.clone(),
-        state.postgres_chat_repo.clone(),
-    );
-
-    let user_id = Uuid::parse_str(&dto.user_id)
-        .map_err(|e| format!("Invalid user_id format: {}", e))?;
-    let chat_id = Uuid::parse_str(&dto.chat_id)
-        .map_err(|e| format!("Invalid chat_id format: {}", e))?;
-
-    sync_messages_usecase.execute(user_id, chat_id)
-        .await
-        .map(|_| SyncMessagesResponse { message: "Messages synced successfully".to_string() })
-        .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-pub async fn backup_chat(dto: BackupChatDto, state: State<'_, AppState>) -> Result<BackupChatResponse, String> {
-    let backup_chat_usecase = BackupChatUseCase::new(
-        state.sqlite_chat_repo.clone(),
-        state.postgres_chat_repo.clone(),
-        state.sqlite_message_repo.clone(),
-        state.postgres_message_repo.clone(),
-    );
-
-    let user_id = Uuid::parse_str(&dto.user_id)
-        .map_err(|e| format!("Invalid user_id format: {}", e))?;
-    let chat_id = Uuid::parse_str(&dto.chat_id)
-        .map_err(|e| format!("Invalid chat_id format: {}", e))?;
-
-    backup_chat_usecase.execute(user_id, chat_id)
-        .await
-        .map(|_| BackupChatResponse { message: "Chat backed up successfully to Supabase".to_string() })
-        .map_err(|e| {
-            error!("Backup failed for user {} chat {}: {}", dto.user_id, dto.chat_id, e);
-            e.to_string()
-        })
 }
 
 #[tauri::command]
@@ -179,6 +131,8 @@ pub async fn get_messages(dto: GetMessagesDto, state: State<'_, AppState>) -> Re
                 role: m.role,
                 content: m.content,
                 created_at: m.created_at,
+                follow_ups: m.follow_ups,
+                tip: m.tip,
             }).collect()
         })
         .map_err(|e| e.to_string())
@@ -196,20 +150,5 @@ pub async fn delete_chat(dto: DeleteChatDto, state: State<'_, AppState>) -> Resu
     delete_chat_usecase.execute(chat_id)
         .await
         .map(|_| DeleteChatResponse { message: "Chat deleted successfully".to_string() })
-        .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-pub async fn delete_all_chats(dto: DeleteAllChatsDto, state: State<'_, AppState>) -> Result<DeleteAllChatsResponse, String> {
-    let delete_all_chats_usecase = DeleteAllChatsUseCase::new(
-        state.sqlite_chat_repo.clone(),
-    );
-
-    let user_id = Uuid::parse_str(&dto.user_id)
-        .map_err(|e| format!("Invalid user_id format: {}", e))?;
-
-    delete_all_chats_usecase.execute(user_id)
-        .await
-        .map(|_| DeleteAllChatsResponse { message: "All chats deleted successfully".to_string() })
         .map_err(|e| e.to_string())
 }

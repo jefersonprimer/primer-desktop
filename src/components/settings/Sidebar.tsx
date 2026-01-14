@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
 
 import CloseIcon from "@/components/ui/icons/CloseIcon";
 import SettingsIcon from "@/components/ui/icons/SettingsIcon";
@@ -21,9 +22,14 @@ interface Props {
 
 export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
   const { t } = useTranslation();
+  const { logout } = useAuth();
 
   const handleQuit = async () => {
     await invoke("close_app");
+  };
+
+  const handleSignOut = async () => {
+    await logout();
   };
 
   const itemClass = (isActive: boolean) => `
@@ -68,7 +74,7 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
               onClick={() => onSelectItem("Notion")}
               className={itemClass(activeItem === "Notion")}
             >
-              <NotionIcon size={20}/> 
+              <NotionIcon size={20} />
               {t('notion.title')}
             </button>
 
@@ -206,7 +212,10 @@ export default function Sidebar({ activeItem, onSelectItem, onClose }: Props) {
           </div>
 
           <div className="flex flex-col items-start gap-1 pt-4 mt-auto">
-            <button className="flex items-center gap-3 p-2 w-full text-sm font-medium text-gray-600 dark:text-neutral-400 hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition">
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-3 p-2 w-full text-sm font-medium text-gray-600 dark:text-neutral-400 hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
