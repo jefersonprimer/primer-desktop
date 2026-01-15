@@ -154,9 +154,7 @@ export default function CalendarSection({ refreshTrigger = 0, compact = false }:
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                 
                 <div className={`flex ${compact ? 'flex-col items-start' : 'flex-row items-center'} gap-4 z-10`}>
-                  <div className="p-3 bg-white/5 rounded-2xl border border-white/5 shadow-inner">
-                      <CalendarIcon size={24} className="text-white/80" />
-                  </div>
+                  
                   <div>
                     <h3 className="text-white text-lg font-semibold tracking-tight">{t('calendar.getStarted')}</h3>
                     <p className="text-white/40 text-sm mt-1 hidden md:block">Sync your schedule instantly</p>
