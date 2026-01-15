@@ -308,7 +308,7 @@ export default function ChatPreviewModal({ isOpen, session }: ChatPreviewModalPr
 
   return (
     <>
-      <div className="fixed top-12 left-1 right-1 bottom-1 bg-white dark:bg-[#212121] z-[100] animate-in fade-in slide-in-from-bottom-4 duration-200 flex flex-col rounded-lg overflow-hidden">
+      <div className="fixed top-12 left-0 right-0 bottom-0 bg-white dark:bg-[#212121] z-[100] animate-in fade-in slide-in-from-bottom-4 duration-200 flex flex-col overflow-hidden">
         <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col min-h-0 relative">
 
           {/* Scrollable Content */}

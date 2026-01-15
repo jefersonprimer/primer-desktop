@@ -68,7 +68,7 @@ export default function HomeToolbar() {
 
   return (
 
-    <div className="w-full min-h-[180px] md:min-h-[200px] max-h-[300px] md:max-h-[400px] flex flex-col z-50 bg-[#121212] border-b border-t border-white/5">
+    <div className="w-full min-h-[180px] md:min-h-[200px] max-h-[300px] md:max-h-[400px] pt-4 flex flex-col z-50 bg-[#121212] border-b border-t border-white/5">
 
       <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 py-4">
         <div className="flex items-center gap-2 md:gap-4">
@@ -192,7 +192,7 @@ export default function HomeToolbar() {
       </div>
 
       {/* Content Section (Grid) */}
-      <div className="w-full max-w-6xl mx-auto px-2 pb-4 animate-in fade-in slide-in-from-top-2 duration-500 flex-1 overflow-hidden">
+      <div className="w-full max-w-6xl mx-auto mt-6 px-2 pb-4 animate-in fade-in slide-in-from-top-2 duration-500 flex-1 overflow-hidden">
         {showWelcome ? (
           <div className="grid grid-cols-4 gap-4 h-full">
              {/* 
