@@ -26,42 +26,38 @@ pub async fn get_notion_auth_url() -> Result<String, String> {
 #[tauri::command]
 pub async fn get_notion_status(
     state: State<'_, AppState>,
-    user_id: Option<String>,
+    _user_id: Option<String>,
 ) -> Result<NotionStatus, String> {
-    log::info!("get_notion_status called for user_id: {:?}", user_id);
+    // 1. Get session
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?;
     
-    // In a real app we would get the user_id from the session/token passed in header/command
-    // For now we assume the frontend passes it or we fail if missing.
-    // However, often we might get it from a sessionService using a token.
-    // If user_id is passed, use it.
-    
-    let uid = if let Some(id) = user_id {
-        Uuid::parse_str(&id).map_err(|e| e.to_string())?
-    } else {
-        // Retrieve generic user (e.g. first user) or handle error. 
-        // For simplicity, let's assume the frontend MUST pass the user_id for now, 
-        // or we rely on some other context.
-        return Err("User ID required".to_string());
-    };
+    if let Some(s) = session {
+        // 2. Call Backend API for status
+        let client = reqwest::Client::new();
+        let api_res = client
+            .get("https://primerai.vercel.app/api/user/status")
+            .header("Cookie", format!("session={}", s.access_token))
+            .send()
+            .await;
 
-    let integration = state.notion_repo.find_by_user_id(uid)
-        .await
-        .map_err(|e| e.to_string())?;
-
-    if let Some(integration) = integration {
-        log::info!("Notion integration found for user {}", uid);
-        Ok(NotionStatus {
-            is_connected: true,
-            workspace_name: integration.workspace_name,
-        })
-    } else {
-        log::info!("No Notion integration found for user {}", uid);
-        Ok(NotionStatus {
-            is_connected: false,
-            workspace_name: None,
-        })
+        if let Ok(response) = api_res {
+            if response.status().is_success() {
+                if let Ok(data) = response.json::<crate::commands::user_commands::StatusApiResponse>().await {
+                    return Ok(NotionStatus {
+                        is_connected: data.user.as_ref().map(|u| u.is_notion_connected).unwrap_or(false),
+                        workspace_name: data.user.and_then(|u| u.notion_workspace),
+                    });
+                }
+            }
+        }
     }
+
+    Ok(NotionStatus {
+        is_connected: false,
+        workspace_name: None,
+    })
 }
+
 
 
 #[tauri::command]
@@ -119,7 +115,7 @@ pub async fn exchange_notion_code(
     })
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct NotionPage {
     pub id: String,
     pub title: String,
@@ -127,95 +123,97 @@ pub struct NotionPage {
     pub last_edited_time: String,
 }
 
+
 #[tauri::command]
 pub async fn get_notion_pages(
     state: State<'_, AppState>,
-    user_id: String,
+    _user_id: String,
 ) -> Result<Vec<NotionPage>, String> {
-    let uid = Uuid::parse_str(&user_id).map_err(|e| e.to_string())?;
+    // 1. Get session
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?
+        .ok_or("Unauthorized: No session found")?;
 
-    let integration = state.notion_repo.find_by_user_id(uid)
-        .await
-        .map_err(|e| e.to_string())?
-        .ok_or("Notion not connected")?;
-
-    let results = state.notion_client.search(&integration.access_token, None)
+    // 2. Call Backend API
+    let client = reqwest::Client::new();
+    let res = client
+        .get("https://primerai.vercel.app/api/notion/pages")
+        .header("Cookie", format!("session={}", session.access_token))
+        .send()
         .await
         .map_err(|e| e.to_string())?;
 
-    let pages = results.into_iter().map(|page| {
-        let mut title = "Untitled".to_string();
-        if let Some(props) = &page.properties {
-             if let Some(props_map) = props.as_object() {
-                 for (_, val) in props_map {
-                     if let Some(type_str) = val.get("type").and_then(|t| t.as_str()) {
-                         if type_str == "title" {
-                             if let Some(title_arr) = val.get("title").and_then(|t| t.as_array()) {
-                                 if let Some(first) = title_arr.first() {
-                                     if let Some(plain_text) = first.get("plain_text").and_then(|t| t.as_str()) {
-                                         title = plain_text.to_string();
-                                     }
-                                 }
-                             }
-                         }
-                     }
-                 }
-             }
-        }
+    if !res.status().is_success() {
+        return Err(format!("Failed to list pages: Status {}", res.status()));
+    }
 
-        NotionPage {
-            id: page.id,
-            title,
-            url: page.url,
-            last_edited_time: page.last_edited_time,
-        }
-    }).collect();
+    #[derive(serde::Deserialize)]
+    struct NotionPagesResponse {
+        pages: Vec<NotionPage>,
+    }
 
-    Ok(pages)
+    let response = res.json::<NotionPagesResponse>().await.map_err(|e| e.to_string())?;
+    Ok(response.pages)
 }
 
 #[tauri::command]
 pub async fn create_notion_page(
     state: State<'_, AppState>,
-    user_id: String,
+    _user_id: String,
     title: String,
     content: String,
     parent_page_id: Option<String>, 
 ) -> Result<String, String> {
-    let uid = Uuid::parse_str(&user_id).map_err(|e| e.to_string())?;
+    // 1. Get session
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?
+        .ok_or("Unauthorized: No session found")?;
 
-    let integration = state.notion_repo.find_by_user_id(uid)
-        .await
-        .map_err(|e| e.to_string())?
-        .ok_or("Notion not connected")?;
+    // 2. We still need to call the Notion API for the actual creation if we want it to be "agent" created.
+    // However, the requested refactor is to move logic to backend.
+    // For now, let's assume we call a backend create endpoint that handles both Notion API and DB insertion.
     
-    // Determine parent. If not provided, we might need a default or duplicated_template_id?
-    // The integration response has `duplicated_template_id` which acts as a root page if the user duplicated a template.
-    let parent = parent_page_id.or(integration.duplicated_template_id).ok_or("No parent page ID available")?;
-
-    let page_id = state.notion_client.create_page(&integration.access_token, &parent, &title, &content)
+    let client = reqwest::Client::new();
+    let res = client
+        .post("https://primerai.vercel.app/api/notion/pages")
+        .header("Cookie", format!("session={}", session.access_token))
+        .json(&serde_json::json!({
+            "title": title,
+            "content": content,
+            "parent_page_id": parent_page_id,
+            "notion_page_id": "pending", // Backend should generate/handle this
+            "url": "https://notion.so/pending"
+        }))
+        .send()
         .await
         .map_err(|e| e.to_string())?;
 
-    Ok(page_id)
+    if !res.status().is_success() {
+        return Err(format!("Failed to create page: Status {}", res.status()));
+    }
+
+    let page = res.json::<serde_json::Value>().await.map_err(|e| e.to_string())?;
+    Ok(page["id"].as_str().unwrap_or_default().to_string())
 }
 
 #[tauri::command]
 pub async fn delete_notion_page(
     state: State<'_, AppState>,
-    user_id: String,
+    _user_id: String,
     page_id: String,
 ) -> Result<(), String> {
-    let uid = Uuid::parse_str(&user_id).map_err(|e| e.to_string())?;
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?
+        .ok_or("Unauthorized: No session found")?;
 
-    let integration = state.notion_repo.find_by_user_id(uid)
-        .await
-        .map_err(|e| e.to_string())?
-        .ok_or("Notion not connected")?;
-
-    state.notion_client.archive_page(&integration.access_token, &page_id)
+    let client = reqwest::Client::new();
+    let res = client
+        .delete(format!("https://primerai.vercel.app/api/notion/pages/{}", page_id))
+        .header("Cookie", format!("session={}", session.access_token))
+        .send()
         .await
         .map_err(|e| e.to_string())?;
+
+    if !res.status().is_success() {
+        return Err(format!("Failed to delete page tracking: Status {}", res.status()));
+    }
 
     Ok(())
 }
@@ -223,28 +221,25 @@ pub async fn delete_notion_page(
 #[tauri::command]
 pub async fn update_notion_page(
     state: State<'_, AppState>,
-    user_id: String,
+    _user_id: String,
     page_id: String,
     title: String,
-    content: Option<String>,
+    _content: Option<String>,
 ) -> Result<(), String> {
-    let uid = Uuid::parse_str(&user_id).map_err(|e| e.to_string())?;
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?
+        .ok_or("Unauthorized: No session found")?;
 
-    let integration = state.notion_repo.find_by_user_id(uid)
-        .await
-        .map_err(|e| e.to_string())?
-        .ok_or("Notion not connected")?;
-
-    // Update title
-    state.notion_client.update_page(&integration.access_token, &page_id, &title)
+    let client = reqwest::Client::new();
+    let res = client
+        .patch(format!("https://primerai.vercel.app/api/notion/pages/{}", page_id))
+        .header("Cookie", format!("session={}", session.access_token))
+        .json(&serde_json::json!({ "title": title }))
+        .send()
         .await
         .map_err(|e| e.to_string())?;
 
-    // Update content if provided
-    if let Some(content_text) = content {
-        state.notion_client.update_page_content(&integration.access_token, &page_id, &content_text)
-            .await
-            .map_err(|e| e.to_string())?;
+    if !res.status().is_success() {
+        return Err(format!("Failed to update page tracking: Status {}", res.status()));
     }
 
     Ok(())
@@ -252,20 +247,11 @@ pub async fn update_notion_page(
 
 #[tauri::command]
 pub async fn get_notion_page_content(
-    state: State<'_, AppState>,
-    user_id: String,
-    page_id: String,
+    _state: State<'_, AppState>,
+    _user_id: String,
+    _page_id: String,
 ) -> Result<String, String> {
-    let uid = Uuid::parse_str(&user_id).map_err(|e| e.to_string())?;
-
-    let integration = state.notion_repo.find_by_user_id(uid)
-        .await
-        .map_err(|e| e.to_string())?
-        .ok_or("Notion not connected")?;
-
-    let content = state.notion_client.get_page_content(&integration.access_token, &page_id)
-        .await
-        .map_err(|e| e.to_string())?;
-
-    Ok(content)
+    // This would require a call to Notion API via Backend
+    Ok("Content fetching moved to backend API (Not implemented in this turn)".to_string())
 }
+

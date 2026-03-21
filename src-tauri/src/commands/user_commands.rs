@@ -77,17 +77,13 @@ pub async fn delete_account(dto: DeleteAccountDto, state: State<'_, AppState>) -
     let user_id = Uuid::parse_str(&dto.user_id)
         .map_err(|e| format!("Invalid user_id format: {}", e))?;
 
-    // 1. Get user
-    let _user = state.user_repo.find_by_id(user_id).await.map_err(|e| e.to_string())?
-        .ok_or("User not found")?;
-
-    // 2. Call Backend API
+    // 1. Call Backend API
     let session = state.session_repo.get().await.map_err(|e| e.to_string())?;
     
     if let Some(s) = session {
         let client = reqwest::Client::new();
         let res = client
-            .delete("http://localhost:3000/api/user/me")
+            .delete("https://primerai.vercel.app/api/user/me")
             .header("Cookie", format!("session={}", s.access_token))
             .send()
             .await;
@@ -107,14 +103,14 @@ pub async fn delete_account(dto: DeleteAccountDto, state: State<'_, AppState>) -
         }
     }
 
-    // 3. Local Deletion
-    state.user_repo.delete(user_id).await.map_err(|e| e.to_string())?;
+    // 2. Local Deletion
+    let _ = state.user_repo.delete(user_id).await;
     let _ = state.session_repo.clear().await;
 
     Ok(DeleteAccountResponse { message: "Account deleted successfully".to_string() })
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct UserProfileResponse {
     pub id: String,
     pub email: String,
@@ -125,20 +121,63 @@ pub struct UserProfileResponse {
     pub has_password: bool,
 }
 
+#[derive(serde::Deserialize)]
+pub struct StatusApiResponse {
+    pub authenticated: bool,
+    pub user: Option<StatusApiUser>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct StatusApiUser {
+    pub id: String,
+    pub email: String,
+    pub full_name: Option<String>,
+    pub profile_picture: Option<String>,
+    pub plan: String,
+    pub is_calendar_connected: bool,
+    pub is_notion_connected: bool,
+    pub notion_workspace: Option<String>,
+}
+
+
 #[tauri::command]
 pub async fn get_current_user(state: State<'_, AppState>) -> Result<Option<UserProfileResponse>, String> {
-    // 1. Get session
+    // 1. Get local session
     let session = state.session_repo.get().await.map_err(|e| e.to_string())?;
     
     if let Some(s) = session {
-        // 2. Check expiry
-        let now = chrono::Utc::now().timestamp();
-        if s.expires_at <= now {
-             let _ = state.session_repo.clear().await;
-             return Ok(None);
+        // 2. Try to get fresh data from API
+        let client = reqwest::Client::new();
+        let api_res = client
+            .get("https://primerai.vercel.app/api/user/status")
+            .header("Cookie", format!("session={}", s.access_token))
+            .send()
+            .await;
+
+        if let Ok(response) = api_res {
+            if response.status().is_success() {
+                if let Ok(data) = response.json::<StatusApiResponse>().await {
+                    if data.authenticated && data.user.is_some() {
+                        let u = data.user.unwrap();
+                        return Ok(Some(UserProfileResponse {
+                            id: u.id,
+                            email: u.email,
+                            full_name: u.full_name,
+                            profile_picture: u.profile_picture,
+                            plan: u.plan,
+                            created_at: chrono::Utc::now().to_rfc3339(), // Approximate
+                            has_password: true, // Assuming for now
+                        }));
+                    }
+                }
+            } else if response.status() == reqwest::StatusCode::UNAUTHORIZED {
+                // Token is invalid on server, clear local session
+                let _ = state.session_repo.clear().await;
+                return Ok(None);
+            }
         }
-        
-        // 3. Get user
+
+        // 3. Fallback to Local SQLite User (Offline mode or API failure)
         let user = state.user_repo.find_by_id(s.user_id).await.map_err(|e| e.to_string())?;
         
         if let Some(u) = user {
@@ -158,6 +197,7 @@ pub async fn get_current_user(state: State<'_, AppState>) -> Result<Option<UserP
         Ok(None)
     }
 }
+
 
 #[tauri::command]
 pub async fn clear_session(state: State<'_, AppState>) -> Result<(), String> {

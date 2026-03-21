@@ -116,9 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [store]);
 
   const login = async () => {
-    const baseUrl = import.meta.env.PROD
-      ? "https://primerai.vercel.app"
-      : "http://localhost:3000";
+    const baseUrl = "https://primerai.vercel.app";
 
     // Generate Poll ID
     const pollId = crypto.randomUUID();
@@ -172,9 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       setIsLoading(true);
-      const baseUrl = import.meta.env.PROD
-        ? "https://primerai.vercel.app"
-        : "http://localhost:3000";
+      const baseUrl = "https://primerai.vercel.app";
 
       const res = await fetch(`${baseUrl}/api/auth/exchange`, {
         method: "POST",
@@ -250,9 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const baseUrl = import.meta.env.PROD
-      ? "https://primerai.vercel.app"
-      : "http://localhost:3000";
+    const baseUrl = "https://primerai.vercel.app";
 
     // Generate Poll ID
     const pollId = crypto.randomUUID();
@@ -300,9 +294,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const baseUrl = import.meta.env.PROD
-      ? "https://primerai.vercel.app"
-      : "http://localhost:3000";
+    const baseUrl = "https://primerai.vercel.app";
 
     // Generate Poll ID
     const pollId = crypto.randomUUID();
@@ -350,9 +342,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const baseUrl = import.meta.env.PROD
-      ? "https://primerai.vercel.app"
-      : "http://localhost:3000";
+    const baseUrl = "https://primerai.vercel.app";
 
     try {
       const res = await fetch(`${baseUrl}/api/auth/disconnect/calendar`, {
@@ -414,9 +404,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const baseUrl = import.meta.env.PROD
-      ? "https://primerai.vercel.app"
-      : "http://localhost:3000";
+    const baseUrl = "https://primerai.vercel.app";
 
     try {
       const res = await fetch(`${baseUrl}/api/auth/disconnect/notion`, {

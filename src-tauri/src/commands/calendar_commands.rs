@@ -1,14 +1,8 @@
 use tauri::State;
 use crate::app_state::AppState;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-use crate::domain::calendar::usecase::create_event::CreateEventUseCase;
-use crate::domain::calendar::usecase::delete_event::DeleteEventUseCase;
-use crate::domain::calendar::usecase::list_events::ListEventsUseCase;
-use crate::domain::calendar::usecase::update_event::UpdateEventUseCase;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct CreateCalendarEventDto {
     pub user_id: String,
     pub title: String,
@@ -18,31 +12,29 @@ pub struct CreateCalendarEventDto {
     pub source_chat_id: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct DeleteCalendarEventDto {
     pub user_id: String,
     pub event_id: String,
 }
 
+
 #[tauri::command]
 pub async fn delete_calendar_event(dto: DeleteCalendarEventDto, state: State<'_, AppState>) -> Result<(), String> {
-    let delete_event_usecase = DeleteEventUseCase::new(
-        state.calendar_repo.clone(),
-        state.session_repo.clone(),
-    );
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?
+        .ok_or("Unauthorized: No session found")?;
 
-    let user_id = Uuid::parse_str(&dto.user_id)
-        .map_err(|e| format!("Invalid user_id: {}", e))?;
-    
-    let event_id = Uuid::parse_str(&dto.event_id)
-        .map_err(|e| format!("Invalid event_id: {}", e))?;
-
-    delete_event_usecase.execute(user_id, event_id)
+    let client = reqwest::Client::new();
+    let res = client
+        .delete(format!("https://primerai.vercel.app/api/calendar/{}", dto.event_id))
+        .header("Cookie", format!("session={}", session.access_token))
+        .send()
         .await
-        .map_err(|e| {
-            log::error!("Failed to delete calendar event: {}", e);
-            e.to_string()
-        })?;
+        .map_err(|e| e.to_string())?;
+
+    if !res.status().is_success() {
+        return Err(format!("Failed to delete event: Status {}", res.status()));
+    }
 
     Ok(())
 }
@@ -56,39 +48,28 @@ pub struct CreateCalendarEventResponse {
 
 #[tauri::command]
 pub async fn create_calendar_event(dto: CreateCalendarEventDto, state: State<'_, AppState>) -> Result<CreateCalendarEventResponse, String> {
-    let create_event_usecase = CreateEventUseCase::new(
-        state.calendar_repo.clone(),
-        state.session_repo.clone(),
-    );
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?
+        .ok_or("Unauthorized: No session found")?;
 
-    let user_id = Uuid::parse_str(&dto.user_id)
-        .map_err(|e| format!("Invalid user_id: {}", e))?;
+    let client = reqwest::Client::new();
+    let res = client
+        .post("https://primerai.vercel.app/api/calendar")
+        .header("Cookie", format!("session={}", session.access_token))
+        .json(&dto)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if !res.status().is_success() {
+        return Err(format!("Failed to create event: Status {}", res.status()));
+    }
+
+    let event = res.json::<serde_json::Value>().await.map_err(|e| e.to_string())?;
     
-    let source_chat_id = dto.source_chat_id
-        .map(|id| Uuid::parse_str(&id).map_err(|e| format!("Invalid chat_id: {}", e)))
-        .transpose()?;
-
-    let start_at = DateTime::parse_from_rfc3339(&dto.start_at)
-        .map_err(|e| format!("Invalid start_at: {}", e))?
-        .with_timezone(&Utc);
-
-    let end_at = DateTime::parse_from_rfc3339(&dto.end_at)
-        .map_err(|e| format!("Invalid end_at: {}", e))?
-        .with_timezone(&Utc);
-
-    let event = create_event_usecase.execute(
-        user_id,
-        dto.title,
-        dto.description,
-        start_at,
-        end_at,
-        source_chat_id
-    ).await.map_err(|e| e.to_string())?;
-
     Ok(CreateCalendarEventResponse {
-        event_id: event.id.to_string(),
-        google_event_id: event.google_event_id,
-        status: event.status,
+        event_id: event["id"].as_str().unwrap_or_default().to_string(),
+        google_event_id: event["google_event_id"].as_str().unwrap_or_default().to_string(),
+        status: event["status"].as_str().unwrap_or_default().to_string(),
     })
 }
 
@@ -97,7 +78,7 @@ pub struct GetCalendarEventsDto {
     pub user_id: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CalendarEventDto {
     pub id: String,
     pub google_event_id: String,
@@ -108,39 +89,33 @@ pub struct CalendarEventDto {
     pub status: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GetCalendarEventsResponse {
     pub events: Vec<CalendarEventDto>,
 }
 
 #[tauri::command]
-pub async fn get_calendar_events(dto: GetCalendarEventsDto, state: State<'_, AppState>) -> Result<GetCalendarEventsResponse, String> {
-    let list_events_usecase = ListEventsUseCase::new(
-        state.calendar_repo.clone(),
-        state.session_repo.clone(),
-    );
+pub async fn get_calendar_events(_dto: GetCalendarEventsDto, state: State<'_, AppState>) -> Result<GetCalendarEventsResponse, String> {
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?
+        .ok_or("Unauthorized: No session found")?;
 
-    let user_id = Uuid::parse_str(&dto.user_id)
-        .map_err(|e| format!("Invalid user_id: {}", e))?;
-
-    let events = list_events_usecase.execute(user_id)
+    let client = reqwest::Client::new();
+    let res = client
+        .get("https://primerai.vercel.app/api/calendar")
+        .header("Cookie", format!("session={}", session.access_token))
+        .send()
         .await
         .map_err(|e| e.to_string())?;
 
-    let event_dtos = events.into_iter().map(|e| CalendarEventDto {
-        id: e.id.to_string(),
-        google_event_id: e.google_event_id,
-        title: e.title,
-        description: e.description,
-        start_at: e.start_at.to_rfc3339(),
-        end_at: e.end_at.to_rfc3339(),
-        status: e.status,
-    }).collect();
+    if !res.status().is_success() {
+        return Err(format!("Failed to list events: Status {}", res.status()));
+    }
 
-    Ok(GetCalendarEventsResponse { events: event_dtos })
+    let response = res.json::<GetCalendarEventsResponse>().await.map_err(|e| e.to_string())?;
+    Ok(response)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct UpdateCalendarEventDto {
     pub user_id: String,
     pub event_id: String,
@@ -150,43 +125,26 @@ pub struct UpdateCalendarEventDto {
     pub end_at: String,   // ISO 8601
 }
 
+
 #[tauri::command]
 pub async fn update_calendar_event(dto: UpdateCalendarEventDto, state: State<'_, AppState>) -> Result<CalendarEventDto, String> {
-    let update_event_usecase = UpdateEventUseCase::new(
-        state.calendar_repo.clone(),
-        state.session_repo.clone(),
-    );
+    let session = state.session_repo.get().await.map_err(|e| e.to_string())?
+        .ok_or("Unauthorized: No session found")?;
 
-    let user_id = Uuid::parse_str(&dto.user_id)
-        .map_err(|e| format!("Invalid user_id: {}", e))?;
-    
-    let event_id = Uuid::parse_str(&dto.event_id)
-        .map_err(|e| format!("Invalid event_id: {}", e))?;
+    let client = reqwest::Client::new();
+    let res = client
+        .patch(format!("https://primerai.vercel.app/api/calendar/{}", dto.event_id))
+        .header("Cookie", format!("session={}", session.access_token))
+        .json(&dto)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
 
-    let start_at = DateTime::parse_from_rfc3339(&dto.start_at)
-        .map_err(|e| format!("Invalid start_at: {}", e))?
-        .with_timezone(&Utc);
+    if !res.status().is_success() {
+        return Err(format!("Failed to update event: Status {}", res.status()));
+    }
 
-    let end_at = DateTime::parse_from_rfc3339(&dto.end_at)
-        .map_err(|e| format!("Invalid end_at: {}", e))?
-        .with_timezone(&Utc);
-
-    let event = update_event_usecase.execute(
-        user_id,
-        event_id,
-        dto.title,
-        dto.description,
-        start_at,
-        end_at,
-    ).await.map_err(|e| e.to_string())?;
-
-    Ok(CalendarEventDto {
-        id: event.id.to_string(),
-        google_event_id: event.google_event_id,
-        title: event.title,
-        description: event.description,
-        start_at: event.start_at.to_rfc3339(),
-        end_at: event.end_at.to_rfc3339(),
-        status: event.status,
-    })
+    let event = res.json::<CalendarEventDto>().await.map_err(|e| e.to_string())?;
+    Ok(event)
 }
+

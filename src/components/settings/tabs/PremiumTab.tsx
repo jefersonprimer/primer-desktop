@@ -10,9 +10,7 @@ export default function PremiumTab() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const baseUrl = import.meta.env.PROD
-    ? "https://primerai.vercel.app"
-    : "http://localhost:3000";
+  const baseUrl = "https://primerai.vercel.app";
 
   const plans = [
     {

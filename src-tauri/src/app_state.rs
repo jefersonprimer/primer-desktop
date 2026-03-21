@@ -49,11 +49,12 @@ use crate::{
         },
         database::{
             sqlite::{connect_sqlite, migrate_sqlite},
-            postgres::{connect_pg, migrate_pg},
         },
-        notification::email::smtp_email_sender::SmtpEmailSender,
+        notification::email::{
+            noop_email_sender::NoopEmailSender,
+            smtp_email_sender::SmtpEmailSender,
+        },
         user::{
-            sql_user_repository::SqlUserRepository,
             sqlite_session_repository::SqliteSessionRepository,
             sqlite_user_repository::SqliteUserRepository,
             sqlite_user_api_key_repository::SqliteUserApiKeyRepository,
@@ -62,18 +63,16 @@ use crate::{
         prompt_preset::sqlite_repository::SqlitePromptPresetRepository,
         maintenance::sqlite_repository::SqliteMaintenanceRepository,
         changelog::{
-            postgres_repository::PostgresChangelogRepository,
             noop_repository::NoOpChangelogRepository,
         },
         calendar::{
-            postgres_calendar_repository::PostgresCalendarRepository,
             noop_calendar_repository::NoOpCalendarRepository,
         },
         notion::{
-            postgres_repository::PostgresNotionRepository,
             noop_repository::NoOpNotionRepository,
             client::NotionClient,
         },
+
     },
 };
 
@@ -131,29 +130,16 @@ impl AppState {
         let user_api_key_repo: Arc<dyn UserApiKeyRepository> =
             Arc::new(SqliteUserApiKeyRepository::new(sqlite_pool.clone()));
 
-        let pg_url = &config.database.database_url;
-        let pg_pool_result = connect_pg(pg_url).await;
+        // Use Sqlite fallback for all other repositories (no more direct Postgres access)
+        let user_repo: Arc<dyn UserRepository> = 
+            Arc::new(SqliteUserRepository::new(sqlite_pool.clone()));
+        let changelog_repo: Arc<dyn ChangelogRepository> =
+            Arc::new(NoOpChangelogRepository::new());
+        let calendar_repo: Arc<dyn CalendarRepository> =
+            Arc::new(NoOpCalendarRepository::new());
+        let notion_repo: Arc<dyn NotionRepository> =
+            Arc::new(NoOpNotionRepository::new());
 
-        let (user_repo, changelog_repo, calendar_repo, notion_repo) = match pg_pool_result {
-            Ok(pg_pool) => {
-                migrate_pg(&pg_pool).await?;
-                (
-                    Arc::new(SqlUserRepository::new(pg_pool.clone())) as Arc<dyn UserRepository>,
-                    Arc::new(PostgresChangelogRepository::new(pg_pool.clone())) as Arc<dyn ChangelogRepository>,
-                    Arc::new(PostgresCalendarRepository::new(pg_pool.clone())) as Arc<dyn CalendarRepository>,
-                    Arc::new(PostgresNotionRepository::new(pg_pool.clone())) as Arc<dyn NotionRepository>,
-                )
-            },
-            Err(e) => {
-                eprintln!("WARNING: Failed to connect to Postgres. Falling back to Sqlite. Error: {}", e);
-                (
-                    Arc::new(SqliteUserRepository::new(sqlite_pool.clone())) as Arc<dyn UserRepository>,
-                    Arc::new(NoOpChangelogRepository::new()) as Arc<dyn ChangelogRepository>,
-                    Arc::new(NoOpCalendarRepository::new()) as Arc<dyn CalendarRepository>,
-                    Arc::new(NoOpNotionRepository::new()) as Arc<dyn NotionRepository>,
-                )
-            }
-        };
 
         // --- AI providers ---
         let gemini_provider: Arc<dyn AiProvider> =
@@ -191,13 +177,17 @@ impl AppState {
 
         // --- Email service ---
         let smtp_cfg = &config.smtp;
-        let smtp_sender: Arc<dyn EmailSender> = Arc::new(SmtpEmailSender::new(
-            &smtp_cfg.smtp_host,
-            smtp_cfg.smtp_port,
-            &smtp_cfg.smtp_user,
-            &smtp_cfg.smtp_pass,
-            &smtp_cfg.smtp_from,
-        ));
+        let smtp_sender: Arc<dyn EmailSender> = if smtp_cfg.enabled {
+            Arc::new(SmtpEmailSender::new(
+                &smtp_cfg.smtp_host,
+                smtp_cfg.smtp_port,
+                &smtp_cfg.smtp_user,
+                &smtp_cfg.smtp_pass,
+                &smtp_cfg.smtp_from,
+            ))
+        } else {
+            Arc::new(NoopEmailSender::new())
+        };
         let email_service = Arc::new(EmailService::new(smtp_sender));
 
         Ok(Self {
