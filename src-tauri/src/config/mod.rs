@@ -75,10 +75,6 @@ impl Config {
 }
 
 
-fn get_required(key: &str) -> String {
-    env::var(key).unwrap_or_else(|_| panic!("Missing ENV var: {}", key))
-}
-
 fn get_optional(key: &str) -> Option<String> {
     env::var(key).ok().and_then(|v| {
         if v.trim().is_empty() {

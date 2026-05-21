@@ -10,6 +10,7 @@ use app_lib::{
 };
 use tauri::{Manager, Emitter, PhysicalSize, Listener};
 use tauri_plugin_global_shortcut::{Code, Modifiers, ShortcutState};
+use tokio::time::{sleep, Duration};
 
 #[tauri::command]
 async fn close_app(app_handle: tauri::AppHandle) -> Result<(), String> {
@@ -320,10 +321,25 @@ async fn main() {
             // Espera o compositor mapear a janela antes de maximizar
             let win_clone = win.clone();
             tauri::async_runtime::spawn(async move {
-                std::thread::sleep(std::time::Duration::from_millis(150));
+                sleep(Duration::from_millis(150)).await;
 
                 win_clone.show().unwrap();
                 win_clone.maximize().unwrap();  // OU fullscreen()
+            });
+
+            // Fallback: if the frontend never closes the splashscreen, reveal the main window anyway.
+            let app_handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                sleep(Duration::from_secs(4)).await;
+
+                if let Some(splash) = app_handle.get_webview_window("splashscreen") {
+                    let _ = splash.close();
+                }
+
+                if let Some(main) = app_handle.get_webview_window("main") {
+                    let _ = main.show();
+                    let _ = visibility::show_in_taskbar(&main);
+                }
             });
 
             Ok(())
@@ -331,7 +347,6 @@ async fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
 
 
 
